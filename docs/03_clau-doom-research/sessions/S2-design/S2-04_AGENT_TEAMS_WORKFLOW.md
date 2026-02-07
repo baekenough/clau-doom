@@ -1,169 +1,605 @@
-# S2-04: Agent Teams 워크플로 설계
+# S2-04: Agent Teams Workflow Design
 
-> **세션**: S2 (연구 설계 보강)
-> **우선순위**: 🟠 high
-> **의존성**: 없음
-> **상태**: ⬜ 미시작
-
----
-
-## 목적
-
-4세션 × Agent Teams 병렬 × Sub-agents 구조를 연구 프로세스에 공식 반영한다. Claude Code Agent Teams의 실험적 기능 특성을 고려한 운용 규칙, 파일 소유권, 폴백 전략을 확정한다.
+> **Session**: S2 (Research Design Reinforcement)
+> **Priority**: high
+> **Dependencies**: None
+> **Status**: completed
 
 ---
 
-## 세션-팀-서브 역할 매핑
+## Purpose
 
-### 연구 프로세스에서의 위치
+Formalize the operational workflow for using Claude Code Agent Teams across the 4 research sessions. Define session-team mappings, file ownership rules, CLAUDE.md templates for spawned agents, and fallback strategies for resilience.
+
+---
+
+## Session-Team-Role Mapping
+
+### Research Process Position
 
 ```
 Opus PI (Cowork)
-  │
-  │  EXPERIMENT_ORDER.MD
-  ▼
-Claude Code (4세션 병렬)
-  ├─ Session 1: Lead + Sub-agents → 문헌 수집
-  ├─ Session 2: Lead + Sub-agents → 연구 설계 보강
-  ├─ Session 3: Lead + Sub-agents → 기술 검증
-  └─ Session 4: Lead + Sub-agents → 문서 통합
-  │
-  │  EXPERIMENT_REPORT.MD
-  ▼
+  |
+  |  EXPERIMENT_ORDER.MD
+  v
+Claude Code (4 Sessions in Parallel)
+  +-- Session 1: Lead + Sub-agents -> Literature Collection
+  +-- Session 2: Lead + Sub-agents -> Research Design Reinforcement
+  +-- Session 3: Lead + Sub-agents -> Technical Verification (PoC)
+  +-- Session 4: Lead + Sub-agents -> Document Integration
+  |
+  |  EXPERIMENT_REPORT.MD
+  v
 Opus PI (Cowork)
 ```
 
-### 세션별 역할
+### Session 1: Literature Collection
 
-| 세션 | Lead 역할 | Sub-agent 역할 | 모델 권장 |
-|------|----------|---------------|----------|
-| S1 | 문헌 품질 필터링, 중복 제거 | 개별 카테고리 서치 | Lead: Opus, Sub: Sonnet |
-| S2 | 설계 일관성 검수 | 개별 설계 항목 작성 | Lead: Opus, Sub: Sonnet |
-| S3 | PoC 총괄, 벤치마크 설계 | 개별 PoC 구현/테스트 | Lead: Opus, Sub: Opus |
-| S4 | 문서 머지 최종 검수 | 개별 섹션 업데이트 | Lead: Opus, Sub: Sonnet |
+| Role | Agent | Model | Responsibilities |
+|------|-------|-------|------------------|
+| Lead | research-literature-mgr | Opus | Quality filtering, deduplication, synthesis |
+| Sub-A | literature-search-qd | Sonnet | QD algorithm papers (MAP-Elites, CMA-ME, novelty search) |
+| Sub-B | literature-search-rl | Sonnet | RL-in-FPS papers (VizDoom, DeepMind FTW, OpenAI Five) |
+| Sub-C | literature-search-evo | Sonnet | Neuroevolution papers (NEAT, HyperNEAT, evolutionary strategies) |
 
-S3만 Sub-agent에도 Opus 권장 — 코드 구현/디버깅 품질이 중요하므로.
+**Output**: `sessions/S1-literature/S1-*.md` (one per category)
+
+**Coordination Pattern**:
+```
+Lead assigns category to each Sub
+  -> Sub-A searches QD papers -> delivers S1-01_QD_ALGORITHMS.md
+  -> Sub-B searches RL papers -> delivers S1-02_RL_IN_FPS.md
+  -> Sub-C searches Evo papers -> delivers S1-03_NEUROEVOLUTION.md
+Lead merges, deduplicates, quality-filters -> S1-00_LITERATURE_SYNTHESIS.md
+```
+
+### Session 2: Research Design Reinforcement
+
+| Role | Agent | Model | Responsibilities |
+|------|-------|-------|------------------|
+| Lead | research-pi | Opus | Design consistency review, cross-reference validation |
+| Sub-A | design-metrics | Sonnet | Diversity metrics design (S2-03) |
+| Sub-B | design-workflow | Sonnet | Agent Teams workflow design (S2-04) |
+| Sub-C | design-schema | Sonnet | DuckDB schema extensions, integration specs |
+
+**Output**: `sessions/S2-design/S2-*.md`
+
+**Coordination Pattern**:
+```
+Lead reviews existing design docs (07-EVOLUTION.md, 05-QUALITY.md)
+  -> Sub-A writes S2-03 (diversity metrics)
+  -> Sub-B writes S2-04 (agent teams workflow)
+  -> Sub-C writes DuckDB migration scripts
+Lead cross-checks consistency across all S2 outputs
+```
+
+### Session 3: Technical Verification (PoC)
+
+| Role | Agent | Model | Responsibilities |
+|------|-------|-------|------------------|
+| Lead | research-doe-runner | Opus | PoC orchestration, benchmark design, integration testing |
+| Sub-A | poc-rust-agent | Opus | Rust decision engine PoC (< 100ms latency) |
+| Sub-B | poc-opensearch | Opus | OpenSearch kNN query PoC (embedding + retrieval) |
+| Sub-C | poc-evolution | Opus | Evolution operator PoC (crossover, mutation on MD files) |
+
+**Output**: `sessions/S3-poc/S3-*.md` + working PoC code
+
+**Note**: S3 uses Opus for all sub-agents because code implementation and debugging quality is critical.
+
+**Coordination Pattern**:
+```
+Lead defines benchmark criteria and integration test plan
+  -> Sub-A implements Rust decision engine skeleton
+  -> Sub-B implements OpenSearch indexing + kNN retrieval
+  -> Sub-C implements MD crossover/mutation operators
+Lead runs integration tests: Agent -> OpenSearch -> Decision -> DuckDB pipeline
+```
+
+### Session 4: Document Integration
+
+| Role | Agent | Model | Responsibilities |
+|------|-------|-------|------------------|
+| Lead | arch-documenter | Opus | Final merge review, consistency validation |
+| Sub-A | doc-design-merge | Sonnet | Merge S2 design outputs into main design docs |
+| Sub-B | doc-api-spec | Sonnet | API and interface specification updates |
+| Sub-C | doc-schema-merge | Sonnet | DuckDB schema documentation, migration guide |
+
+**Output**: Updated `docs/01_clau-doom-docs/` main documents
+
+**Coordination Pattern**:
+```
+Lead reviews all S1/S2/S3 outputs, creates merge plan
+  -> Sub-A updates 07-EVOLUTION.md, 05-QUALITY.md with S2 designs
+  -> Sub-B updates API specs with S3 PoC findings
+  -> Sub-C updates schema docs with new tables from S2-03
+Lead does final consistency check across all updated documents
+```
 
 ---
 
-## 파일 소유권 규칙
+## File Ownership Matrix
 
-### 원칙: 하나의 파일을 동시에 두 팀원이 수정하지 않는다
+### Principle: No Concurrent Writes to Same File
+
+One file is owned by exactly one team member at any time. Read access is always open.
+
+### Per-Session Ownership
+
+| File/Directory | S1 | S2 | S3 | S4 |
+|----------------|----|----|----|----|
+| `docs/01_clau-doom-docs/docs/*.md` | Read | Read | Read | **Write** (Sub-A, Sub-B) |
+| `docs/01_clau-doom-docs/DOOM_ARENA_CLAUDE.md` | Read | Read | Read | **Write** (Lead) |
+| `sessions/S1-literature/*.md` | **Write** (Subs) | Read | Read | Read |
+| `sessions/S2-design/*.md` | Read | **Write** (Subs) | Read | Read |
+| `sessions/S3-poc/*.md` | -- | -- | **Write** (Subs) | Read |
+| `sessions/S3-poc/src/*` | -- | -- | **Write** (Subs) | Read |
+| `sessions/S4-integration/*.md` | -- | -- | -- | **Write** (Lead) |
+| `volumes/agents/active/DOOM_PLAYER_*.MD` | Read | Read | **Write** (Sub-C) | Read |
+| `volumes/research/orders/*.md` | Read | Read | Read | Read |
+| `volumes/research/reports/*.md` | Read | Read | Read | **Write** (Lead) |
+
+### Within-Session Ownership (Sub-Agent Level)
 
 ```
-volumes/agents/active/DOOM_PLAYER_{SEQ}.MD  → 해당 SEQ 담당 팀원만
-volumes/data/player-{SEQ}/                  → 해당 SEQ 담당 팀원만
-volumes/research/reports/                   → Lead만 최종 작성
-volumes/research/orders/                    → Opus PI만 (읽기 전용)
+Session 2 Example:
+
+Sub-A owns: sessions/S2-design/S2-03_DIVERSITY_METRICS.md
+Sub-B owns: sessions/S2-design/S2-04_AGENT_TEAMS_WORKFLOW.md
+Sub-C owns: sessions/S2-design/S2-05_SCHEMA_EXTENSIONS.sql
+Lead owns:  sessions/S2-design/S2-00_DESIGN_REVIEW.md
+
+Rule: Sub-agents NEVER write to another Sub-agent's file.
+      Lead can read all files but writes only to Lead-owned files.
+      Lead merges by reading Sub outputs and writing to Lead files.
 ```
 
-### 세션 간 파일 충돌 방지
+### Conflict Resolution Rules
 
-| 파일 | S1 | S2 | S3 | S4 |
-|------|----|----|----|----|
-| DOOM_ARENA_DESIGN.md | 읽기 | 읽기 | 읽기 | **쓰기** |
-| DOOM_ARENA_CLAUDE.md | 읽기 | 읽기 | 읽기 | **쓰기** |
-| sessions/S1-*/*.md | **쓰기** | — | — | 읽기 |
-| sessions/S2-*/*.md | — | **쓰기** | — | 읽기 |
-| sessions/S3-*/*.md | — | — | **쓰기** | 읽기 |
-| sessions/S4-*/*.md | — | — | — | **쓰기** |
+| Scenario | Resolution |
+|----------|------------|
+| Two Subs need to modify same file | Lead splits file into sections, assigns one section per Sub |
+| Sub discovers it needs to update another Sub's file | Sub sends message to Lead with proposed change, Lead coordinates |
+| Lead and Sub both need to write to same file | Lead takes priority; Sub writes to temp file, Lead merges |
+| Cross-session file conflict | Later session wins; earlier session's changes are read-only inputs |
+| Merge conflict in git | Lead resolves; prefer later session's changes for evolving docs |
 
-S4는 다른 세션 결과를 읽기만 하고 최종 통합 문서만 쓴다.
+### MD File Locking Mechanism
+
+Since Agent Teams uses filesystem, implement logical locking via convention:
+
+```
+Convention-based locking (no actual file locks):
+
+1. File header comment:
+   <!-- OWNER: Sub-A | SESSION: S2 | SINCE: 2024-12-15T10:00:00Z -->
+
+2. Before writing, check header:
+   - If OWNER matches current agent -> proceed
+   - If OWNER is different -> send message to Lead
+   - If no OWNER header -> claim by adding header
+
+3. On task completion, remove OWNER header:
+   <!-- RELEASED: Sub-A | SESSION: S2 | AT: 2024-12-15T12:00:00Z -->
+```
 
 ---
 
-## CLAUDE.md 설계
+## CLAUDE.md Template for Agent Teams
 
-Agent Teams 팀원이 spawn 시 자동 로드하는 프로젝트 컨텍스트:
+### Minimal Project Context (Injected at Spawn)
 
 ```markdown
-# CLAUDE.md — clau-doom 프로젝트 컨텍스트
+# CLAUDE.md - clau-doom Agent Teams Context
 
-## 프로젝트
-LLM 멀티 에이전트 진화형 Doom 플레이어. RAG + Rust 룰엔진으로 실시간 판단.
+## Project
+LLM multi-agent evolutionary Doom player research.
+Agents use RAG (OpenSearch) + Rust rule engine for real-time decisions.
+No LLM calls during gameplay. LLM used only for retrospection, evolution, and analysis.
 
-## 핵심 규칙
-- 실시간에 LLM 호출 없음 (RAG + Rust만)
-- Python은 VizDoom 글루만
-- 실험은 시드 고정 + 변수 격리 + A/B
+## Core Rules
+- No real-time LLM calls (RAG + Rust only, < 100ms decision latency)
+- Python is VizDoom glue only
+- All experiments: fixed seeds, variable isolation, A/B comparison
+- Statistical claims require evidence markers: [STAT:p=X.XX]
+- Trust levels: HIGH (p<0.01, n>=50), MEDIUM (p<0.05, n>=30), LOW, UNTRUSTED
 
-## 파일 경로
-- 에이전트 정의: volumes/agents/active/DOOM_PLAYER_{SEQ}.MD
-- 플레이 로그: volumes/data/player-{SEQ}/game.duckdb
-- 연구 문서: volumes/research/
+## Architecture
+- Game: VizDoom + Xvfb + noVNC (container)
+- Agent core: Rust (decision engine, scoring)
+- Orchestrator: Go (lifecycle, gRPC)
+- Dashboard: Next.js (WebSocket + noVNC)
+- RAG: OpenSearch (kNN vector search, 768-dim Ollama embeddings)
+- Knowledge: MongoDB (strategy catalog)
+- Messaging: NATS (agent pub/sub)
+- Local DB: DuckDB (per-agent play logs)
 
-## DuckDB 스키마
-- experiments: experiment_id, episode_id, variant, seed, metrics
-- encounters: situation_snapshot, strategy_used, outcome
+## Decision Hierarchy
+- Level 0: MD hardcoded rules (Rust, < 1ms)
+- Level 1: DuckDB local cache (SQL, < 10ms)
+- Level 2: OpenSearch kNN (vector, < 100ms)
+- Level 3: Claude CLI (async, seconds, offline only)
 
-## 현재 작업
-[세션별로 다르게 주입]
+## File Paths
+- Agent definitions: volumes/agents/active/DOOM_PLAYER_{SEQ}.MD
+- Play logs: volumes/data/player-{SEQ}/game.duckdb
+- Research docs: volumes/research/
+- Strategy documents: OpenSearch index "doom_strategies"
+- Session outputs: docs/03_clau-doom-research/sessions/
+
+## DuckDB Core Schema
+```sql
+-- Per-episode metrics
+CREATE TABLE experiments (
+    experiment_id   VARCHAR,
+    episode_id      INT,
+    variant         VARCHAR,    -- 'control' or 'treatment'
+    seed            INT,
+    kill_rate       FLOAT,
+    survival_time   FLOAT,
+    damage_dealt    FLOAT,
+    damage_taken    FLOAT,
+    ammo_efficiency FLOAT,
+    items_collected INT,
+    rooms_visited   INT,
+    total_rooms     INT
+);
+
+-- Per-encounter decisions
+CREATE TABLE encounters (
+    encounter_id        VARCHAR,
+    episode_id          INT,
+    situation_snapshot  JSON,    -- {enemies, health, ammo, room_type}
+    strategy_used       VARCHAR, -- OpenSearch doc ID
+    tactic              VARCHAR, -- 'attack', 'retreat', 'flank', etc.
+    outcome             VARCHAR, -- 'kill', 'death', 'escape', 'damage_dealt'
+    damage_dealt        FLOAT,
+    damage_taken        FLOAT
+);
+
+-- Generation diversity (from S2-03 — full schema, see S2-03 for column definitions)
+CREATE TABLE generation_diversity (
+    generation_id       INT PRIMARY KEY,
+    strategy_entropy    FLOAT,          -- H_composite (normalized, 0-1)
+    behavioral_coverage FLOAT,          -- Coverage ratio (0-1)
+    qd_score            FLOAT,          -- QD-Score (0 to grid_size)
+    doc_pool_mpd        FLOAT,          -- Mean pairwise distance of doc embeddings
+    doc_pool_ed         INT,            -- Effective dimensionality (PCA 90% variance)
+    effective_mutation_rate FLOAT,       -- EMR (0-1)
+    mutation_efficiency FLOAT,          -- ME (pheno/geno ratio)
+    num_agents          INT,            -- Population size
+    num_unique_strategies INT,          -- Distinct play_style count
+    occupied_cells      INT,            -- Behavioral grid occupied cells
+    total_cells         INT,            -- Behavioral grid total cells (default 100)
+    cumulative_coverage FLOAT,          -- Cumulative coverage up to this generation
+    measured_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Evolution Mechanism
+- Parent selection: TOPSIS multi-criteria (kill_rate, survival, Cpk, innovation, efficiency)
+- Crossover: Merge Strategy Profile params from top-2 parents
+- Mutation: DOE-significant variables toward effect direction (exploitation 70%, exploration 30%)
+- Elitism: Cpk > 1.33 and TOPSIS top -> preserved unchanged
+- Quality: SPC control charts, FMEA failure modes, Cp/Cpk process capability
+
+## Your Assignment
+[SESSION-SPECIFIC CONTENT INJECTED HERE]
+
+Session: {session_id}
+Role: {lead|sub-agent-A|sub-agent-B|sub-agent-C}
+Task: {specific task description}
+Output file: {path to output file}
+Owned files: {list of files this agent can write to}
+Read-only files: {list of files for reference}
+
+## Communication Rules
+- Send findings to Lead via message
+- Do NOT write to files you do not own
+- If you need to modify another agent's file, message Lead
+- Record intermediate results in your owned output file
+- On completion, message Lead with summary
+```
+
+### Session-Specific Injection Examples
+
+**S1 Sub-A (QD Literature)**:
+```markdown
+## Your Assignment
+Session: S1
+Role: Sub-agent-A
+Task: Search and summarize Quality-Diversity algorithm papers (MAP-Elites, CMA-ME, novelty search, curiosity-driven exploration). Focus on metrics, archives, and behavior characterization methods applicable to game AI.
+Output file: sessions/S1-literature/S1-01_QD_ALGORITHMS.md
+Owned files: [sessions/S1-literature/S1-01_QD_ALGORITHMS.md]
+Read-only files: [docs/01_clau-doom-docs/docs/07-EVOLUTION.md]
+```
+
+**S3 Sub-A (Rust PoC)**:
+```markdown
+## Your Assignment
+Session: S3
+Role: Sub-agent-A
+Task: Implement Rust decision engine skeleton. Must: (1) Parse DOOM_PLAYER MD file for strategy params, (2) Query DuckDB for recent encounter history, (3) Make decision in < 100ms P99. Benchmark with 1000 simulated decisions.
+Output file: sessions/S3-poc/S3-01_RUST_DECISION_ENGINE.md
+Owned files: [sessions/S3-poc/S3-01_RUST_DECISION_ENGINE.md, sessions/S3-poc/src/decision_engine/]
+Read-only files: [docs/01_clau-doom-docs/docs/02-ARCHITECTURE.md, volumes/agents/active/DOOM_PLAYER_001.MD]
 ```
 
 ---
 
-## Agent Teams 운용 규칙
+## Agent Teams Operating Rules
 
-### 1. 팀 생성
+### 1. Team Creation
+
+```bash
+# Environment variable (required)
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Session start prompt template
+"Create an agent team for {session_purpose}. Spawn {N} teammates:
+- Teammate A ({model}): {role_description}. Output: {file_path}
+- Teammate B ({model}): {role_description}. Output: {file_path}
+- Teammate C ({model}): {role_description}. Output: {file_path}
+
+File ownership rules:
+- Each teammate writes ONLY to their assigned output file
+- All other project files are read-only
+- Send findings to Lead via message, not by writing to shared files
+
+Start working immediately. Report progress via task list."
+```
+
+### 2. Task Management
 
 ```
-CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+Task list structure per session:
 
-# 세션 시작 시
-"Create an agent team for [세션 목적]. Spawn [N] teammates:
-- Teammate A for [역할]
-- Teammate B for [역할]
-..."
+[Session S2 Tasks]
+  Task 1: [Sub-A] Write diversity metrics design (S2-03)
+    Status: in_progress
+    Depends: none
+    Output: sessions/S2-design/S2-03_DIVERSITY_METRICS.md
+
+  Task 2: [Sub-B] Write agent teams workflow (S2-04)
+    Status: in_progress
+    Depends: none
+    Output: sessions/S2-design/S2-04_AGENT_TEAMS_WORKFLOW.md
+
+  Task 3: [Sub-C] Write DuckDB schema extensions
+    Status: pending
+    Depends: Task 1 (needs table definitions from S2-03)
+    Output: sessions/S2-design/S2-05_SCHEMA_EXTENSIONS.sql
+
+  Task 4: [Lead] Cross-reference review
+    Status: pending
+    Depends: Task 1, Task 2, Task 3
+    Output: sessions/S2-design/S2-00_DESIGN_REVIEW.md
 ```
 
-### 2. 태스크 관리
+**Dependency Rules**:
+- Tasks with `depends: none` start immediately in parallel
+- Tasks with dependencies wait until all deps are `completed`
+- Lead's review task always depends on all Sub tasks
+- Cross-session dependencies expressed in session-level metadata
 
-- 공유 태스크 리스트로 진행 상황 추적
-- 의존성이 있는 태스크는 depends로 명시
-- 완료된 태스크는 자동으로 다음 태스크 해제
+### 3. Inter-Agent Communication Protocol
 
-### 3. 팀원 간 통신
+| Message Type | Sender | Receiver | When |
+|-------------|--------|----------|------|
+| Progress update | Sub | Lead | Every major milestone (25%, 50%, 75%, done) |
+| Blocking issue | Sub | Lead | Cannot proceed without resolution |
+| Discovery | Sub | Lead (or specific Sub) | Found information relevant to another agent |
+| File conflict | Sub | Lead | Needs to modify file owned by another agent |
+| Review request | Sub | Lead | Task complete, requesting review |
+| Feedback | Lead | Sub | Review comments, revision requests |
+| Completion | Lead | All Subs | All tasks done, session wrapping up |
 
-- 발견 사항은 메시지로 공유 (Sub → Lead 또는 Sub ↔ Sub)
-- 파일 충돌 우려 시 Lead에게 먼저 확인
-- 중간 결과물은 각자 담당 MD에 기록
+**Message Format Convention**:
+```
+[PROGRESS] S2-03 diversity metrics: 3/5 metrics defined (60%)
+[BLOCKING] Need DuckDB schema from S2-05 for alert table design
+[DISCOVERY] Found relevant QD metric in S1-01 that applies to S2-03
+[CONFLICT] Need to add column to generation_diversity table (owned by Sub-A)
+[REVIEW] S2-03 complete, ready for Lead review
+[FEEDBACK] S2-03: Add trust-weighted variant to Doc Pool Diversity metric
+[COMPLETE] All S2 tasks reviewed and approved. Session closing.
+```
 
-### 4. 세션 종료
+### 4. Session Lifecycle
 
-- Lead가 모든 태스크 완료 확인
-- 팀 정리(cleanup) 수행
-- 최종 산출물 목록을 Lead가 정리
+```
+Phase 1: Initialization (Lead)
+  - Read EXPERIMENT_ORDER or session brief
+  - Create task list with dependencies
+  - Spawn sub-agents with CLAUDE.md context
+  - Assign file ownership
+
+Phase 2: Parallel Execution (All)
+  - Sub-agents work on independent tasks
+  - Communication via messages (not shared files)
+  - Lead monitors progress, unblocks issues
+  - Dependent tasks start as prerequisites complete
+
+Phase 3: Integration (Lead)
+  - All Sub tasks completed
+  - Lead reads all outputs
+  - Cross-reference validation
+  - Consistency check against existing docs
+  - Write session synthesis document (S*-00)
+
+Phase 4: Cleanup (Lead)
+  - Verify all output files exist and are complete
+  - Remove file ownership headers
+  - Create session completion summary
+  - Notify PI (via EXPERIMENT_REPORT or session log)
+  - Shut down sub-agents
+```
 
 ---
 
-## 폴백 전략
+## Fallback Strategies
 
-| 장애 상황 | 대응 |
-|----------|------|
-| Sub-agent 실패 | Lead가 직접 처리 또는 새 Sub spawn |
-| 세션 중단 | MD 파일이 파일시스템에 남으므로, 새 세션에서 이어서 작업 |
-| Agent Teams 기능 장애 | 단일 세션 순차 실행으로 전환 |
-| 토큰 예산 초과 | Sub-agent 수 줄이고 Lead가 더 많이 처리 |
+### Failure Mode 1: Sub-Agent Spawn Failure
 
-**핵심**: MD 파일 기반이므로 실행 구조가 바뀌어도 산출물 형식은 동일. 병렬 → 순차 전환이 자유롭다.
+| Symptom | Cause | Response |
+|---------|-------|----------|
+| Agent Teams feature unavailable | Feature flag not set or API limitation | Switch to sequential single-agent execution |
+| Sub-agent fails to spawn | Resource limit, API error | Lead handles that Sub's task directly |
+| Partial spawn (2/3 agents) | Intermittent error | Redistribute failed agent's task to surviving agents |
+
+**Recovery Procedure**:
+```
+1. Lead detects spawn failure
+2. Log failure in session notes
+3. Reassign task:
+   Option A: Lead handles directly
+   Option B: Spawn replacement agent
+   Option C: Merge task with another Sub's workload
+4. Update task list with reassignment
+5. Continue session
+```
+
+### Failure Mode 2: Sub-Agent Produces Incorrect Output
+
+| Symptom | Detection | Response |
+|---------|-----------|----------|
+| Output missing required sections | Lead review checklist | Lead sends feedback with specific requirements |
+| Output contradicts existing design | Cross-reference check | Lead identifies conflicts, Sub revises |
+| Output has incorrect formulas/schema | Technical review | Lead corrects inline or assigns revision task |
+| Output is incomplete | Completion criteria check | Lead asks Sub to continue or finishes directly |
+
+**Quality Gate Checklist** (Lead applies to every Sub output):
+```
+[ ] All required sections present per template
+[ ] Mathematical formulas are well-defined and consistent
+[ ] DuckDB schema types are correct (INT, FLOAT, VARCHAR, TIMESTAMP)
+[ ] Cross-references to other documents are valid file paths
+[ ] Alert thresholds are specified with numeric values
+[ ] No contradictions with 07-EVOLUTION.md or 05-QUALITY.md
+[ ] Visualization specs include chart type, axes, and data source
+```
+
+### Failure Mode 3: Session Interruption
+
+| Symptom | Cause | Response |
+|---------|-------|----------|
+| Session terminated mid-task | Timeout, crash, network | Resume from last written file |
+| Context window exhausted | Large outputs, long conversation | Compact and resume with focus |
+| API rate limit | Too many parallel calls | Reduce sub-agent count, retry |
+
+**Recovery Procedure**:
+```
+1. MD files persist on filesystem regardless of session state
+2. Start new session, load CLAUDE.md context
+3. Read all existing session output files
+4. Identify incomplete tasks from file content
+5. Resume from last checkpoint
+6. DO NOT restart completed tasks
+```
+
+**Key Insight**: Because all outputs are MD files on disk, session interruption is a soft failure. No in-memory state is lost. The file system IS the checkpoint.
+
+### Failure Mode 4: Token Budget Exceeded
+
+| Budget Level | Strategy |
+|-------------|----------|
+| > 80% used | Switch Sub-agents to Haiku model for remaining work |
+| > 90% used | Reduce Sub-agent count to 1, Lead delegates one task at a time |
+| > 95% used | Lead completes remaining work directly (no Sub-agents) |
+| Budget exhausted | Save progress, document remaining tasks for next session |
+
+**Cost Optimization Rules**:
+```
+1. Use Sonnet for Sub-agents by default (except S3 PoC which needs Opus)
+2. Keep CLAUDE.md template under 2000 tokens
+3. Sub-agents return concise summaries, not full reasoning chains
+4. Ecomode (R013) activated when 4+ agents spawn
+5. Lead uses Opus for review/synthesis only, not for data gathering
+```
+
+### Failure Mode 5: Agent Teams Feature Regression
+
+If Claude Code Agent Teams feature becomes unavailable or unstable:
+
+**Sequential Fallback Plan**:
+```
+Replace parallel Agent Teams with sequential Task tool execution:
+
+Original (Agent Teams):
+  Lead + Sub-A + Sub-B + Sub-C  (parallel)
+
+Fallback (Task tool):
+  Task(research-pi) -> Sub-A's work
+  Task(research-pi) -> Sub-B's work
+  Task(research-pi) -> Sub-C's work
+  Main conversation aggregates results
+
+Key difference:
+  - No inter-agent messaging (each Task is isolated)
+  - Main conversation coordinates instead of Lead agent
+  - Same file outputs, same completion criteria
+  - Slightly slower (sequential) but identical results
+```
+
+**Output format is identical regardless of execution mode.** This is by design: MD file-based workflow ensures the execution mechanism (parallel Agent Teams vs sequential Task tool) does not affect deliverable format.
 
 ---
 
-## 팀 구성 (Agent Teams)
+## Cross-Session Coordination
 
-| 역할 | 담당 범위 |
-|------|----------|
-| Lead | 워크플로 전체 설계 |
-| Sub-agent A | 세션-팀-서브 역할 매핑, CLAUDE.md 초안 |
-| Sub-agent B | 파일 소유권/충돌 방지 규칙, 폴백 전략 |
+### Session Execution Order
+
+```
+Fully parallel (no cross-session dependencies):
+  S1 (Literature) | S2 (Design) | S3 (PoC) | S4 waits
+
+S4 depends on S1, S2, S3:
+  S4 starts after all others complete
+
+Timeline:
+  T=0: S1, S2, S3 start in parallel
+  T=X: S1, S2, S3 complete (at different times)
+  T=max(S1,S2,S3): S4 starts
+  T=S4_done: All sessions complete, PI review
+```
+
+### Cross-Session Data Flow
+
+```
+S1 -> S2: Literature findings inform metric design choices
+S1 -> S3: Literature benchmarks inform PoC acceptance criteria
+S2 -> S3: Design specs define what PoC must implement
+S2 -> S4: Design docs are primary input for document updates
+
+S1 -> S4: Literature references for document citations
+S3 -> S4: PoC findings for architecture documentation
+```
+
+### Handoff Protocol
+
+```
+When Session X completes and Session Y needs its output:
+
+1. Session X Lead writes completion summary to:
+   sessions/SX-*/SX-00_COMPLETION_SUMMARY.md
+
+2. Summary includes:
+   - List of output files with one-line descriptions
+   - Key findings relevant to downstream sessions
+   - Open questions or caveats
+   - Recommended reading order
+
+3. Session Y Lead reads summary first, then specific files as needed
+```
 
 ---
 
-## 완료 기준
+## Completion Criteria
 
-- [ ] 4세션 역할 매핑 테이블 확정
-- [ ] 파일 소유권 매트릭스 확정
-- [ ] CLAUDE.md 초안 작성
-- [ ] Agent Teams 운용 규칙 (생성/관리/통신/종료) 확정
-- [ ] 폴백 전략 확정
-- [ ] Lead 검수 완료
+- [x] 4-session role mapping tables with agent names, models, and responsibilities
+- [x] File ownership matrix (per-session and within-session)
+- [x] Conflict resolution rules and MD file locking convention
+- [x] CLAUDE.md template with session-specific injection examples
+- [x] Agent Teams operating rules (creation, task management, communication, lifecycle)
+- [x] 5 failure modes with recovery procedures
+- [x] Cross-session coordination and handoff protocol
+- [x] Fallback from Agent Teams to sequential Task tool execution
