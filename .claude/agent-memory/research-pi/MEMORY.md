@@ -28,11 +28,49 @@
 - Phase 5 final verification: READY WITH MINOR FIXES (5 issues, 0 HIGH)
 
 ## Outstanding Issues (from Phase 5)
-- I-001 (MEDIUM): DOE_CATALOG mapping table outdated for H-006/H-007
-- I-002 (LOW): Seed 1592 collision between DOE-001 and DOE-002
-- I-003 (LOW): Date typos in DOE-003/004/005 headers (2025 -> 2026)
-- I-004 (LOW): H-008 priority summary table still says LOW (should be MEDIUM)
-- I-005 (LOW): DOE-001 seed formula rationale not documented vs S2-01 master set
+- I-001 (MEDIUM): FIXED - DOE_CATALOG mapping table updated for H-003/H-005/H-008
+- I-002 (LOW): Seed 1592 collision between DOE-001 and DOE-002 (accepted, negligible)
+- I-003 (LOW): Date typos in DOE-003/004/005 headers (2025 -> 2026) - still open
+- I-004 (LOW): H-008 priority summary table still says LOW (should be MEDIUM) - still open
+- I-005 (LOW): DOE-001 seed formula rationale not documented vs S2-01 master set - still open
+
+## Trial 2 Validation Fixes Applied
+- MJ-001: Added H-008 dual testing precedence rule (DOE-002 exploratory, DOE-005 confirmatory)
+- MJ-002: Revised Phase 0->1 transition criteria to match actual plan (3 conditions)
+- M-001: Updated H-003 linked experiment to DOE-004, status to "Experiment Ordered"
+- M-002: Added design note to H-005 about 8-condition vs 4-condition scope
+- M-003: Renamed H-007 title to "Kill Efficiency" (matches primary response variable)
+- M-005: Added RESEARCH_LOG entries for DOE-003, DOE-004, DOE-005
+- I-001: Updated DOE_CATALOG hypothesis-to-design mapping and episode budget summary
+- Also updated H-005 status/linked experiment (was still "Queued" despite DOE-003 existing)
+
+## Statistical Rigor + Methodology Fixes Applied (All 5 DOE files)
+- CC-1: All 5 DOEs now have primary/secondary response hierarchy (kill_rate confirmatory, others exploratory)
+- DOE-001: Fixed "Five" to "Three" pairwise comparisons; restructured to primary/secondary correction families
+- DOE-001: Added Holm-Bonferroni power drop note (~0.70 for H-002) with adaptive stopping mitigation
+- DOE-001: Added fixed run order risk note with covariate analysis requirement
+- DOE-002: Aligned analysis plan header with CC-1 (confirmatory on kill_rate only)
+- DOE-003: Added No Layers degenerate cell treatment (Welch/ART-ANOVA fallbacks)
+- DOE-003: Added CONDITIONAL zone to decision gate (4 sub-cases for ambiguous results)
+- DOE-003: Pre-specified expected best contrasts (Full Stack vs L0 Only, Full Stack vs L0+L2)
+- DOE-004: Added quantitative manipulation check thresholds (sim differences > 0.40 and > 0.15)
+- DOE-005: Replaced center point curvature test with polynomial contrasts (linear vs quadratic)
+- DOE-005: Repurposed 90 center point episodes as pure error replicates for lack-of-fit
+- DOE-005: Revised evolution test: fresh episodes, two-tailed Welch's t, proof-of-concept framing
+- DOE-005: Added ART-ANOVA non-parametric fallback
+- DOE-005: Added DuckDB cache policy (baseline snapshot reset)
+- DOE-005: Specified pooled MSE for simple effects tests
+
+## Literature Review Updates (Trial 3 Validation)
+- Added Section 5: DOE and Quality Engineering Methodology (9 new refs)
+- Added RETRO (Borgeaud 2022) to RAG section
+- Expanded Coscientist (Boiko 2023) from table to full entry
+- Added Modern RL Context subsection (DreamerV3, IMPALA)
+- Added RL Baselines and Positioning subsection
+- Added OpenAI Five, SMAC to multi-agent table
+- Updated contribution positioning table with DOE/QE literature citations
+- Total refs: 47 core + 4 surveys (51 total, up from 31+surveys)
+- Key DOE vs BO justification: interaction detection, ANOVA interpretability, noise handling, model-free
 
 ## Lessons Learned
 - Arithmetic seed sequences (base + i*step) are reliable for avoiding internal collisions

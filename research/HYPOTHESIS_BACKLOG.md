@@ -3,7 +3,7 @@
 > **Project**: clau-doom — LLM Multi-Agent DOOM Research
 > **Maintained by**: research-pi (PI)
 > **Last Updated**: 2026-02-07
-> **Total Hypotheses**: 8 (0 adopted, 0 rejected, 3 queued, 5 ordered)
+> **Total Hypotheses**: 8 (0 adopted, 0 rejected, 1 queued, 7 ordered)
 
 ---
 
@@ -53,9 +53,9 @@
 **Rationale**: Tests the "Document Quality" factor of the core formula (Agent Skill = Document Quality x Scoring Accuracy). If document quality does not matter, the OpenSearch pipeline may not be retrieving situation-appropriate documents, or the Rust scoring may be compensating. This ablation isolates the semantic retrieval accuracy contribution.
 
 **Priority**: High
-**Status**: Queued
+**Status**: Experiment ordered (DOE-004)
 **Phase**: 0 (Ablation)
-**Linked Experiment**: To be assigned (Ablation 1 — S2-02)
+**Linked Experiment**: DOE-004 (EXPERIMENT_ORDER_004.md)
 **Source**: S2-02_CORE_ASSUMPTION_ABLATION.md, Ablation 1 (H-ABL-01)
 **Sample Size**: n = 50 per group, 3 groups = 150 episodes total
 **Statistical Test**: One-way ANOVA, post-hoc Tukey HSD
@@ -91,13 +91,14 @@
 **Rationale**: Tests the architectural foundation. The 2^3 factorial extension (8 conditions: each level ON/OFF) enables estimation of all main effects AND interaction effects (L0xL1, L0xL2, L1xL2, L0xL1xL2). This is the most fundamental ablation — run FIRST per S2-02 execution order. If Full Stack is not better than L0 Only, Ablations 1 and 2 are less meaningful.
 
 **Priority**: High
-**Status**: Queued
+**Status**: Experiment ordered (DOE-003)
 **Phase**: 0 (Ablation)
-**Linked Experiment**: To be assigned (Ablation 3 — S2-02)
+**Linked Experiment**: DOE-003 (EXPERIMENT_ORDER_003.md)
 **Source**: S2-02_CORE_ASSUMPTION_ABLATION.md, Ablation 3 (H-ABL-03)
 **Sample Size**: Primary: n = 40 per condition, 4 conditions = 160 episodes. Full 2^3: n = 30 per cell, 8 cells = 240 episodes.
 **Statistical Test**: One-way ANOVA (4 conditions), 2^3 factorial ANOVA (8 conditions)
 **Decision Gate**: If Full Stack ~ L0 Only (p > 0.10), STOP and investigate before proceeding to H-003 and H-004.
+**Design Note**: Formal statement describes 4 key conditions; DOE-003 implements full 2^3 factorial (8 conditions) to enable estimation of all main effects AND interaction effects (L0xL1, L0xL2, L1xL2, L0xL1xL2).
 **Date Added**: 2026-02-07
 
 ---
@@ -122,7 +123,7 @@
 
 ---
 
-### H-007: Strength Parameter Affects Damage Output [MEDIUM PRIORITY]
+### H-007: Strength Parameter Affects Kill Efficiency [MEDIUM PRIORITY]
 
 **Statement**: The agent strength parameter (controlling aggression and attack commitment) has a significant main effect on kill_rate per episode. Higher strength leads to higher kill efficiency (but potentially lower survival).
 
@@ -157,6 +158,10 @@
 **Sample Size**: n = 30 per cell, 2x2 = 4 cells = 120 factorial episodes (shared with H-006 and H-007)
 **Statistical Test**: Two-way ANOVA (factorial), interaction F-test (AxB term)
 **Note**: If interaction is significant, this directly triggers Phase 2 RSM transition.
+**Dual Testing Precedence**: H-008 is tested in two experiments:
+- DOE-002 = exploratory screening for interaction (2x2 factorial, 2 levels per factor)
+- DOE-005 = confirmatory test with finer resolution (3x2 factorial, 3 Memory levels)
+- If results conflict: **DOE-005 takes precedence** (larger design, more factor levels, higher resolution)
 **Date Added**: 2026-02-07
 
 ---
@@ -205,8 +210,10 @@ Phase 2 — RSM (contingent on DOE-002 results):
 
 ```
 Phase 0 -> Phase 1:
-  Trigger: >= 3 factors identified with significant main effects (p < 0.05)
-  Evidence: H-006, H-007, and at least one more factor from OFAT screening
+  Trigger: ALL of the following:
+    (a) Baseline validated: H-001/H-002 confirm Full Agent outperforms baselines (via DOE-001)
+    (b) Architecture validated: H-005 confirms Full Stack outperforms L0 Only (via DOE-003)
+    (c) At least 2 agent parameters show significant main effects: H-006/H-007 (via DOE-002)
 
 Phase 1 -> Phase 2:
   Trigger: Significant interaction effects confirmed in factorial design

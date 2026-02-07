@@ -66,7 +66,7 @@
 All runs use the Full RAG agent (L0+L1+L2 enabled) with the following parameter injection:
 
 ```yaml
-agent_md_file: DOOM_PLAYER_DOE002.MD  # Parameterized template
+agent_md_file: DOOM_PLAYER_DOE002.md  # Parameterized template
 decision_levels:
   level_0_md_rules: ENABLED
   level_1_duckdb_cache: ENABLED
@@ -171,13 +171,19 @@ Runs are randomized to control for temporal effects. The randomized execution or
 
 ## Response Variables
 
+### Response Hierarchy
+
+**Primary analysis (confirmatory)**: kill_rate. The 2-way ANOVA on kill_rate is the sole confirmatory test for H-006, H-007, and H-008. Significance thresholds and effect size criteria apply to kill_rate only.
+
+**Secondary analysis (exploratory)**: survival_time, kills, damage_dealt, ammo_efficiency. Reported at nominal p-values with effect sizes and confidence intervals for descriptive insight. These do not drive hypothesis decisions.
+
 ### Primary Response
 
 | Variable | Description | Unit | DuckDB Column |
 |----------|-------------|------|---------------|
 | kill_rate | Kills per minute of survival | kills/min | `kills / (survival_time / 60.0)` |
 
-### Secondary Responses
+### Secondary Responses (Exploratory)
 
 | Variable | Description | Unit | DuckDB Column |
 |----------|-------------|------|---------------|
@@ -198,7 +204,9 @@ Runs are randomized to control for temporal effects. The randomized execution or
 
 ## Statistical Analysis Plan
 
-### Primary Analysis: 2-Way ANOVA
+### Primary Analysis: 2-Way ANOVA on kill_rate (Confirmatory)
+
+The confirmatory analysis is a 2-way ANOVA on kill_rate only. Secondary responses (survival_time, kills, damage_dealt, ammo_efficiency) are analyzed with the same ANOVA model but reported at nominal p-values as exploratory.
 
 ```
 Source              | df  | Expected
@@ -387,7 +395,7 @@ GROUP BY point_type;
 
 1. **Setup Phase**:
    - Verify VizDoom container running with `defend_the_center.cfg`
-   - Prepare parameterized agent MD template (DOOM_PLAYER_DOE002.MD)
+   - Prepare parameterized agent MD template (DOOM_PLAYER_DOE002.md)
    - Initialize DuckDB experiment_id = 'DOE-002'
 
 2. **Execute in Randomized Order** (see Run Order table):

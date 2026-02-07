@@ -126,3 +126,58 @@ Phase 4 verification report: `research/PHASE4_ORDERS_12_VERIFICATION.md`
 1. Design EXPERIMENT_ORDER_003 through _005 (ablation studies: Layer Removal, Document Quality, Scoring Weights)
 2. Cross-verify all 5 orders against S2-01, S2-02, and each other
 3. Begin experiment execution infrastructure preparation
+
+---
+
+## 2026-02-07 — Experiment Orders 003/004/005 Designed
+
+### Context
+
+Remaining three experiment orders designed to complete the Phase 0 ablation suite and provide an evolution system test. These orders complete the Wave 1 (parallel: DOE-001, DOE-002, DOE-003) and Wave 2 (sequential: DOE-004, DOE-005) execution plan.
+
+### Experiment Orders
+
+**DOE-003: Decision Layer Ablation (2^3 Full Factorial)**
+- Tests: H-005 (Each decision layer independently adds value)
+- Design: 2^3 full factorial, 8 conditions (each layer ON/OFF), n=30/condition, 240 total episodes
+- Seed formula: seed_i = 2023 + i*23 (verified, n=30)
+- Statistical plan: 3-way ANOVA (L0, L1, L2), planned contrasts, Tukey HSD
+- Decision Gate: If Full Stack ~ L0 Only (p > 0.10), STOP DOE-004/005
+
+**DOE-004: Document Quality Ablation (One-Way ANOVA)**
+- Tests: H-003 (Document quality affects agent performance)
+- Design: 3 conditions (Full RAG, Degraded docs, Random docs), n=50/condition, 150 total episodes
+- Seed formula: seed_i = 7890 + i*13 (verified, n=50)
+- Statistical plan: One-way ANOVA, dose-response contrasts, Tukey HSD, manipulation check
+- Contingent on: DOE-003 Decision Gate PROCEED
+
+**DOE-005: Memory-Strength Interaction with Evolution Hook (3x2 Factorial + CPs)**
+- Tests: H-008 (Memory x Strength interaction, confirmatory)
+- Design: 3x2 full factorial + 3 center points, Memory=[0.3, 0.5, 0.7], Strength=[0.3, 0.7], n=30/cell, 270 total episodes
+- Seed formula: seed_i = 9999 + i*19 (verified, n=30)
+- Statistical plan: 2-way ANOVA with interaction, curvature test, simple effects analysis
+- Evolution hook: Gen1 best performer -> Gen2 evolved genome, paired t-test validation
+- Contingent on: DOE-003 Decision Gate PROCEED
+
+### Design Decisions
+
+1. **DOE-003 as Decision Gate**: Layer ablation is the most fundamental test. If the multi-tier architecture (L0+L1+L2) does not outperform L0 Only, ablation experiments on document quality and scoring become less meaningful. DOE-003 gates DOE-004 and DOE-005.
+2. **DOE-005 confirms DOE-002**: H-008 is tested in both DOE-002 (2x2 exploratory) and DOE-005 (3x2 confirmatory). If results conflict, DOE-005 takes precedence due to larger design and finer factor resolution.
+3. **Evolution hook in DOE-005**: Rather than a separate experiment, the evolution test is embedded as a second phase of DOE-005. This reuses the seed set and provides direct paired comparison.
+
+### Episode Budget Summary
+
+| Experiment | Episodes | Status |
+|------------|----------|--------|
+| DOE-001 | 210 | Ordered |
+| DOE-002 | 150 | Ordered |
+| DOE-003 | 240 | Ordered |
+| DOE-004 | 150 | Ordered (contingent) |
+| DOE-005 | 270 (+30 evolution) | Ordered (contingent) |
+| **Total** | **1050** | |
+
+### Next Steps
+
+1. Cross-verify all 5 experiment orders for internal consistency
+2. Prepare experiment execution infrastructure (DuckDB schemas, OpenSearch indices)
+3. Begin Wave 1 parallel execution: DOE-001, DOE-002, DOE-003

@@ -228,13 +228,19 @@ def create_random_document(doc_id, all_tags_pool, all_tactics, all_weapons, embe
 
 ## Response Variables
 
+### Response Hierarchy
+
+**Primary analysis (confirmatory)**: kill_rate. The one-way ANOVA on kill_rate is the sole confirmatory test for H-003. Significance thresholds, planned contrasts, and dose-response testing apply to kill_rate only.
+
+**Secondary analysis (exploratory)**: survival_time, retrieval_similarity. Reported at nominal p-values with effect sizes for descriptive insight. These do not drive hypothesis decisions.
+
 ### Primary Response
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
 | **kill_rate** | Total kills per episode | `episodes.total_kills` | Maximize |
 
-### Secondary Responses
+### Secondary Responses (Exploratory)
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
@@ -343,6 +349,8 @@ kill_rate ~ Document_Quality + error
 - H0: Residuals are normally distributed
 - Threshold: [STAT:p>0.05] for pass
 
+**Non-Parametric Fallback**: If Anderson-Darling p < 0.05, use Kruskal-Wallis test as a non-parametric alternative for the one-way design. If Kruskal-Wallis is significant, follow up with pairwise Dunn's test (Bonferroni-corrected) instead of Tukey HSD. Report both parametric and Kruskal-Wallis results when the normality assumption is violated.
+
 **Equal Variance Test**: Levene's test
 - H0: Variances are equal across conditions
 - Threshold: [STAT:p>0.05] for pass
@@ -406,7 +414,11 @@ GROUP BY ablation_condition;
 - Degraded: mean_sim ~ 0.3-0.5
 - Random: mean_sim ~ 0.0-0.2
 
-If manipulation check fails (e.g., Degraded sim > 0.6), re-examine degradation procedure.
+**Quantitative Manipulation Check Thresholds**: The manipulation is considered successful if both of the following criteria are met:
+1. `mean_sim(Full) - mean_sim(Random) > 0.40` (documents are substantially more relevant than random)
+2. `mean_sim(Full) - mean_sim(Degraded) > 0.15` (degradation measurably reduces retrieval quality)
+
+If either threshold is not met, STOP the analysis and re-examine the degradation procedure before proceeding to ANOVA. Proceeding with a failed manipulation check invalidates the causal interpretation.
 
 ---
 

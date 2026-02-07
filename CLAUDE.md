@@ -4,6 +4,8 @@ LLM multi-agent DOOM research: RAG experience accumulation + DOE/quality enginee
 
 ## Core Values
 
+0. **Agent Teams First** - All multi-agent research work uses Agent Teams actively. Simple Task spawns only for truly isolated single tasks.
+
 1. **Scientific Rigor** - All optimization through DOE, ANOVA, and statistical evidence. No ad-hoc tuning.
 2. **Delegated Execution** - All work delegated to specialized sub-agents via Task tool. Orchestrator coordinates only.
 3. **Transparent by Default** - Agent identification, tool calls, routing decisions visible. Intent detection shows confidence.
@@ -140,6 +142,7 @@ Flow:
 ### MUST (Never violate)
 | ID | Rule | Description |
 |----|------|-------------|
+| R000-0 | [Agent Teams](/.claude/rules/MUST-agent-teams.md) | **PRINCIPLE ZERO** - Active Agent Teams usage for all multi-agent tasks |
 | R000 | [Language Policy](/.claude/rules/MUST-language-policy.md) | Korean I/O, English files, delegation model |
 | R001 | [Safety Rules](/.claude/rules/MUST-safety.md) | Prohibited actions, required checks |
 | R002 | [Permission Rules](/.claude/rules/MUST-permissions.md) | Tool tiers, file access scope |

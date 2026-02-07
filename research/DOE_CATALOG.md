@@ -125,8 +125,8 @@ If center points differ significantly from factorial mean -> proceed to RSM
 
 | Hypothesis | Design | Factors | Runs | Episodes/Run | Total |
 |------------|--------|---------|------|-------------|-------|
-| H-005 (Layer Removal) | 2^3 full factorial | L0, L1, L2 (ON/OFF) | 8 | 30 | 240 |
-| H-008 (Memory x Strength) | 3x2 or 3x3 full factorial | memory, strength | 6-9 | 30 | 180-270 |
+| H-005 (Layer Removal) | 2^3 full factorial | L0, L1, L2 (ON/OFF) | 8 | 30 | 240 (DOE-003) |
+| H-008 (Memory x Strength, confirmatory) | 3x2 full factorial + 3 CPs | memory (3 lvl), strength (2 lvl) | 9 | 30 | 270 (DOE-005) |
 | Factor screening (5+ factors) | 2^(k-2) fractional | TBD from Phase 0 | 8-16 | 30 | 240-480 |
 
 ### Transition Out
@@ -346,12 +346,12 @@ How many factors are you testing?
 |------------|-------|-------------|------------|---------|-------------------|
 | H-001 | 0 | Baseline comparison (Welch's t) | DOE-001 | Full Agent vs Random | 210 (3 x 70, shared) |
 | H-002 | 0 | Baseline comparison (Welch's t) | DOE-001 | Full Agent vs Rule-Only | (shared with H-001) |
-| H-003 | 0 | One-way ANOVA | TBD | Doc quality (3 levels) | 3 x 50 = 150 |
+| H-003 | 0 | One-way ANOVA | DOE-004 | Doc quality (3 levels) | 3 x 50 = 150 |
 | H-004 | 0 | One-way ANOVA + regression | TBD | Scoring weights (4-8 levels) | 4 x 40 = 160 (primary) |
-| H-005 | 0/1 | 2^3 full factorial | TBD | L0, L1, L2 (ON/OFF) | 8 x 30 = 240 |
+| H-005 | 0/1 | 2^3 full factorial | DOE-003 | L0, L1, L2 (ON/OFF) | 8 x 30 = 240 |
 | H-006 | 0/1 | 2×2 factorial (main effect) | DOE-002 | Memory (0.3, 0.7) | 150 (shared with H-007, H-008) |
 | H-007 | 0/1 | 2×2 factorial (main effect) | DOE-002 | Strength (0.3, 0.7) | (shared with H-006, H-008) |
-| H-008 | 0/1 | 2×2 factorial (interaction) | DOE-002 | Memory x Strength | (shared with H-006, H-007) |
+| H-008 | 0/1 | 2×2 factorial (exploratory) + 3×2 factorial (confirmatory) | DOE-002 + DOE-005 | Memory x Strength | DOE-002: shared; DOE-005: 270 |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -362,13 +362,18 @@ How many factors are you testing?
 | Phase | Hypotheses | Experiment | Estimated Total Episodes | Cumulative |
 |-------|-----------|------------|-------------------------|------------|
 | 0 — Baselines | H-001, H-002 | DOE-001 | 210 (3 conditions x 70 episodes) | 210 |
-| 0 — Ablations | H-003, H-004, H-005 | TBD | 550-640 | 760-850 |
-| 0/1 — Combined Factorial | H-006, H-007, H-008 | DOE-002 | 150 (4 cells x 30 + 3 CPs x 10) | 910-1000 |
-| 2 — RSM | TBD | TBD | 330-510 | 1240-1510 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 2320-2590+ |
+| 0 — Layer Ablation | H-005 | DOE-003 | 240 (8 conditions x 30 episodes) | 450 |
+| 0/1 — Combined Factorial | H-006, H-007, H-008 | DOE-002 | 150 (4 cells x 30 + 3 CPs x 10) | 600 |
+| 0 — Doc Quality Ablation | H-003 | DOE-004 | 150 (3 conditions x 50 episodes) | 750 |
+| 1 — Interaction + Evolution | H-008 (confirmatory) | DOE-005 | 300 (270 factorial/CPs + 30 evolution) | 1050 |
+| 2 — RSM | TBD | TBD | 330-510 | 1380-1560 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 2460-2640+ |
 
 **Notes**:
 - DOE-001 tests H-001 and H-002 simultaneously with shared seed set (70 seeds, 3 conditions).
 - DOE-002 combines H-006, H-007, H-008 into a single factorial, saving ~210 episodes vs separate OFAT + factorial (150 vs 90+90+180=360).
+- DOE-003 gates DOE-004 and DOE-005 via Decision Gate (Full Stack vs L0 Only).
+- DOE-005 provides confirmatory test for H-008 (DOE-002 is exploratory). If results conflict, DOE-005 takes precedence.
+- Total Phase 0/1 budget: **1050 episodes** across 5 experiments (DOE-001 through DOE-005).
 - Episode reuse between S2-01 Baseline 2 (Rule-Only) and S2-02 Ablation 3 (L0 Only) saves ~70 episodes.
 - Shared seed sets enable cross-experiment comparisons.

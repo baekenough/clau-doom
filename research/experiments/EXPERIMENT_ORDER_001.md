@@ -48,7 +48,7 @@ OFAT — Three-condition single-factor comparison. The factor is **agent_type** 
 #### Condition 1: Random Agent
 
 ```yaml
-agent_md_file: DOOM_PLAYER_BASELINE_RANDOM.MD
+agent_md_file: DOOM_PLAYER_BASELINE_RANDOM.md
 decision_levels:
   level_0_md_rules: DISABLED
   level_1_duckdb_cache: DISABLED
@@ -62,7 +62,7 @@ baseline_type: random
 #### Condition 2: Rule-Only Agent
 
 ```yaml
-agent_md_file: DOOM_PLAYER_BASELINE_RULEONLY.MD
+agent_md_file: DOOM_PLAYER_BASELINE_RULEONLY.md
 decision_levels:
   level_0_md_rules: ENABLED
   level_1_duckdb_cache: DISABLED  # skip_duckdb_lookup = true
@@ -76,7 +76,7 @@ baseline_type: rule_only
 #### Condition 3: Full RAG Agent
 
 ```yaml
-agent_md_file: DOOM_PLAYER_GEN1.MD  # Standard Generation-1 agent
+agent_md_file: DOOM_PLAYER_GEN1.md  # Standard Generation-1 agent
 decision_levels:
   level_0_md_rules: ENABLED
   level_1_duckdb_cache: ENABLED
@@ -117,6 +117,8 @@ scoring_weights:
 | Significance level | alpha = 0.05 (two-sided) |
 | Target effect size | Cohen's d >= 0.50 (medium) |
 | Justification | Power analysis (S2-01): n = 64 per group for medium effect with Welch's t-test, rounded to 70 for safety margin |
+
+**Power Note (Holm-Bonferroni Adjustment)**: After Holm-Bonferroni correction across the 3 primary comparisons on kill_rate, power for the least-favored comparison (H-002: Full RAG vs Rule-Only, expected d = 0.50) drops to approximately 0.70. The adaptive stopping rule (extend to n = 100 per condition if d < 0.20 for Full RAG vs Rule-Only at interim analysis) mitigates this risk by increasing sample size if the effect is smaller than anticipated.
 
 ---
 
@@ -164,9 +166,17 @@ Runs are executed sequentially by condition (not interleaved) to avoid container
 
 **Randomization Note**: Run order is fixed (Random -> Rule-Only -> Full RAG) because conditions require different container configurations. Order effects are mitigated by identical seed sets and independent episodes.
 
+**Fixed Run Order Risk**: Because run order is confounded with condition, any temporal drift (e.g., system warming, background load changes) could bias results. To assess this risk, the analyst MUST include a run-order covariate analysis: regress residuals against episode index within each condition and across the full sequence. If the run-order covariate is significant (p < 0.05), report the adjusted estimates alongside unadjusted results and flag the finding as requiring replication with randomized run order.
+
 ---
 
 ## Response Variables
+
+### Response Hierarchy
+
+**Primary analysis (confirmatory)**: kill_rate. All formal hypothesis tests (H-001, H-002) and multiplicity-corrected comparisons are conducted on kill_rate only.
+
+**Secondary analysis (exploratory)**: survival_time, kills, damage_dealt, ammo_efficiency. Reported at nominal p-values with effect sizes and confidence intervals for descriptive insight. These do not drive hypothesis decisions.
 
 ### Primary Response
 
@@ -174,7 +184,7 @@ Runs are executed sequentially by condition (not interleaved) to avoid container
 |----------|-------------|------|---------------|
 | kill_rate | Kills per minute of survival | kills/min | `kills / (survival_time / 60.0)` |
 
-### Secondary Responses
+### Secondary Responses (Exploratory)
 
 | Variable | Description | Unit | DuckDB Column |
 |----------|-------------|------|---------------|
@@ -199,7 +209,7 @@ Runs are executed sequentially by condition (not interleaved) to avoid container
 
 ### Primary Analysis: Welch's t-test (Pairwise)
 
-Five pairwise comparisons:
+Three pairwise comparisons on the primary response (kill_rate):
 
 | Comparison | Group A | Group B | Expected Direction |
 |------------|---------|---------|-------------------|
@@ -214,10 +224,15 @@ Five pairwise comparisons:
 
 ### Multiple Comparison Correction
 
+**Primary Family (confirmatory)**: 3 pairwise comparisons on kill_rate.
 - Method: Holm-Bonferroni
-- Family: 3 comparisons x 7 metrics = 21 tests
 - Report both raw and adjusted p-values
 - Significance threshold: adjusted p < 0.05
+
+**Secondary Family (exploratory)**: Pairwise comparisons on secondary responses (survival_time, kills, damage_dealt, ammo_efficiency).
+- Reported at nominal p-values (no multiplicity correction)
+- Flagged as exploratory; effect sizes and confidence intervals reported for interpretation
+- These do not contribute to formal hypothesis decisions
 
 ### Non-Parametric Fallback
 
@@ -333,11 +348,11 @@ GROUP BY baseline_type;
    - Prepare agent MD files for each condition
    - Initialize DuckDB experiment_id = 'DOE-001'
 
-2. **Run 1 (Random)**: Deploy DOOM_PLAYER_BASELINE_RANDOM.MD, disable all decision levels, run 70 episodes with seed set, record with baseline_type = 'random'
+2. **Run 1 (Random)**: Deploy DOOM_PLAYER_BASELINE_RANDOM.md, disable all decision levels, run 70 episodes with seed set, record with baseline_type = 'random'
 
-3. **Run 2 (Rule-Only)**: Deploy DOOM_PLAYER_BASELINE_RULEONLY.MD, enable L0 only, run 70 episodes with same seed set, record with baseline_type = 'rule_only'
+3. **Run 2 (Rule-Only)**: Deploy DOOM_PLAYER_BASELINE_RULEONLY.md, enable L0 only, run 70 episodes with same seed set, record with baseline_type = 'rule_only'
 
-4. **Run 3 (Full RAG)**: Deploy DOOM_PLAYER_GEN1.MD, enable all levels, run 70 episodes with same seed set, record with baseline_type = 'full_agent'
+4. **Run 3 (Full RAG)**: Deploy DOOM_PLAYER_GEN1.md, enable all levels, run 70 episodes with same seed set, record with baseline_type = 'full_agent'
 
 5. **Validation**: Verify 210 episodes recorded, seed integrity confirmed, no missing data
 

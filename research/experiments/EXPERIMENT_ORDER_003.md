@@ -102,13 +102,19 @@ Do the three decision layers contribute independently to agent performance?
 
 ## Response Variables
 
+### Response Hierarchy
+
+**Primary analysis (confirmatory)**: kill_rate. The 2^3 factorial ANOVA on kill_rate is the sole confirmatory test for H-005 and drives the decision gate logic. Significance thresholds apply to kill_rate only.
+
+**Secondary analysis (exploratory)**: survival_time, ammo_efficiency, decision_latency_ms. Reported at nominal p-values with effect sizes for descriptive insight. These do not drive hypothesis decisions or the STOP/PROCEED gate.
+
 ### Primary Response
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
 | **kill_rate** | Total kills per episode | `episodes.total_kills` | Maximize |
 
-### Secondary Responses
+### Secondary Responses (Exploratory)
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
@@ -203,6 +209,11 @@ Randomization performed to control for nuisance variables (time-of-day effects, 
 kill_rate ~ L0 + L1 + L2 + L0*L1 + L0*L2 + L1*L2 + L0*L1*L2 + error
 ```
 
+**No Layers (Run 8) Degenerate Cell Treatment**: The No Layers condition (Run 8: L0=OFF, L1=OFF, L2=OFF) is a degenerate cell where the agent always takes the default action (MOVE_FORWARD), producing a performance floor with near-zero variance. This cell is analyzed separately as a floor reference. The primary 2^3 factorial ANOVA uses all 8 conditions in the full model. If Levene's test fails due to variance heterogeneity driven by the No Layers cell, use one of the following fallbacks:
+1. **Welch's ANOVA** (robust to unequal variances) for main-effect-only tests
+2. **ART-ANOVA** (Aligned Rank Transform) for the full factorial model including interactions
+3. Report results both with and without the No Layers cell and note any discrepancies
+
 **ANOVA Table**:
 
 | Source | df | Expected F-test |
@@ -237,17 +248,23 @@ kill_rate ~ L0 + L1 + L2 + L0*L1 + L0*L2 + L1*L2 + L0*L1*L2 + error
 
 ### Planned Contrasts
 
-**Contrast 1: Full Stack vs. Best Single Layer**
+**Pre-specified Expected Best Contrasts** (based on architectural rationale):
+- **Contrast 1: Full Stack vs L0 Only** — Tests whether adding L1+L2 to the base rule system adds value. This is the primary contrast driving the decision gate.
+- **Contrast 2: Full Stack vs L0+L2** — Tests whether L1 (DuckDB cache) adds incremental value on top of rules + knowledge base. L0+L2 is expected to be the strongest two-layer configuration.
+
+These two contrasts are pre-specified because they test the most architecturally meaningful comparisons. Additional exploratory contrasts below are reported for completeness.
+
+**Contrast 1: Full Stack vs. L0 Only** (PRIMARY — drives decision gate)
 ```
-C1: (L0+L1+L2) vs. max(L0 Only, L1 Only, L2 Only)
+C1: (L0+L1+L2) vs. (L0 Only)
 ```
 
-**Contrast 2: Full Stack vs. Best Two-Layer**
+**Contrast 2: Full Stack vs. L0+L2** (SECONDARY — tests L1 incremental value)
 ```
-C2: (L0+L1+L2) vs. max(L0+L1, L0+L2, L1+L2)
+C2: (L0+L1+L2) vs. (L0+L2 Only)
 ```
 
-**Contrast 3: Two-Layer vs. Single-Layer (averaged)**
+**Contrast 3: Two-Layer vs. Single-Layer (averaged, EXPLORATORY)**
 ```
 C3: mean(L0+L1, L0+L2, L1+L2) vs. mean(L0, L1, L2)
 ```
@@ -295,6 +312,8 @@ C3: mean(L0+L1, L0+L2, L1+L2) vs. mean(L0, L1, L2)
 
 ## Decision Gate (CRITICAL)
 
+The decision gate is evaluated on the **primary response (kill_rate)** only, using the post-hoc comparison: Full Stack vs. L0 Only.
+
 ### STOP Condition
 
 **IF Full Stack (L0+L1+L2) is NOT significantly better than L0 Only:**
@@ -329,6 +348,19 @@ Criteria:
 - Proceed to DOE-004 (Document Quality Ablation)
 - Proceed to DOE-005 (Evolution Test)
 - RAG architecture validated
+
+### CONDITIONAL Zone
+
+**IF results fall between STOP and PROCEED thresholds** (i.e., neither clearly significant nor clearly null):
+
+| Sub-case | Criteria | Action |
+|----------|----------|--------|
+| **C-1: Trending significant** | 0.05 < p < 0.10 AND d > 0.3 | Extend DOE-003 to n=50 per condition (400 total episodes) for higher power, then re-evaluate gate |
+| **C-2: Significant but small** | p < 0.05 AND d < 0.5 | PROCEED with DOE-004 but flag as MEDIUM confidence; DOE-005 proceeds only if DOE-004 confirms RAG value |
+| **C-3: Non-significant but moderate effect** | p > 0.10 AND 0.3 < d < 0.5 | Extend DOE-003 to n=50 per condition; if still non-significant after extension, STOP |
+| **C-4: Diagnostic anomaly** | Any p-value AND L2 usage < 5% | STOP and investigate L2 utilization before proceeding (RAG may not be reached) |
+
+**Rationale**: A binary STOP/PROCEED gate may discard borderline findings prematurely. The CONDITIONAL zone provides structured sub-rules to handle ambiguous results without ad-hoc post-hoc decisions.
 
 ---
 

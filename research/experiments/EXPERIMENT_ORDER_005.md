@@ -140,13 +140,19 @@ Do Memory and Strength interact to affect kill efficiency?
 
 ## Response Variables
 
+### Response Hierarchy
+
+**Primary analysis (confirmatory)**: kill_rate. The 3x2 factorial ANOVA on kill_rate is the sole confirmatory test for H-008. Significance thresholds, interaction tests, and polynomial contrasts apply to kill_rate only.
+
+**Secondary analysis (exploratory)**: survival_time, damage_dealt, ammo_efficiency. Reported at nominal p-values with effect sizes for descriptive insight. These do not drive hypothesis decisions or phase transition logic.
+
 ### Primary Response
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
 | **kill_rate** | Total kills per episode | `episodes.total_kills` | Maximize |
 
-### Secondary Responses
+### Secondary Responses (Exploratory)
 
 | Variable | Definition | Source | Target |
 |----------|-----------|--------|--------|
@@ -260,24 +266,39 @@ kill_rate ~ Memory + Strength + Memory*Strength + error
 
 **Effect Size**: Partial eta-squared (η²) per factor and interaction
 
-### Curvature Test (Center Points)
+### Memory Polynomial Contrasts (Replaces Center Point Curvature Test)
 
-**Comparison**: Mean of center points vs. mean of factorial points
+Since Memory has 3 levels (0.3, 0.5, 0.7), polynomial contrasts decompose the Memory main effect into linear and quadratic components:
 
-**Model**:
+**Linear contrast** (trend): Tests whether kill_rate increases monotonically with Memory
 ```
-kill_rate ~ Factorial_vs_Center + error
-```
-
-**Test Statistic**:
-```
-t = (mean_center - mean_factorial) / SE_pooled
-df = 180 + 90 - 2 = 268
+Coefficients: [-1, 0, +1] for Memory levels [0.3, 0.5, 0.7]
 ```
 
-**Significance**: [STAT:p<0.05] indicates curvature (non-linear effects present)
+**Quadratic contrast** (curvature): Tests whether the relationship between Memory and kill_rate is non-linear (e.g., diminishing returns or U-shaped)
+```
+Coefficients: [+1, -2, +1] for Memory levels [0.3, 0.5, 0.7]
+```
 
-**If Significant**: Plan Phase 2 RSM-CCD around optimal region
+**Significance**: If quadratic contrast [STAT:p<0.05], curvature exists and Phase 2 RSM-CCD is warranted.
+
+**If quadratic is non-significant**: Linear model is adequate; no RSM needed for Memory dimension.
+
+### Center Points Repurposed as Pure Error Replicates
+
+The 90 center point episodes (3 replicates x 30 episodes at Memory=0.5, Strength=0.5) are repurposed as pure error replicates for lack-of-fit testing:
+
+**Lack-of-Fit Test**:
+```
+F_lof = MS_lack_of_fit / MS_pure_error
+
+MS_pure_error: Estimated from within-center-point variance (3 replicates x 30 episodes)
+MS_lack_of_fit: Residual SS from factorial model minus pure error SS, divided by remaining df
+```
+
+**Significance**: [STAT:p<0.05] for lack-of-fit indicates the factorial model is inadequate, suggesting non-linear terms are needed.
+
+**Note**: The center point at (Memory=0.5, Strength=0.5) already exists as factorial conditions M_mid_S_low and M_mid_S_high, so center point data augment the design but are not used in the factorial ANOVA main model. They serve exclusively for lack-of-fit and pure error estimation.
 
 ### Residual Diagnostics
 
@@ -285,12 +306,18 @@ df = 180 + 90 - 2 = 268
 - H0: Residuals are normally distributed
 - Threshold: [STAT:p>0.05] for pass
 
+**Non-Parametric Fallback**: If Anderson-Darling p < 0.05, use ART-ANOVA (Aligned Rank Transform ANOVA) as a non-parametric alternative that preserves the ability to test interactions. Report both parametric and ART-ANOVA results when the normality assumption is violated.
+
 **Equal Variance Test**: Levene's test
 - H0: Variances are equal across conditions
 - Threshold: [STAT:p>0.05] for pass
 
 **Independence Check**: Run order plot inspection
 - Visual check for systematic patterns
+
+### DuckDB Cache State Control
+
+**Cache Policy**: All conditions start with the same pre-populated DuckDB cache state. Before each condition run, the DuckDB cache is reset to a fixed baseline snapshot to ensure that accumulated episode data from one condition does not leak into subsequent conditions. The baseline snapshot is created once before DOE-005 execution begins and restored before each of the 9 runs.
 
 ### Simple Effects Analysis (if interaction significant)
 
@@ -306,6 +333,8 @@ Decompose interaction by testing:
    - Strength effect at Memory=0.3 (t-test on 2 Strength levels)
    - Strength effect at Memory=0.5 (t-test on 2 Strength levels)
    - Strength effect at Memory=0.7 (t-test on 2 Strength levels)
+
+**Error Term**: All simple effects tests use the pooled MSE from the full 3x2 factorial ANOVA model (MSE with df=174) rather than computing separate error terms per slice. This ensures consistent and more powerful F-tests by leveraging the full sample for error estimation.
 
 **Interpretation**: Identify at which levels of one factor the other factor matters most.
 
@@ -397,44 +426,51 @@ Apply evolution operator to generate **Generation 2 genome**:
 
 **Capping**: If Memory or Strength exceeds 1.0, cap at 1.0. If below 0.0, cap at 0.0.
 
-### Phase 3: Evolution Test (Generation 2 vs. Generation 1)
+### Phase 3: Evolution Test (Generation 2 vs. Generation 1) — Proof-of-Concept
 
-**Test Design**: Paired comparison
+**Framing**: This evolution test is a **proof-of-concept** demonstration, not a definitive confirmation of the evolution system's effectiveness. The single-step mutation with n=30 provides limited statistical power for small effects. Full validation requires multi-generation experiments.
 
-**Hypothesis**: H_evol: Generation 2 (evolved) outperforms Generation 1 (best)
+**Test Design**: Independent two-sample comparison (NOT paired)
+
+**Hypothesis**: H_evol: Generation 2 (evolved) differs from Generation 1 (best)
 
 **Null Hypothesis**: H0: μ_Gen2 = μ_Gen1
 
-**Alternative Hypothesis**: H1: μ_Gen2 > μ_Gen1 (one-tailed test)
+**Alternative Hypothesis**: H1: μ_Gen2 ≠ μ_Gen1 (two-tailed test)
 
-**Sample Size**: n = 30 episodes per generation
+**Sample Size**: n = 30 FRESH episodes for each generation (Gen1 best re-run with same seeds; Gen2 with same seeds)
+
+**Power Limitation**: With n = 30 per group, a two-tailed t-test at alpha = 0.05 achieves power of approximately 0.50 for a small effect (d = 0.30) and 0.80 for a medium effect (d = 0.50). This means small improvements may go undetected, which is acceptable for a proof-of-concept. [STAT:power~0.50 for d=0.30]
 
 **Seed Set**: **SAME** as DOE-005 (SEED_SET from above)
 
-**Test**: Paired t-test
+**Test**: Two-tailed Welch's t-test (unpaired, unequal variances assumed)
 ```
-t = (mean_Gen2 - mean_Gen1) / SE_diff
-df = 29
-One-tailed p-value: P(T > t | H0)
+t = (mean_Gen2 - mean_Gen1) / sqrt(s1^2/n1 + s2^2/n2)
+df = Welch-Satterthwaite approximation
+Two-tailed p-value: 2 * P(T > |t| | H0)
 ```
 
 **Execution**:
-1. Run Generation 1 best (Memory=0.7, Strength=0.7) for 30 episodes (ALREADY DONE in DOE-005)
-2. Run Generation 2 (Memory=0.8, Strength=0.8) for 30 episodes (NEW, same seeds)
-3. Compute paired differences: d_i = Gen2_kills_i - Gen1_kills_i for i=1..30
-4. Test: [STAT:t-test] [STAT:p<0.05] for significance
+1. Run Generation 1 best (Memory=0.7, Strength=0.7) for 30 FRESH episodes using SEED_SET (do NOT re-use factorial data from DOE-005 main experiment)
+2. Run Generation 2 (Memory=0.8, Strength=0.8) for 30 episodes using SAME SEED_SET
+3. Compute group means and standard deviations
+4. Test: [STAT:t-test two-tailed] [STAT:p<0.05] for significance
 
-**Expected Outcome**: [STAT:p<0.05] [STAT:effect_size=Cohen's d>0.3] (Gen2 improves on Gen1)
+**Rationale for Fresh Episodes**: Re-using the 30 episodes from the DOE-005 factorial (M=0.7, S=0.7 cell) would create a dependency between the factorial analysis and the evolution test. Running 30 fresh episodes ensures independence and clean inference.
 
-**If Successful**:
-- Generation 2 validated as an improvement
-- Evolution system confirmed functional
-- Proceed to multi-generation experiments (10+ generations)
+**Expected Outcome**: [STAT:p<0.10] [STAT:effect_size=Cohen's d~0.3-0.5] (Gen2 shows modest improvement, proof-of-concept level)
 
-**If Unsuccessful**:
-- Gen2 does not improve on Gen1
+**If Successful (p < 0.05)**:
+- Evolution operator demonstrates directional improvement
+- Proof-of-concept validated
+- Proceed to multi-generation experiments (10+ generations) for full validation
+
+**If Non-Significant (p >= 0.05)**:
+- Small effect may exist but sample size is insufficient to detect it
 - Investigate mutation strategy (perturbation too small or too large?)
-- Consider: Local optimum reached, require exploration vs. exploitation balance
+- Consider: Larger sample (n=100) or multi-generation cumulative test
+- Does NOT invalidate evolution approach — merely inconclusive at this sample size
 
 ---
 
@@ -461,24 +497,33 @@ One-tailed p-value: P(T > t | H0)
 3. **After all 270 episodes complete**:
    - Handoff to research-analyst for ANOVA execution
 
-#### Phase 2: Evolution Test (Generation 1 vs. 2)
+#### Phase 2: Evolution Test (Generation 1 vs. 2) — Proof-of-Concept
 
 1. **Wait for research-analyst** to complete ANOVA and identify best performer
 2. **Read** best performer from EXPERIMENT_REPORT_005.md (expected: Memory=0.7, Strength=0.7)
 3. **Generate Generation 2 genome**: Memory=0.8, Strength=0.8
-4. **Execute Generation 2**:
+4. **Execute Generation 1 Best (FRESH run)**:
+   a. Modify `doom-agent-A/AGENT.md` parameters:
+      - `memory: 0.7`
+      - `strength: 0.7`
+   b. Reset DuckDB cache to baseline snapshot
+   c. Restart container
+   d. Execute 30 FRESH episodes using SEED_SET
+   e. Record to DuckDB with `experiment_id = "DOE-005-EVOL"`, `condition = "Gen1_best_fresh"`, `generation = 1`
+5. **Execute Generation 2**:
    a. Modify `doom-agent-A/AGENT.md` parameters:
       - `memory: 0.8`
       - `strength: 0.8`
-   b. Restart container
-   c. Execute 30 episodes using SEED_SET (SAME seeds as DOE-005)
-   d. Record to DuckDB `experiments` table:
+   b. Reset DuckDB cache to baseline snapshot
+   c. Restart container
+   d. Execute 30 episodes using SEED_SET (SAME seeds)
+   e. Record to DuckDB `experiments` table:
       - `experiment_id = "DOE-005-EVOL"`
       - `condition = "Gen2_evolved"`
       - `generation = 2`
       - `parent_genome = "Gen1_best"`
       - `seed_set = SEED_SET`
-5. **Handoff to research-analyst** for paired t-test (Gen2 vs. Gen1)
+6. **Handoff to research-analyst** for two-tailed Welch's t-test (Gen2 vs. Gen1 fresh)
 
 ### Agent MD Configuration Examples
 
@@ -534,7 +579,7 @@ ammo_used: INT
 
 **Target Documents**:
 1. `EXPERIMENT_REPORT_005.md` (ANOVA, curvature test, best performer identification)
-2. `EVOLUTION_REPORT_001.md` (Generation 1 vs. 2 comparison, paired t-test)
+2. `EVOLUTION_REPORT_001.md` (Generation 1 vs. 2 comparison, independent two-sample Welch's t-test)
 
 ### EXPERIMENT_REPORT_005.md Contents
 
@@ -553,7 +598,7 @@ ammo_used: INT
 
 1. Generation 1 best genome specification
 2. Generation 2 evolved genome specification
-3. Paired t-test results (Gen2 vs. Gen1) [STAT:t-test] [STAT:p]
+3. Independent two-sample Welch's t-test results (Gen2 vs. Gen1) [STAT:t-test] [STAT:p]
 4. Effect size (Cohen's d) [STAT:effect_size]
 5. Mean difference and confidence interval [STAT:ci=95%]
 6. Line plot: Gen1 vs. Gen2 kill_rate across 30 episodes
@@ -577,14 +622,15 @@ ammo_used: INT
 Memory × Strength interaction: [STAT:p<0.05] [STAT:eta2>0.06]
 ```
 
-**Condition 2: Curvature Detected**
+**Condition 2: Curvature Detected (via Polynomial Contrasts)**
 ```
-Center point vs. factorial: [STAT:p<0.05]
+Memory quadratic contrast: [STAT:p<0.05]
+OR lack-of-fit test (center point pure error): [STAT:p<0.05]
 ```
 
-**If both TRUE**:
+**If both Condition 1 AND Condition 2 TRUE**:
 - Plan RSM-CCD (Central Composite Design) around optimal region
-- Optimal region: (Memory≈0.7, Strength≈0.7) with ±0.2 axial points
+- Optimal region: (Memory~0.7, Strength~0.7) with +/-0.2 axial points
 - Goal: Find exact optimal Memory-Strength combination
 
 **If both FALSE**:
@@ -629,7 +675,7 @@ Center point vs. factorial: [STAT:p<0.05]
 - Phase 1 (DOE-005): 4-5 hours (9 runs × 30 episodes × ~60s/episode)
 - Analysis (ANOVA, curvature): 2 hours
 - Phase 2 (Evolution test): 30 min (1 run × 30 episodes)
-- Analysis (paired t-test): 30 min
+- Analysis (Welch's t-test): 30 min
 - Reporting: 1 hour (both reports)
 
 **Total**: ~8-10 hours
@@ -667,7 +713,7 @@ If Gen2 > Gen1 → Multi-generation evolution experiments (10+ generations)
 - [x] Response variables defined (primary + secondary + evolution tracking)
 - [x] Sample size justified with power analysis [STAT:n=270] [STAT:power≈0.80]
 - [x] Statistical analysis plan specified (2-way ANOVA, curvature test, simple effects, post-hoc)
-- [x] Evolution hook specified (Gen1 → Gen2 transition, paired t-test)
+- [x] Evolution hook specified (Gen1 → Gen2 transition, independent two-sample Welch's t-test)
 - [x] Phase transition criteria defined (RSM-CCD if interaction + curvature)
 - [x] Execution instructions for research-doe-runner provided
 - [x] DuckDB data recording schema specified
@@ -682,5 +728,5 @@ If Gen2 > Gen1 → Multi-generation evolution experiments (10+ generations)
 1. research-doe-runner → Execute DOE-005 Phase 1 (factorial + center points)
 2. research-analyst → Perform ANOVA and generate EXPERIMENT_REPORT_005.md
 3. research-doe-runner → Execute DOE-005 Phase 2 (Evolution test: Gen2 vs. Gen1)
-4. research-analyst → Perform paired t-test and generate EVOLUTION_REPORT_001.md
+4. research-analyst → Perform independent two-sample Welch's t-test and generate EVOLUTION_REPORT_001.md
 5. research-pi → Review reports, decide on Phase 2 RSM-CCD and multi-generation evolution
