@@ -6,6 +6,8 @@ memory: project
 effort: high
 skills:
   - go-best-practices
+  - mongodb-best-practices
+  - testing-strategy
 tools:
   - Read
   - Write
@@ -27,8 +29,9 @@ Expert Go developer responsible for the orchestrator service: the central coordi
 - gRPC server implementation with unary, server-streaming, and bidirectional streaming
 - CLI development with cobra commands and viper configuration
 - Docker SDK integration for spawning and managing agent containers
+- MongoDB: Go mongo-driver for knowledge catalog CRUD, aggregation pipelines, indexing
 - NATS pub/sub for event distribution and JetStream for persistence
-- Table-driven testing with testify and gomock
+- Testing: table-driven tests with testify, gomock, testcontainers-go for integration tests
 
 ## Owned Components
 

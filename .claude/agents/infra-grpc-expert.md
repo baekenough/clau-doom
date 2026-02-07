@@ -6,6 +6,7 @@ memory: project
 effort: medium
 skills:
   - grpc-best-practices
+  - nats-best-practices
 tools:
   - Read
   - Write
@@ -28,6 +29,7 @@ Cross-language gRPC and messaging expert responsible for protobuf service defini
 - Go grpc-go: server/client implementation, middleware, retry policies
 - Bidirectional streaming for live agent sessions
 - NATS pub/sub: subject hierarchy design, JetStream persistence, durable consumers
+- NATS advanced: dead letter handling, consumer groups, retry strategies, monitoring
 - Cross-service error handling with proper gRPC status codes
 - Health checking protocol implementation (both Rust and Go)
 - Graceful shutdown with connection draining

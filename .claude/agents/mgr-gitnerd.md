@@ -4,6 +4,7 @@ description: Git operations specialist for commits, pushes, PRs, and branch mana
 model: sonnet
 memory: project
 effort: medium
+skills: []
 tools:
   - Read
   - Write

@@ -189,11 +189,11 @@ clau-doom/
 ├── CLAUDE.md                    # Entry point (this file)
 ├── .claude/
 │   ├── agents/                  # Subagent definitions (18 files)
-│   ├── skills/                  # Skills (24 directories)
+│   ├── skills/                  # Skills (32 directories)
 │   ├── rules/                   # Global rules (R000-R102)
 │   ├── hooks/                   # Hook scripts (HUD)
 │   └── contexts/                # Context files (ecomode)
-├── guides/                      # Reference docs (10 topics)
+├── guides/                      # Reference docs (18 topics)
 │   ├── rust/
 │   ├── golang/
 │   ├── python/
@@ -203,7 +203,15 @@ clau-doom/
 │   ├── anova/
 │   ├── vizdoom/
 │   ├── docker/
-│   └── opensearch/
+│   ├── opensearch/
+│   ├── mongodb/
+│   ├── nats/
+│   ├── grpc/
+│   ├── duckdb/
+│   ├── testing/
+│   ├── observability/
+│   ├── deployment/
+│   └── security/
 └── docs/                        # Research documentation (existing)
     ├── 01_clau-doom-docs/
     ├── 02_literature/

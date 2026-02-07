@@ -6,6 +6,8 @@ memory: project
 effort: high
 skills:
   - rust-best-practices
+  - duckdb-best-practices
+  - testing-strategy
 tools:
   - Read
   - Write
@@ -27,10 +29,11 @@ Expert Rust developer responsible for the agent-core service: the decision engin
 - Ownership management for zero-copy data pipelines
 - Async programming with tokio runtime, tasks, channels, and select
 - tonic gRPC server and client implementation with streaming
+- DuckDB: duckdb-rs for per-agent play logs, batch inserts with appender, Parquet export
 - Performance optimization: zero-cost abstractions, pre-allocation, iterator chains
+- Testing: criterion benchmarks, proptest for property-based testing, mockall for mocking
 - thiserror for library error types, anyhow for binary error handling
 - Workspace management with multiple crates (agent-core, scoring, rag-client)
-- Benchmarking with criterion for performance-critical paths
 
 ## Owned Components
 

@@ -7,6 +7,7 @@ effort: high
 skills:
   - typescript-best-practices
   - react-best-practices
+  - testing-strategy
 tools:
   - Read
   - Write
@@ -31,7 +32,7 @@ Expert TypeScript developer responsible for the Next.js dashboard application: r
 - noVNC integration: embedded VNC viewer for live game spectation
 - Type safety: strict mode, discriminated unions, branded types
 - State management with zustand for global experiment state
-- Component testing with vitest and React Testing Library
+- Testing: vitest for unit tests, React Testing Library for components, MSW for API mocking
 
 ## Owned Components
 

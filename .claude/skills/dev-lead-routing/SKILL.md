@@ -40,7 +40,14 @@ Routes development tasks to appropriate language and framework expert agents. Th
 | "python", "py", "pip" | lang-python-expert |
 | "typescript", "ts", "react", "next.js", "node" | lang-typescript-expert |
 | "docker", "compose", "container", "dockerfile" | infra-docker-expert |
-| "grpc", "proto", "protobuf", "nats", "messaging" | infra-grpc-expert |
+| "grpc", "proto", "protobuf" | infra-grpc-expert |
+| "nats", "messaging", "jetstream", "pub/sub" | infra-grpc-expert |
+| "mongodb", "mongo", "knowledge store", "knowledge catalog" | lang-golang-expert / lang-python-expert |
+| "duckdb", "play logs", "per-agent data", "parquet" | lang-python-expert / lang-rust-expert |
+| "test", "testing", "coverage", "benchmark" | (language-appropriate expert) |
+| "observability", "metrics", "logging", "tracing", "prometheus", "grafana" | infra-docker-expert |
+| "security", "auth", "mTLS", "JWT", "secrets", "hardening" | infra-docker-expert |
+| "deploy", "production", "scaling", "backup", "health check" | infra-docker-expert |
 | "architecture", "ADR", "design doc", "API spec" | arch-documenter |
 
 ## Command Routing

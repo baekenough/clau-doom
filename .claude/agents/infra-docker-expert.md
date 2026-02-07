@@ -6,6 +6,9 @@ memory: user
 effort: medium
 skills:
   - docker-best-practices
+  - observability
+  - security-best-practices
+  - deployment-ops
 tools:
   - Read
   - Write
@@ -26,6 +29,9 @@ Docker infrastructure expert responsible for container definitions, multi-servic
 - VizDoom container: base image with Xvfb virtual framebuffer, noVNC web viewer, VizDoom installation
 - Multi-stage builds for Rust agent-core and Go orchestrator binaries
 - Docker Compose: service definitions, network topology, volume management, health checks
+- Observability: structured logging (tracing/zap/structlog/pino), Prometheus metrics, OpenTelemetry traces, Grafana dashboards
+- Security: mTLS between services, JWT authentication, container hardening, secrets management, network isolation
+- Deployment: production Compose ops, health checks, restart policies, resource limits, backup/restore, scaling
 - GPU support: nvidia-docker runtime, CUDA container toolkit configuration
 - Development workflow: hot reload with volume mounts, compose overrides, shell access
 - Resource limits and monitoring labels for all services

@@ -7,6 +7,7 @@ effort: medium
 skills:
   - rag-pipeline
   - opensearch-management
+  - mongodb-management
 tools:
   - Read
   - Write

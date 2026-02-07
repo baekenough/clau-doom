@@ -6,6 +6,9 @@ memory: project
 effort: high
 skills:
   - python-best-practices
+  - duckdb-best-practices
+  - mongodb-best-practices
+  - testing-strategy
 tools:
   - Read
   - Write
@@ -24,9 +27,11 @@ Expert Python developer responsible for the VizDoom game interface layer, statis
 ## Capabilities
 
 - statsmodels: one-way/two-way ANOVA with `ols` + `anova_lm`, regression diagnostics, Tukey HSD post-hoc tests
-- DuckDB: Python API for SQL queries, DataFrame integration, bulk inserts from game results
+- DuckDB: Python API for SQL queries, DataFrame integration, bulk inserts from game results, window functions, Parquet I/O
+- MongoDB: pymongo for knowledge catalog queries, aggregation pipelines, DataFrame integration
 - VizDoom: game setup, action space management, observation extraction, headless batch evaluation
 - matplotlib/seaborn: ANOVA visualization, residual plots, fitness evolution charts, control charts
+- Testing: pytest with hypothesis for property-based testing, fixtures, parametrize, coverage
 - Type hints with Protocol and TypeVar for clean interfaces
 - Scientific computing with numpy and scipy
 
