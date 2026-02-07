@@ -164,11 +164,6 @@ Flow:
 | R012 | [HUD Statusline](/.claude/rules/SHOULD-hud-statusline.md) | Real-time status display (experiment/generation) |
 | R013 | [Ecomode](/.claude/rules/SHOULD-ecomode.md) | Token efficiency for batch ops |
 
-### MAY (Optional)
-| ID | Rule | Description |
-|----|------|-------------|
-| R005 | [Optimization](/.claude/rules/MAY-optimization.md) | Efficiency, token optimization |
-
 ---
 
 ## Commands

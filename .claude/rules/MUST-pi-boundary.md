@@ -176,7 +176,6 @@ execution:
 | **research-doe-runner** | Executor | Inject MD variables, restart containers, monitor runs, record data | Design experiments, analyze data, interpret results |
 | **research-analyst** | Analyst | Execute ANOVA, compute diagnostics, create visualizations, generate reports | Design experiments, interpret findings, make strategic decisions |
 | **research-evolution-mgr** | Evolution Manager | Run genetic algorithms, manage populations, compute fitness | Design DOE, interpret statistical results |
-| **research-pareto-optimizer** | Optimizer | TOPSIS, AHP, Pareto front computation | Design experiments, execute runs |
 
 ## Violation Examples
 
