@@ -1,0 +1,41 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+/target/
+/bin/
+/dist/
+/node_modules/
+
+# Rust
+target/
+
+# Go
+/vendor/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Docker volumes (local data)
+volumes/
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# Agent memory (local)
+.claude/agent-memory-local/
+
+# Logs
+*.log

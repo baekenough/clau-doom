@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "matcher": "Task",
+      "hookType": "preToolUse",
+      "command": "node -e \"const i=JSON.parse(process.env.TOOL_INPUT||'{}');const t=i.subagent_type||'unknown';const m=i.model||'inherit';const d=(i.description||'').slice(0,40);const r=i.resume?'Resume':'Spawn';process.stderr.write('\\n─── ['+r+'] '+t+':'+m+' | '+d+' ───\\n')\""
+    }
+  ]
+}
