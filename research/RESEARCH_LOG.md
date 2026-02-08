@@ -1,5 +1,36 @@
 # Research Log
 
+## 2026-02-08 — DOE-009: Memory × Strength Factorial on defend_the_line
+
+### Context
+DOE-008 confirmed defend_the_line discriminates action architectures (F(4,145)=5.256, p=0.000555). Now we test the continuous parameter space: do memory_weight and strength_weight individually and jointly affect kill_rate? H-006/H-007/H-008 were adopted from DOE-002 mock data. DOE-009 is the first REAL validation.
+
+### Hypothesis
+H-013: memory_weight and strength_weight have significant main effects and/or interaction on kill_rate on defend_the_line.
+
+### Design
+DOE type: 3×3 full factorial
+Factors: memory_weight [0.1, 0.5, 0.9] × strength_weight [0.1, 0.5, 0.9]
+Sample size: 30 episodes per cell, 270 total
+Seeds: 8001 + i × 41, i=0..29 (range [8001, 9190])
+
+### Known Limitations
+- shots_fired/ammo_efficiency unavailable (AMMO2 broken)
+- L0 dodge-left rule counterproductive (DOE-008 F-010)
+
+### Result
+NULL RESULT — No significant effects found.
+- memory_weight: [STAT:f=F(2,261)=0.306] [STAT:p=0.736] [STAT:eta2=0.002]
+- strength_weight: [STAT:f=F(2,261)=2.235] [STAT:p=0.109] [STAT:eta2=0.017]
+- Interaction: [STAT:f=F(4,261)=0.365] [STAT:p=0.834] [STAT:eta2=0.006]
+- Diagnostics: ALL PASS (Shapiro p=0.098, Levene p=0.196)
+- Kruskal-Wallis: H(8)=7.342, p=0.500 (confirms null)
+Conclusion: H-013 REJECTED. DOE-002 mock findings (H-006/H-007/H-008) NOT replicated.
+Trust level: HIGH (for null result)
+Findings: F-013, F-014, F-015 adopted
+
+---
+
 ## 2026-02-08 — DOE-008 Designed: Layer Ablation Replication on defend_the_line
 
 ### Context

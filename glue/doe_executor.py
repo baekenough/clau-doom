@@ -405,6 +405,62 @@ def build_doe008_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe009_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-009: Memory x Strength 3x3 Factorial on defend_the_line.
+
+    Factors:
+        Memory:   [0.1, 0.5, 0.9]
+        Strength: [0.1, 0.5, 0.9]
+
+    Seed formula: seed_i = 8001 + i * 41, i=0..29
+
+    Randomized run order: R7, R2, R9, R4, R1, R6, R8, R3, R5
+    """
+    seeds = _generate_seed_set(n=30, base=8001, step=41)
+    exp_id = "DOE-009"
+
+    # 3x3 factorial: memory_weight [0.1, 0.5, 0.9] x strength_weight [0.1, 0.5, 0.9]
+    # All 9 runs use FullAgentAction with varying parameters
+    factor_combinations = [
+        # (run_label, memory_weight, strength_weight)
+        ("R1", 0.1, 0.1),
+        ("R2", 0.1, 0.5),
+        ("R3", 0.1, 0.9),
+        ("R4", 0.5, 0.1),
+        ("R5", 0.5, 0.5),
+        ("R6", 0.5, 0.9),
+        ("R7", 0.9, 0.1),
+        ("R8", 0.9, 0.5),
+        ("R9", 0.9, 0.9),
+    ]
+
+    runs = []
+    for run_label, mem_w, str_w in factor_combinations:
+        runs.append(RunConfig(
+            run_id=f"{exp_id}-{run_label}",
+            run_label=run_label,
+            memory_weight=mem_w,
+            strength_weight=str_w,
+            seeds=list(seeds),
+            condition=f"m{mem_w}_s{str_w}",
+            run_type="factorial",
+            action_type="full_agent",
+        ))
+
+    # Randomized run order: R7, R2, R9, R4, R1, R6, R8, R3, R5
+    order = [6, 1, 8, 3, 0, 5, 7, 2, 4]  # indices into runs list
+    randomized_runs = [runs[i] for i in order]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 8001 + i * 41, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -705,6 +761,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-006": build_doe006_config,
     "DOE-007": build_doe007_config,
     "DOE-008": build_doe008_config,
+    "DOE-009": build_doe009_config,
 }
 
 

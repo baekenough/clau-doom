@@ -356,6 +356,7 @@ How many factors are you testing?
 | H-010 | 1 | 2x2 factorial + center points (re-validation) | DOE-006 | Memory [0.3,0.7] x Strength [0.3,0.7] | 150 (COMPLETE, ALL NON-SIGNIFICANT) |
 | H-011 | 0/1 | One-way ANOVA (5 levels) | DOE-007 | action_strategy on defend_the_center (5 levels) | 150 (COMPLETE, p=0.183 NS, Scenario D) |
 | H-012 | 0/1 | One-way ANOVA (5 levels, scenario replication) | DOE-008 | action_strategy on defend_the_line (5 levels) | 150 (ORDERED) |
+| H-013 | 1 | 3×3 factorial (memory × strength) | DOE-009 | memory_weight × strength_weight on defend_the_line | 270 (ORDERED) |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -373,8 +374,9 @@ How many factors are you testing?
 | 1 — Wide Range Re-validation | H-010 | DOE-006 | 150 (4 cells x 30 + 3 CPs x 10) | 1200 |
 | 0/1 — Layer Ablation | H-011 | DOE-007 | 150 (5 levels x 30 episodes) | 1350 |
 | 1 — Scenario Replication | H-012 | DOE-008 | 150 (5 levels x 30 episodes) | 1500 |
-| 2 — RSM | TBD | TBD | 330-510 | 1680-1860 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 2460-2640+ |
+| 1 — Memory × Strength Factorial | H-013 | DOE-009 | 270 (9 cells x 30 episodes) | 1770 |
+| 2 — RSM | TBD | TBD | 330-510 | 1950-2130 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 2730-2910+ |
 
 **Notes**:
 - DOE-001 tests H-001 and H-002 simultaneously with shared seed set (70 seeds, 3 conditions).

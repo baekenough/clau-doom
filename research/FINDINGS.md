@@ -14,7 +14,9 @@ HYPOTHESIS_BACKLOG -> EXPERIMENT_ORDER -> EXPERIMENT_REPORT -> FINDINGS
 | F-002 (Full > Rule-Only) | ADOPTED | **INVALIDATED** | Real data shows NO difference (both identical at 26.0 kills, 0 variance) |
 | F-003 (Rule-Only > Random) | ADOPTED | CONFIRMED | Direction confirmed, effect size larger in real data (d=6.84 vs d=3.11) |
 | F-004 (Latency < 100ms) | ADOPTED | CONFIRMED | Python action functions run in <1ms, no VizDoom latency measured |
-| F-005 through F-007 | ADOPTED (mock DOE-002) | PENDING REAL VALIDATION | DOE-002 not yet re-run with real VizDoom |
+| F-005 (Memory main effect) | ADOPTED (mock DOE-002) | **INVALIDATED by DOE-009** | Real data: F(2,261)=0.306, p=0.736, η²=0.002. Mock claimed η²=0.42 |
+| F-006 (Strength main effect) | ADOPTED (mock DOE-002) | **INVALIDATED by DOE-009** | Real data: F(2,261)=2.235, p=0.109, η²=0.017. Mock claimed η²=0.32 |
+| F-007 (Interaction) | ADOPTED (mock DOE-002) | **INVALIDATED by DOE-009** | Real data: F(4,261)=0.365, p=0.834, η²=0.006. Mock claimed significant |
 
 **Key Insight**: Mock data fabricated separation between rule_only and full_agent that does not exist in real gameplay at default parameters (memory_weight=0.5, strength_weight=0.5). Both strategies converge to "always attack" in defend_the_center, producing identical deterministic outcomes.
 
@@ -368,28 +370,182 @@ DOE-002 reported large effects (Memory eta2=0.42, Strength eta2=0.32) in the [0.
 
 ---
 
-### F-010: Action Architecture Significant on defend_the_line [HIGH TRUST]
-**Hypothesis**: H-012
-**Experiment**: DOE-008 (EXPERIMENT_ORDER_008.md)
-**Report**: EXPERIMENT_REPORT_008.md
-**Evidence**: [STAT:p=0.000555] [STAT:f=F(4,145)=5.256] [STAT:eta2=0.127] [STAT:n=150]
+## DOE-008 Findings (defend_the_line Layer Ablation)
+
+### F-010: Pure Reflex Rules (L0_only) Significantly Inferior on defend_the_line
+
+**Hypothesis**: H-012 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-008 (EXPERIMENT_ORDER_008.md)
+**Experiment Report**: RPT-008 (EXPERIMENT_REPORT_008.md)
+
+**Evidence**:
+- Overall ANOVA: [STAT:f=F(4,145)=5.256] [STAT:p=0.000555] [STAT:eta2=eta^2=0.127] (medium-to-large)
+- Kruskal-Wallis confirms: H(4)=20.158 [STAT:p=0.000465]
+- Alexander-Govern robust test: stat=24.241 [STAT:p=0.000071]
+- L0_only vs all others (C2 contrast): t=-4.451 [STAT:p=0.000019] [STAT:effect_size=Cohen's d=-0.938] (large)
+- Tukey HSD: L0_only significantly worse than ALL 4 other conditions (all p_adj < 0.01):
+  - vs L0_memory: +6.56 kills/min [STAT:ci=95%: 2.06-11.07] [STAT:effect_size=Cohen's d=1.132]
+  - vs random: +5.72 kills/min [STAT:ci=95%: 1.22-10.23] [STAT:effect_size=Cohen's d=1.005]
+  - vs full_agent: +5.61 kills/min [STAT:ci=95%: 1.10-10.11] [STAT:effect_size=Cohen's d=0.885]
+  - vs L0_strength: +5.44 kills/min [STAT:ci=95%: 0.93-9.94] [STAT:effect_size=Cohen's d=1.005]
+- The four non-L0_only conditions are statistically indistinguishable (all pairwise d < 0.18)
+- All residual diagnostics PASS (normality, equal variance)
+- Sample size: [STAT:n=150 (30 per group)]
+- Statistical power: [STAT:power=0.97]
+
 **Trust Level**: HIGH
-**Date Adopted**: 2026-02-08
-**Summary**: L0-only pure rule-based strategy performs significantly worse than all other architectures including random. Tukey HSD confirms all 4 pairwise comparisons with L0_only are significant (p < 0.01).
 
-### F-011: Heuristic Layer Interference [MEDIUM TRUST]
-**Hypothesis**: H-012
-**Experiment**: DOE-008
-**Report**: EXPERIMENT_REPORT_008.md
-**Evidence**: [STAT:p=0.007] Contrast C3: single-heuristic vs full_agent
-**Trust Level**: MEDIUM (planned contrast, not primary analysis)
-**Date Adopted**: 2026-02-08
-**Summary**: Full agent with both heuristic layers (memory + strength) underperforms agents with only one heuristic. Combining layers creates interference through excessive dodging.
+**Trust Rationale**:
+- All ANOVA assumptions satisfied (first ablation experiment to achieve this)
+- p < 0.001 with three independent tests converging
+- Large effect size (Cohen's f = 0.381)
+- Balanced design with identical seeds across conditions
+- No zero-kill episodes (0% vs 9.3% in DOE-007)
+- High achieved power (97%)
 
-### F-012: Scenario Selection Critical [HIGH TRUST]
-**Hypothesis**: H-012
-**Experiment**: DOE-007 vs DOE-008
-**Evidence**: DOE-007 p=0.183 (defend_the_center), DOE-008 p=0.000555 (defend_the_line). Same design, different scenarios.
-**Trust Level**: HIGH (replicated design with consistent methodology)
-**Date Adopted**: 2026-02-08
-**Summary**: defend_the_line scenario is necessary for discriminating action architectures. defend_the_center (0-3 kills) is too simple.
+**Interpretation**:
+Pure reflex rules (L0_only: health<30->flee, ammo==0->flee, else->attack) perform significantly worse than ALL other architectures on defend_the_line. The "always attack" rule creates tunnel vision: L0_only commits to one enemy at a time without sweeping across the approaching enemy line. Any mechanism that introduces lateral movement (random choice, memory dodge, strength probabilistic attack) breaks this tunnel vision and provides equivalent large benefit (+5.7 kills/min).
+
+The heuristic layers (memory dodge, strength modulation) provide NO advantage over random action selection. Their value is not in their design but in the incidental lateral movement they produce. The SOURCE of lateral movement does not matter -- only its PRESENCE.
+
+**Rank Order Reversal**: L0_only went from BEST performer in DOE-007 (defend_the_center) to WORST in DOE-008 (defend_the_line). Agent architecture performance is scenario-dependent, not a fixed property.
+
+**Adopted**: 2026-02-08 (Phase 0/1)
+
+**Recommended Next**:
+1. Restructure L0 rules to include turn-toward-nearest-enemy (fix tunnel vision)
+2. Test on third scenario for generalization evidence
+3. Expand action space to give heuristics more expressive power
+
+---
+
+### F-011: Combined Heuristics Reduce Raw Kills (Full Agent Penalty)
+
+**Hypothesis**: H-012 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-008 (EXPERIMENT_ORDER_008.md)
+**Experiment Report**: RPT-008 (EXPERIMENT_REPORT_008.md)
+
+**Evidence**:
+- C3 contrast (kills): t=2.759 [STAT:p=0.007] [STAT:effect_size=Cohen's d=0.487] (medium)
+- Single-heuristic agents mean kills: 14.65 vs full_agent: 11.90
+- L0_strength vs full_agent (Tukey kills): +3.03, p_adj=0.045 (significant)
+- C3 contrast (kill_rate): t=0.264, p=0.792 (NOT significant on kill_rate)
+- Full_agent survival: 17.13s vs single-heuristic: 20.86s (shorter survival partially compensates fewer kills in kill_rate)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Effect present on raw kills (p=0.007) but NOT on kill_rate (p=0.792)
+- Medium effect size (d=0.487), not large
+- Mechanistic explanation plausible (excessive dodging from stacked heuristics)
+- Consistent direction across DOE-007 and DOE-008 (full_agent trends lower in both)
+- Not the primary response variable (kill_rate is primary)
+
+**Interpretation**:
+Combining memory dodge AND strength modulation (full_agent) produces fewer raw kills than either heuristic alone. The combined heuristics likely cause excessive dodging: memory dodge triggers lateral movement on health loss, while strength modulation adds probabilistic non-attack actions, reducing overall attack frequency. This penalty is partially masked in kill_rate because full_agent also dies faster (17.13s vs 20.86s for single-heuristic), deflating the denominator.
+
+This finding is weaker than F-010 because it appears only on raw kills (secondary response), not on kill_rate (primary response). The PI should consider it as directional evidence of heuristic interference, not a definitive conclusion.
+
+**Adopted**: 2026-02-08 (Phase 0/1) -- MEDIUM trust, pending confirmation
+
+---
+
+### F-012: Scenario Selection Critical for Architectural Discriminability
+
+**Hypothesis**: H-012 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-007 and DOE-008 (paired comparison)
+**Experiment Report**: RPT-007 and RPT-008
+
+**Evidence**:
+- DOE-007 (defend_the_center): [STAT:f=F(4,145)=1.579] [STAT:p=0.183] [STAT:eta2=0.042] -- NOT significant
+- DOE-008 (defend_the_line): [STAT:f=F(4,145)=5.256] [STAT:p=0.000555] [STAT:eta2=0.127] -- SIGNIFICANT
+- Same 5-level design, same analysis, changed scenario only
+- Discriminability ratio (Range/Pooled SD): 0.60 (center) vs 1.04 (line) -- 1.7x improvement
+- Effect size: 3x larger on defend_the_line (eta^2: 0.127 vs 0.042)
+- Power: 97% (line) vs 49% (center)
+- Residual diagnostics: ALL FAIL (center) vs ALL PASS (line)
+- Zero-kill episodes: 9.3% (center) vs 0% (line)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Direct paired comparison (identical design, one change)
+- Consistent methodology across experiments
+- Clear mechanistic explanation (kill range 4-26 vs 0-3)
+- Diagnostic improvement confirms scenario quality
+
+**Interpretation**:
+defend_the_line is the superior scenario for testing agent architectural differences. It provides 8x the kill range, 1.7x better signal-to-noise ratio, 3x larger effect sizes, and fully compliant residual diagnostics. Future experiments in the clau-doom program should use defend_the_line as the standard evaluation scenario.
+
+**Adopted**: 2026-02-08 (Phase 0/1)
+
+---
+
+## DOE-009 Findings (Memory × Strength on defend_the_line — NULL RESULT)
+
+### F-013: Memory Weight Has No Effect on Kill Rate in Real VizDoom
+
+**Hypothesis**: H-013 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-009 (EXPERIMENT_ORDER_009.md)
+**Experiment Report**: RPT-009 (EXPERIMENT_REPORT_009.md)
+
+**Evidence**:
+- 2-way ANOVA: [STAT:f=F(2,261)=0.306] [STAT:p=0.736]
+- Effect size negligible: [STAT:eta2=partial η²=0.002]
+- Sample size: [STAT:n=270 (30 per cell, 9 cells)]
+- All diagnostics PASS (Shapiro p=0.098, Levene p=0.196)
+- Non-parametric confirms: Kruskal-Wallis p=0.500
+
+**Trust Level**: HIGH (for null result)
+
+**Interpretation**:
+Varying memory_weight from 0.1 to 0.9 has no detectable effect on kill_rate in defend_the_line. Main effect means: memory=0.1: 42.29 kr, memory=0.5: 42.96 kr, memory=0.9: 42.94 kr. The memory dodge heuristic's probability modulation is overwhelmed by gameplay noise and L0 emergency rules.
+
+**INVALIDATES**: F-005 (H-006, adopted from DOE-002 mock data claiming memory explains 41.5% of variance)
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-014: Strength Weight Has No Significant Effect on Kill Rate in Real VizDoom
+
+**Hypothesis**: H-013 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-009 (EXPERIMENT_ORDER_009.md)
+**Experiment Report**: RPT-009 (EXPERIMENT_REPORT_009.md)
+
+**Evidence**:
+- 2-way ANOVA: [STAT:f=F(2,261)=2.235] [STAT:p=0.109]
+- Effect size small: [STAT:eta2=partial η²=0.017]
+- Sample size: [STAT:n=270 (30 per cell, 9 cells)]
+- Borderline trend: strength=0.1 (41.55 kr) vs strength=0.5 (43.43 kr)
+
+**Trust Level**: HIGH (for null result)
+
+**Interpretation**:
+Strength_weight shows a non-significant trend (p=0.109). Low strength (0.1) yields ~2 kr less than medium/high strength (0.5/0.9), but this does not reach significance. The strength attack probability modulation has a weak effect at best, insufficient to produce reliable performance differences.
+
+**INVALIDATES**: F-006 (H-007, adopted from DOE-002 mock data claiming strength explains 31.6% of variance)
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-015: No Memory × Strength Interaction in Real VizDoom
+
+**Hypothesis**: H-013 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-009 (EXPERIMENT_ORDER_009.md)
+**Experiment Report**: RPT-009 (EXPERIMENT_REPORT_009.md)
+
+**Evidence**:
+- 2-way ANOVA: [STAT:f=F(4,261)=0.365] [STAT:p=0.834]
+- Effect size negligible: [STAT:eta2=partial η²=0.006]
+- Sample size: [STAT:n=270]
+
+**Trust Level**: HIGH (for null result)
+
+**Interpretation**:
+Memory and strength do not interact. The factors are independently (and equally) ineffective. The synergistic interaction claimed by DOE-002 mock data does not exist in real gameplay.
+
+**INVALIDATES**: F-007 (H-008, adopted from DOE-002 mock data claiming significant interaction)
+
+**Adopted**: 2026-02-08 (Phase 1)
