@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package clau_doom.agent;
+
+option go_package = "github.com/sangyi/clau-doom/proto/agentpb";
+
+// GameState captures the agent's observation at a single game tick.
+message GameState {
+  int32 health = 1;
+  int32 ammo = 2;
+  int32 kills = 3;
+  int32 enemies_visible = 4;
+  float position_x = 5;
+  float position_y = 6;
+  float position_z = 7;
+  float angle = 8;
+  float episode_time = 9;
+  bool is_dead = 10;
+}
+
+// ActionType enumerates the discrete actions available to an agent.
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  MOVE_LEFT = 1;
+  MOVE_RIGHT = 2;
+  MOVE_FORWARD = 3;
+  MOVE_BACKWARD = 4;
+  TURN_LEFT = 5;
+  TURN_RIGHT = 6;
+  ATTACK = 7;
+  USE = 8;
+}
+
+// Action is the agent's response to a GameState observation.
+message Action {
+  ActionType action_type = 1;
+
+  // Which level of the decision cascade produced this action.
+  // 0 = hardcoded rule, 1 = DuckDB cache, 2 = OpenSearch kNN.
+  int32 decision_level = 2;
+
+  // End-to-end decision latency in milliseconds.
+  float latency_ms = 3;
+}
+
+// GameTick pairs a request (observation) with a response (action).
+service AgentService {
+  // Tick processes a single game frame and returns the chosen action.
+  rpc Tick(GameState) returns (Action);
+
+  // StreamTick processes a continuous stream of game frames.
+  rpc StreamTick(stream GameState) returns (stream Action);
+}

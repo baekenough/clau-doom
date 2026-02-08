@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package clau_doom.orchestrator;
+
+option go_package = "github.com/sangyi/clau-doom/proto/orchestratorpb";
+
+// SpawnAgentRequest creates a new agent instance from a template.
+message SpawnAgentRequest {
+  string agent_id = 1;
+  string template_path = 2;
+  map<string, string> overrides = 3;
+}
+
+message SpawnAgentResponse {
+  string agent_id = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+// StopAgentRequest gracefully stops a running agent.
+message StopAgentRequest {
+  string agent_id = 1;
+}
+
+message StopAgentResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// ExperimentRunRequest initiates a DOE experiment run.
+message ExperimentRunRequest {
+  string experiment_id = 1;
+  string condition = 2;
+  repeated int64 seed_set = 3;
+  int32 episodes = 4;
+  map<string, string> factor_levels = 5;
+}
+
+message ExperimentRunResponse {
+  string experiment_id = 1;
+  string run_id = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+// ExperimentStatus reports progress of an active experiment.
+message ExperimentStatusRequest {
+  string experiment_id = 1;
+}
+
+message ExperimentStatusResponse {
+  string experiment_id = 1;
+  int32 completed_episodes = 2;
+  int32 total_episodes = 3;
+  string phase = 4;
+  bool is_complete = 5;
+}
+
+// OrchestratorService manages agent lifecycle and experiment execution.
+service OrchestratorService {
+  rpc SpawnAgent(SpawnAgentRequest) returns (SpawnAgentResponse);
+  rpc StopAgent(StopAgentRequest) returns (StopAgentResponse);
+  rpc RunExperiment(ExperimentRunRequest) returns (ExperimentRunResponse);
+  rpc GetExperimentStatus(ExperimentStatusRequest) returns (ExperimentStatusResponse);
+}

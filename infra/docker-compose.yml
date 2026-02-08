@@ -1,0 +1,108 @@
+# clau-doom Docker Compose - Development Stack
+#
+# Services:
+#   doom-player  - VizDoom + Xvfb + noVNC game environment
+#   opensearch   - RAG vector search (kNN)
+#   ollama       - Lightweight embeddings
+#   nats         - Agent pub/sub messaging
+
+services:
+  doom-player:
+    build:
+      context: ./docker/doom-player
+      dockerfile: Dockerfile
+    container_name: clau-doom-player
+    ports:
+      - "6901:6901"   # noVNC web viewer
+      - "5900:5900"   # VNC raw
+      - "50051:50051" # gRPC agent communication
+    environment:
+      - DISPLAY=:99
+      - SCREEN_RESOLUTION=640x480x24
+    networks:
+      - clau-doom-net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+  opensearch:
+    image: opensearchproject/opensearch:2.17.1
+    container_name: clau-doom-opensearch
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.name=clau-doom
+    ports:
+      - "9200:9200"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    networks:
+      - clau-doom-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: clau-doom-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - clau-doom-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+
+  nats:
+    image: nats:latest
+    container_name: clau-doom-nats
+    ports:
+      - "4222:4222"   # Client connections
+      - "8222:8222"   # HTTP monitoring
+    networks:
+      - clau-doom-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8222/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+networks:
+  clau-doom-net:
+    driver: bridge
+
+volumes:
+  opensearch-data:
+    driver: local
+  ollama-models:
+    driver: local

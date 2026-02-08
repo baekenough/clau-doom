@@ -19,6 +19,9 @@ target/
 
 # Go
 /vendor/
+/build/
+/clau-doom
+/orchestrator
 
 # Python
 __pycache__/
@@ -27,12 +30,19 @@ __pycache__/
 venv/
 .env
 
-# Docker volumes (local data)
-volumes/
+# Docker volumes (runtime data only — templates are tracked)
+volumes/data/
+volumes/opensearch/
+volumes/mongo/
+volumes/nats/
+volumes/agents/active/
 
 # DuckDB
 *.duckdb
 *.duckdb.wal
+
+# Node.js
+node_modules/
 
 # Agent memory (local)
 .claude/agent-memory-local/
