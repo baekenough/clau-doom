@@ -163,6 +163,98 @@ def build_doe005_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe006_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-006: 2^2 factorial + 3 center points.
+
+    Factors:
+        Memory:   [0.3, 0.7], center 0.5
+        Strength: [0.3, 0.7], center 0.5
+
+    Seed formula: seed_i = 3501 + i * 29, i=0..29
+
+    Randomized run order: R3, CP2, R1, R4, CP1, R2, CP3
+    """
+    seeds = _generate_seed_set(n=30, base=3501, step=29)
+    exp_id = "DOE-006"
+
+    # Define all runs (will be reordered below)
+    run1 = RunConfig(
+        run_id=f"{exp_id}-R1",
+        run_label="R1",
+        memory_weight=0.3,
+        strength_weight=0.3,
+        seeds=list(seeds),  # all 30
+        condition="memory=0.3_strength=0.3",
+        run_type="factorial",
+    )
+    run2 = RunConfig(
+        run_id=f"{exp_id}-R2",
+        run_label="R2",
+        memory_weight=0.7,
+        strength_weight=0.3,
+        seeds=list(seeds),
+        condition="memory=0.7_strength=0.3",
+        run_type="factorial",
+    )
+    run3 = RunConfig(
+        run_id=f"{exp_id}-R3",
+        run_label="R3",
+        memory_weight=0.3,
+        strength_weight=0.7,
+        seeds=list(seeds),
+        condition="memory=0.3_strength=0.7",
+        run_type="factorial",
+    )
+    run4 = RunConfig(
+        run_id=f"{exp_id}-R4",
+        run_label="R4",
+        memory_weight=0.7,
+        strength_weight=0.7,
+        seeds=list(seeds),
+        condition="memory=0.7_strength=0.7",
+        run_type="factorial",
+    )
+    cp1 = RunConfig(
+        run_id=f"{exp_id}-CP1",
+        run_label="CP1",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=seeds[0:10],
+        condition="memory=0.5_strength=0.5",
+        run_type="center",
+    )
+    cp2 = RunConfig(
+        run_id=f"{exp_id}-CP2",
+        run_label="CP2",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=seeds[10:20],
+        condition="memory=0.5_strength=0.5",
+        run_type="center",
+    )
+    cp3 = RunConfig(
+        run_id=f"{exp_id}-CP3",
+        run_label="CP3",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=seeds[20:30],
+        condition="memory=0.5_strength=0.5",
+        run_type="center",
+    )
+
+    # Randomized run order: R3, CP2, R1, R4, CP1, R2, CP3
+    randomized_runs = [run3, cp2, run1, run4, cp1, run2, cp3]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 3501 + i * 29, i=0..29",
+        scenario="defend_the_center.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -444,6 +536,7 @@ def _count_run_episodes(
 
 EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-005": build_doe005_config,
+    "DOE-006": build_doe006_config,
 }
 
 
