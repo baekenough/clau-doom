@@ -18,6 +18,20 @@
 **Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
 **Date Added**: 2026-02-07
 
+### H-014: Structured Lateral Movement Outperforms Random [REJECTED]
+**Statement**: Structured lateral movement patterns (sweep, burst-fire) produce higher kill_rate than random lateral movement on defend_the_line.
+**Rationale**: DOE-008 showed ANY lateral movement helps equally (~38 kr), but all tested strategies used reactive/probabilistic movement. Deterministic patterns (sweep, burst) may provide better enemy line coverage or more efficient attack windows.
+**Evidence**: RPT-010, F-016, F-017, F-018, F-019
+- Overall ANOVA: [STAT:f=F(4,145)=4.938] [STAT:p=0.000923] [STAT:eta2=0.120]
+- C2 contrast (random vs structured): t=-0.332 [STAT:p=0.741] [STAT:effect_size=Cohen's d=0.073] — NOT significant
+- Burst strategies MATCH random but do not exceed it
+- sweep_lr ≡ L0_only (Tukey p=0.968) — oscillation is not movement
+- Kruskal-Wallis confirms: H(4)=17.438 [STAT:p=0.001589]
+**Trust**: HIGH (for rejection — all diagnostics pass, power 0.962, non-parametric confirms)
+**Date Added**: 2026-02-08
+**Linked Experiment**: DOE-010
+**Key Findings**: F-016 (replication), F-017 (oscillation≡stasis), F-018 (H-014 rejected), F-019 (displacement hierarchy)
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

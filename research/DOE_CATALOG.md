@@ -357,6 +357,7 @@ How many factors are you testing?
 | H-011 | 0/1 | One-way ANOVA (5 levels) | DOE-007 | action_strategy on defend_the_center (5 levels) | 150 (COMPLETE, p=0.183 NS, Scenario D) |
 | H-012 | 0/1 | One-way ANOVA (5 levels, scenario replication) | DOE-008 | action_strategy on defend_the_line (5 levels) | 150 (ORDERED) |
 | H-013 | 1 | 3×3 factorial (memory × strength) | DOE-009 | memory_weight × strength_weight on defend_the_line | 270 (ORDERED) |
+| H-014 | 1 | One-way CRD (5 levels) | DOE-010 | action_strategy structured patterns on defend_the_line | 150 (5 × 30) |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -375,8 +376,9 @@ How many factors are you testing?
 | 0/1 — Layer Ablation | H-011 | DOE-007 | 150 (5 levels x 30 episodes) | 1350 |
 | 1 — Scenario Replication | H-012 | DOE-008 | 150 (5 levels x 30 episodes) | 1500 |
 | 1 — Memory × Strength Factorial | H-013 | DOE-009 | 270 (9 cells x 30 episodes) | 1770 |
-| 2 — RSM | TBD | TBD | 330-510 | 1950-2130 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 2730-2910+ |
+| 1 — Structured Movement | H-014 | DOE-010 | 150 (5 levels x 30 episodes) | 1920 |
+| 2 — RSM | TBD | TBD | 330-510 | 2250-2430 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 3330-3510+ |
 
 **Notes**:
 - DOE-001 tests H-001 and H-002 simultaneously with shared seed set (70 seeds, 3 conditions).

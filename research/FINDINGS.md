@@ -549,3 +549,91 @@ Memory and strength do not interact. The factors are independently (and equally)
 **INVALIDATES**: F-007 (H-008, adopted from DOE-002 mock data claiming significant interaction)
 
 **Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+## DOE-010 Findings (Structured Lateral Movement Strategies)
+
+### F-016: Strategy Architecture Significantly Affects Kill Rate (DOE-010 Replication)
+
+**Hypothesis**: H-014 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-010 (EXPERIMENT_ORDER_010.md)
+**Experiment Report**: RPT-010 (EXPERIMENT_REPORT_010.md)
+
+**Evidence**:
+- One-way ANOVA: [STAT:f=F(4,145)=4.938] [STAT:p=0.000923] [STAT:eta2=η²=0.120] (medium)
+- Kruskal-Wallis confirms: H(4)=17.438 [STAT:p=0.001589]
+- C1 contrast (L0_only vs all others): t=-3.480 [STAT:p=0.001] [STAT:effect_size=Cohen's d=0.654]
+- Sample size: [STAT:n=150 (30 per group)]
+- Achieved power: [STAT:power=0.962]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Confirms DOE-008 F-010 with independent strategies and seed set. L0_only remains significantly worse than alternatives on defend_the_line.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-017: Deterministic Oscillation Equivalent to No Lateral Movement
+
+**Hypothesis**: H-014 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-010 (EXPERIMENT_ORDER_010.md)
+**Experiment Report**: RPT-010 (EXPERIMENT_REPORT_010.md)
+
+**Evidence**:
+- sweep_lr vs L0_only: Tukey p_adj=0.968 [STAT:effect_size=Cohen's d=0.215] (negligible)
+- sweep_lr mean: 39.94 kr, L0_only mean: 39.00 kr — statistically indistinguishable
+- sweep_lr vs burst_3: Tukey p_adj=0.018 [STAT:effect_size=Cohen's d=0.857] (large) — sweep significantly worse
+- Both sweep_lr and L0_only have ~identical kills (8.57 vs 8.40) and survival (12.92s vs 12.95s)
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+The deterministic attack-left-attack-right sweep pattern creates rapid oscillation (period 4 ticks = ~114ms) that does NOT produce effective repositioning. The agent jitters in place without changing its field of fire. This reveals that effective lateral movement requires sustained directional commitment — a few ticks in the same direction to actually displace the agent — not mere presence of movement commands. Rapid alternation is functionally equivalent to standing still.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-018: Structured Patterns Do Not Outperform Random (H-014 Rejected)
+
+**Hypothesis**: H-014 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-010 (EXPERIMENT_ORDER_010.md)
+**Experiment Report**: RPT-010 (EXPERIMENT_REPORT_010.md)
+
+**Evidence**:
+- C2 contrast (random vs structured): t=-0.332 [STAT:p=0.741] [STAT:effect_size=Cohen's d=0.073] (negligible)
+- random mean: 42.16 kr, structured mean: 42.62 kr
+- burst_3 vs random: Tukey p_adj=0.485, d=0.370 (small, NS)
+- burst_5 vs random: Tukey p_adj=0.926, d=0.191 (negligible, NS)
+
+**Trust Level**: HIGH (for null result — power 0.962 rules out large effects)
+
+**Interpretation**:
+H-014 is rejected. Structured lateral movement patterns do not outperform random movement on defend_the_line. Burst strategies (burst_3, burst_5) MATCH random performance but cannot exceed it. With the current 3-action space (attack/left/right), random movement is already near-optimal for producing effective lateral displacement. The action space is the bottleneck — more expressive actions (turn, aim, compound movements) may be needed to enable intelligent strategies to outperform random.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-019: Performance Hierarchy — Effective Displacement vs Oscillation
+
+**Hypothesis**: H-014 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-010 (EXPERIMENT_ORDER_010.md)
+**Experiment Report**: RPT-010 (EXPERIMENT_REPORT_010.md)
+
+**Evidence**:
+- Group A (effective displacement): burst_3=44.55, burst_5=43.36, random=42.16 kr
+- Group B (no effective displacement): sweep_lr=39.94, L0_only=39.00 kr
+- C3 contrast (sweep vs burst): t=-3.559 [STAT:p=0.000638] [STAT:effect_size=Cohen's d=0.758] (medium-large)
+- kills ANOVA: [STAT:f=F(4,145)=12.654] [STAT:p<0.000001] [STAT:eta2=0.259]
+- survival ANOVA: [STAT:f=F(4,145)=7.700] [STAT:p=0.000012] [STAT:eta2=0.175]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+The five strategies form two distinct performance tiers. Group membership is determined by whether the strategy produces effective physical displacement (multiple consecutive same-direction moves) vs oscillation or stasis. All three secondary responses (kill_rate, kills, survival_time) show the same grouping pattern. The 3-action space ceiling is approximately 43-45 kr for any strategy that achieves effective displacement.
+
+**Adopted**: 2026-02-08 (Phase 1)

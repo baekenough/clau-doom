@@ -1,5 +1,48 @@
 # Research Log
 
+## 2026-02-08 — DOE-010: Structured Lateral Movement Strategies
+
+### Context
+DOE-008 showed architecture level matters (p=0.000555) with L0_only worst and all lateral-movement strategies equivalent (~38 kr). DOE-009 confirmed parameter tuning is ineffective. The next question: does the PATTERN of lateral movement matter?
+
+### Hypothesis
+H-014: Structured lateral movement patterns outperform random lateral movement on defend_the_line.
+Priority: Medium
+Rationale: If pattern matters, we have a design principle for better agents. If not, the 3-action space is too coarse for intelligent strategy.
+
+### Design
+DOE type: One-way CRD (5 levels)
+Factor: action_strategy [random, L0_only, sweep_lr, burst_3, burst_5]
+Sample size: 30 per condition, 150 total
+Seed formula: seed_i = 10001 + i x 43
+Scenario: defend_the_line.cfg
+
+### Result
+[STAT:f=F(4,145)=4.938] [STAT:p=0.000923] [STAT:eta2=η²=0.120] — SIGNIFICANT
+[STAT:n=150 episodes (30 per group)] [STAT:power=0.962]
+
+Descriptive statistics:
+- burst_3: 44.55 ± 6.39 kr (best)
+- burst_5: 43.36 ± 6.04 kr
+- random: 42.16 ± 6.74 kr
+- sweep_lr: 39.94 ± 4.35 kr
+- L0_only: 39.00 ± 4.60 kr (worst)
+
+Key contrasts:
+- C1 (L0_only vs all): p=0.001, d=0.654 — CONFIRMS F-010
+- C2 (random vs structured): p=0.741, d=0.073 — H-014 REJECTED
+- C3 (sweep vs burst): p=0.001, d=0.758 — burst wins
+- C4 (burst_3 vs burst_5): p=0.462, d=0.195 — no difference
+
+Conclusion: H-014 REJECTED. Structured patterns ≠ better than random.
+Trust level: HIGH
+Findings: F-016, F-017, F-018, F-019 adopted
+
+### Next Steps
+Investigate action space expansion or scenario generalization.
+
+---
+
 ## 2026-02-08 — DOE-009: Memory × Strength Factorial on defend_the_line
 
 ### Context

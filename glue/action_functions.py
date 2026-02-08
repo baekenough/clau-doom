@@ -1,11 +1,14 @@
 """Action selection functions for VizDoom defend_the_center scenario.
 
-Provides five action strategies (DOE-007 ablation levels):
+Provides eight action strategies (DOE-007/008/010 ablation levels):
 1. random_action -- uniform random choice
 2. rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
 3. L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
 4. L0StrengthAction -- L0 rules + strength attack probability (no memory dodge)
 5. FullAgentAction -- callable class with memory + strength heuristics
+6. SweepLRAction -- deterministic sweep-fire: attack-left-attack-right cycle
+7. Burst3Action -- burst-fire with repositioning: 3 attacks then 1 random move
+8. Burst5Action -- burst-fire with repositioning: 5 attacks then 1 random move
 """
 
 from __future__ import annotations
@@ -242,3 +245,94 @@ class FullAgentAction:
         dodge_threshold = 30.0 * (1.1 - self.memory_weight)
         dodge_prob = min(0.9, recent_loss / dodge_threshold)
         return self._rng.random() < dodge_prob
+
+
+class SweepLRAction:
+    """Deterministic sweep-fire: attack-left-attack-right cycle.
+
+    Creates a sweeping fire pattern across the enemy line by alternating
+    attacks with lateral repositioning. Unlike reactive strategies,
+    this pattern is completely deterministic (no RNG).
+    """
+
+    def __init__(self) -> None:
+        self._tick: int = 0
+        self._pattern = [ACTION_ATTACK, ACTION_MOVE_LEFT, ACTION_ATTACK, ACTION_MOVE_RIGHT]
+
+    def reset(self, seed: int = 0) -> None:
+        self._tick = 0
+
+    def __call__(self, state: GameState) -> int:
+        # L0 emergency rules
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        action = self._pattern[self._tick % len(self._pattern)]
+        self._tick += 1
+        return action
+
+
+class Burst3Action:
+    """Burst-fire with repositioning: 3 attacks then 1 random move.
+
+    Groups attacks into short bursts followed by lateral repositioning.
+    Tests whether concentrated fire windows improve kill efficiency
+    compared to random movement mixing.
+    """
+
+    def __init__(self) -> None:
+        self._rng: random.Random = random.Random(0)
+        self._tick: int = 0
+
+    def reset(self, seed: int = 0) -> None:
+        self._rng = random.Random(hash(seed))
+        self._tick = 0
+
+    def __call__(self, state: GameState) -> int:
+        # L0 emergency rules
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        cycle_pos = self._tick % 4  # 0,1,2 = attack; 3 = move
+        self._tick += 1
+
+        if cycle_pos < 3:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class Burst5Action:
+    """Burst-fire with repositioning: 5 attacks then 1 random move.
+
+    Longer burst window than Burst3Action. Tests whether extending
+    the attack duration between repositioning improves or hurts
+    kill efficiency.
+    """
+
+    def __init__(self) -> None:
+        self._rng: random.Random = random.Random(0)
+        self._tick: int = 0
+
+    def reset(self, seed: int = 0) -> None:
+        self._rng = random.Random(hash(seed))
+        self._tick = 0
+
+    def __call__(self, state: GameState) -> int:
+        # L0 emergency rules
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        cycle_pos = self._tick % 6  # 0,1,2,3,4 = attack; 5 = move
+        self._tick += 1
+
+        if cycle_pos < 5:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])

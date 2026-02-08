@@ -461,6 +461,82 @@ def build_doe009_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe010_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-010: New Strategy Architectures on defend_the_line.
+
+    Single factor: action_strategy, 5 levels.
+    Tests structured lateral movement patterns vs random/L0.
+    Seeds: seed_i = 10001 + i * 43, i=0..29
+    Randomized run order: R4, R2, R5, R1, R3
+    Scenario: defend_the_line.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=10001, step=43)
+    exp_id = "DOE-010"
+
+    run1 = RunConfig(
+        run_id=f"{exp_id}-R1",
+        run_label="R1",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="strategy=random",
+        run_type="factorial",
+        action_type="random",
+    )
+    run2 = RunConfig(
+        run_id=f"{exp_id}-R2",
+        run_label="R2",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="strategy=L0_only",
+        run_type="factorial",
+        action_type="rule_only",
+    )
+    run3 = RunConfig(
+        run_id=f"{exp_id}-R3",
+        run_label="R3",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="strategy=sweep_lr",
+        run_type="factorial",
+        action_type="sweep_lr",
+    )
+    run4 = RunConfig(
+        run_id=f"{exp_id}-R4",
+        run_label="R4",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="strategy=burst_3",
+        run_type="factorial",
+        action_type="burst_3",
+    )
+    run5 = RunConfig(
+        run_id=f"{exp_id}-R5",
+        run_label="R5",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="strategy=burst_5",
+        run_type="factorial",
+        action_type="burst_5",
+    )
+
+    # Randomized execution order: R4, R2, R5, R1, R3
+    randomized_runs = [run4, run2, run5, run1, run3]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 10001 + i * 43, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -477,9 +553,12 @@ def execute_experiment(config: ExperimentConfig) -> None:
     """
     # Defer heavy imports so --help works without dependencies
     from glue.action_functions import (
+        Burst3Action,
+        Burst5Action,
         FullAgentAction,
         L0MemoryAction,
         L0StrengthAction,
+        SweepLRAction,
         random_action,
         rule_only_action,
     )
@@ -587,6 +666,12 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = L0MemoryAction()
             elif run.action_type == "l0_strength":
                 action_fn = L0StrengthAction()
+            elif run.action_type == "sweep_lr":
+                action_fn = SweepLRAction()
+            elif run.action_type == "burst_3":
+                action_fn = Burst3Action()
+            elif run.action_type == "burst_5":
+                action_fn = Burst5Action()
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -762,6 +847,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-007": build_doe007_config,
     "DOE-008": build_doe008_config,
     "DOE-009": build_doe009_config,
+    "DOE-010": build_doe010_config,
 }
 
 
