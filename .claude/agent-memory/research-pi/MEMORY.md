@@ -2,11 +2,11 @@
 
 ## Project State
 - **Current Phase**: Phase 0/1 (Architectural Ablation)
-- **Hypotheses**: 11 total (H-001 through H-011)
-- **Experiment Orders**: 7 written (DOE-001 through DOE-007)
+- **Hypotheses**: 12 total (H-001 through H-012)
+- **Experiment Orders**: 8 written (DOE-001 through DOE-008)
 - **Findings**: 8 (F-001 through F-008; F-002 INVALIDATED, F-008 REJECTED; F-005/F-006/F-007 INVALIDATED by DOE-006)
-- **Total Episodes Executed**: ~660 (DOE-001: 210, DOE-002: 150, DOE-005: 150, DOE-006: 150)
-- **DOE-007**: ORDERED, 150 episodes pending (layer ablation)
+- **Total Episodes Executed**: ~810 (DOE-001: 210, DOE-002: 150, DOE-005: 150, DOE-006: 150, DOE-007: 150)
+- **DOE-008**: ORDERED, 150 episodes pending (defend_the_line ablation replication)
 
 ## Memory-Strength Thread: CLOSED
 - DOE-002: Large effects but INVALID data (AMMO2 bug)
@@ -16,13 +16,17 @@
 - DOE-002 effects were entirely measurement artifacts
 - F-005, F-006, F-007 should be marked INVALIDATED
 
-## DOE-007: Layer Ablation Study
-- Single-factor design: action_strategy with 5 levels
-- Levels: random, L0_only, L0_memory, L0_strength, full_agent
-- 30 episodes per level, 150 total
-- Seeds: 4501 + i*31, i=0..29 (range [4501, 5400])
-- Analysis: One-way ANOVA with Tukey HSD
-- Key question: do heuristic layers contribute beyond L0 reflex rules?
+## DOE-007: Layer Ablation Study (COMPLETE)
+- Result: F(4,145)=1.579, p=0.183 -- NOT significant
+- Kruskal-Wallis also NS (p=0.503)
+- defend_the_center too simple to discriminate architectures (Scenario D)
+- H-011: CLOSED, superseded by H-012
+
+## DOE-008: Ablation Replication on defend_the_line (ORDERED)
+- Same 5-level single-factor design as DOE-007
+- Scenario: defend_the_line.cfg (higher kill ceiling: 6-17 vs 0-3)
+- Seeds: 6001 + i*37, i=0..29 (range [6001, 7074])
+- Key question: does a harder scenario reveal architectural differences?
 
 ## Seed Set Information
 - DOE-001: 42 + i*31, i=0..69 (70 seeds, range [42, 2211])
@@ -30,6 +34,7 @@
 - DOE-005: 2501 + i*23, i=0..29 (30 seeds, range [2501, 3168])
 - DOE-006: 3501 + i*29, i=0..29 (30 seeds, range [3501, 4342])
 - DOE-007: 4501 + i*31, i=0..29 (30 seeds, range [4501, 5400])
+- DOE-008: 6001 + i*37, i=0..29 (30 seeds, range [6001, 7074])
 - All ranges verified: zero cross-experiment collisions
 
 ## Hypothesis Status Summary
@@ -43,7 +48,8 @@
 - H-008 (Interaction): ADOPTED MEDIUM (DOE-002 data INVALIDATED)
 - H-009 (Trend beyond 0.7): REJECTED
 - H-010 (Effects at [0.3, 0.7] real data): REJECTED (DOE-006 null)
-- H-011 (Layer ablation): ACTIVE, DOE-007 ORDERED
+- H-011 (Layer ablation): CLOSED (defend_the_center NS, Scenario D)
+- H-012 (Scenario discriminability): ACTIVE, DOE-008 ORDERED
 
 ## Lessons Learned
 - Real VizDoom kill_rate is zero-inflated and right-skewed; always plan non-parametric fallbacks
@@ -55,3 +61,6 @@
 - Always verify seed ranges against ALL prior experiments
 - When parameter optimization yields null results, ablation study is the correct next step to test whether the LAYERS themselves contribute
 - 4 experiments on Memory-Strength produced no real effects -- pivot faster in future
+- When a scenario lacks discriminability (ceiling/floor effects), replicate on harder scenario before concluding null
+- defend_the_center: 0-3 kills/episode, too simple; defend_the_line: 6-17 kills/episode, better variance
+- shots_fired/ammo_efficiency NOT reliable for defend_the_line (AMMO2 weapon type mismatch)

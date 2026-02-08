@@ -2,14 +2,25 @@
 
 ## Active Hypotheses
 
-### H-011: Action Selection Architecture Has Significant Effect on Kill Rate [ANALYZED — PENDING PI DISPOSITION]
+### H-012: defend_the_line Scenario Reveals Architectural Differences [HIGH PRIORITY]
+**Statement**: The defend_the_line scenario, with its higher kill ceiling (6-17 kills/episode vs 0-3) and more varied gameplay, will reveal statistically significant performance differences between action architecture levels that the simpler defend_the_center scenario (DOE-007, Scenario D) could not detect.
+**Rationale**: DOE-007's null result (F(4,145)=1.579, p=0.183) may be due to floor/ceiling compression in defend_the_center (only 0-3 kills per episode, limiting discriminability). Quick testing on defend_the_line shows 6-17 kills per episode, providing approximately 5x the dynamic range. If architectural effects exist but were undetectable on defend_the_center, defend_the_line should reveal them.
+**Status**: CONFIRMED -- DOE-008 shows significant architectural effect. F(4,145)=5.256, p=0.000555. Trust: HIGH.
+**Date Added**: 2026-02-08
+**Date Confirmed**: 2026-02-08
+**Linked Experiment**: DOE-008
+**Predecessor**: H-011 / DOE-007 (same design, defend_the_center scenario)
+**Key Design**: Same 5-level ablation (random, L0_only, L0_memory, L0_strength, full_agent), 30 episodes per level, 150 total. Changed scenario only. Seeds: 6001 + i*37, i=0..29.
+
+### H-011: Action Selection Architecture Has Significant Effect on Kill Rate [CLOSED — Scenario D confirmed, superseded by H-012]
 **Statement**: Action selection architecture (L0 rules, memory heuristic, strength heuristic) has a significant effect on kill_rate performance in defend_the_center. Specifically, the layer ablation study tests whether the memory dodge heuristic and/or strength attack probability modulation provide measurable improvement over bare L0 reflex rules.
 **Rationale**: DOE-005 and DOE-006 both found NO significant effect of memory_weight and strength_weight on kill_rate, closing the Memory-Strength optimization thread. This raises a fundamental question: do these heuristic layers contribute anything at all? An ablation study (DOE-007) isolates each layer's contribution.
-**Status**: Experiment completed. Analysis complete (RPT-007). Pending PI interpretation.
+**Status**: CLOSED — Scenario D confirmed (defend_the_center too simple). Superseded by H-012 (defend_the_line replication).
 **Date Added**: 2026-02-08
 **Date Analyzed**: 2026-02-08
+**Date Closed**: 2026-02-08
 **Linked Experiment**: DOE-007
-**Result Summary**: One-way ANOVA NOT significant [STAT:f=F(4,145)=1.579] [STAT:p=0.183] [STAT:eta2=0.042]. Kruskal-Wallis also non-significant (p=0.503). No architectural configuration significantly outperforms any other. Random agent performs comparably to all structured agents. Full_agent (combined heuristics) is paradoxically the WORST performer (mean=6.74 vs L0_only mean=9.08, d=0.685 medium). PI must decide: reject H-011 or partially adopt with LOW trust.
+**Result Summary**: One-way ANOVA NOT significant [STAT:f=F(4,145)=1.579] [STAT:p=0.183] [STAT:eta2=0.042]. Kruskal-Wallis also non-significant (p=0.503). No architectural configuration significantly outperforms any other. Random agent performs comparably to all structured agents. Full_agent (combined heuristics) is paradoxically the WORST performer (mean=6.74 vs L0_only mean=9.08, d=0.685 medium). Scenario D: defend_the_center lacks discriminability.
 
 ### H-005: Strategy Document Quality Matters [MEDIUM PRIORITY]
 **Statement**: Higher quality strategy documents (higher confidence_tier) lead to better agent performance.

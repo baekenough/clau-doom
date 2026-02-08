@@ -1,5 +1,65 @@
 # Research Log
 
+## 2026-02-08 — DOE-008 Designed: Layer Ablation Replication on defend_the_line
+
+### Context
+DOE-007 tested the 5-level action architecture ablation on defend_the_center and produced a clear Scenario D result: all 5 configurations (random through full_agent) were statistically indistinguishable [STAT:f=F(4,145)=1.579] [STAT:p=0.183]. The analyst identified low kill counts (0-3 per episode) as a key limitation, recommending testing on scenarios with higher kill counts for better discriminability.
+
+Quick testing on defend_the_line confirmed 6-17 kills per episode -- approximately 5x the dynamic range of defend_the_center. The scenario uses the same action space (TURN_LEFT, TURN_RIGHT, ATTACK) and same game variables (KILLCOUNT, HEALTH, AMMO2), enabling direct comparison with DOE-007.
+
+### PI Interpretation of DOE-007
+
+**H-011 Disposition**: REJECTED. The overall ANOVA and all planned contrasts (C1-C4) are non-significant. Even the borderline C3 contrast (single heuristic vs combined, p=0.051) does not reach significance. The directional pattern (full_agent worst, L0_only best) is informative but does not constitute statistical evidence. The result is attributed to Scenario D: defend_the_center is too simple to differentiate architectures, not necessarily that architectures are equivalent.
+
+**Finding F-009**: Adopted as TENTATIVE (LOW trust) -- action architecture does not affect kill_rate in defend_the_center. Low trust because the scenario's limited kill range (0-3) fundamentally limits discriminability. The null may be scenario-specific, not architecture-specific.
+
+### Hypothesis
+H-012: The defend_the_line scenario, with its higher kill ceiling and more varied gameplay, will reveal statistically significant performance differences between action architecture levels that the simpler defend_the_center scenario could not detect.
+Priority: High
+Rationale: Same design as DOE-007 with one controlled change (scenario), testing whether the null result is scenario-specific. 5x higher dynamic range should provide much better discriminability.
+
+### Design
+DOE type: One-Way ANOVA (Single Factor, 5 Levels) -- identical to DOE-007
+Factor: action_strategy with 5 levels:
+  1. random -- uniform random choice (baseline)
+  2. L0_only -- pure deterministic reflex rules
+  3. L0_memory -- L0 rules + memory dodge heuristic (fixed attack prob)
+  4. L0_strength -- L0 rules + strength attack modulation (no memory dodge)
+  5. full_agent -- L0 + memory + strength (complete pipeline)
+
+Sample size: 30 episodes per level, 150 total
+Scenario: defend_the_line.cfg (episode_timeout = 2100 ticks = 60 seconds)
+Seeds: seed_i = 6001 + i*37, i=0..29 (range [6001, 7074], zero collisions with prior experiments)
+Expected power: [STAT:power=0.83] for medium effect (f=0.25) with k=5, n=30
+
+### Known Limitations
+- shots_fired and ammo_efficiency NOT reliable for defend_the_line (AMMO2 increases instead of decreasing)
+- Primary response: kill_rate; secondary: survival_time, kills
+- ammo_efficiency EXCLUDED from analysis
+
+### Decision Rationale
+
+**Why replicate on defend_the_line rather than pivot to new factors?**
+
+1. DOE-007's null result may be a ceiling/floor effect rather than a true null. Before concluding that architectural layers are worthless, we must test whether the measurement instrument (scenario) limited detection.
+
+2. defend_the_line has the same action space and game variables, enabling a controlled comparison with exactly one changed variable (scenario). This is the cleanest possible test of the scenario discriminability hypothesis.
+
+3. If defend_the_line also produces a null, the combined evidence across two scenarios is much stronger than a single null on defend_the_center alone.
+
+4. If defend_the_line produces significant differences, this reopens the entire architecture optimization thread -- on a more suitable scenario.
+
+### Status
+EXPERIMENT_ORDER_008.md written. Awaiting execution by research-doe-runner.
+
+### Next Steps
+1. research-doe-runner: Execute DOE-008 on defend_the_line (150 episodes, ~2 hours)
+2. research-analyst: One-way ANOVA with Tukey HSD post-hoc
+3. Cross-scenario comparison: DOE-007 vs DOE-008 effect sizes and contrast patterns
+4. research-pi: Interpret results and decide next research direction
+
+---
+
 ## 2026-02-08 — DOE-007 Designed: Layer Ablation Study
 
 ### Context

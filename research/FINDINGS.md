@@ -365,3 +365,31 @@ DOE-002 reported large effects (Memory eta2=0.42, Strength eta2=0.32) in the [0.
 1. Re-test Memory and Strength at [0.3, 0.7] range with REAL KILLCOUNT data (DOE-006) to establish valid baseline effects
 2. If effects are confirmed in [0.3, 0.7] with real data, the plateau onset is between 0.7 and 0.9
 3. Pivot to other factors: layer ablation (DOE-003), document quality (DOE-004)
+
+---
+
+### F-010: Action Architecture Significant on defend_the_line [HIGH TRUST]
+**Hypothesis**: H-012
+**Experiment**: DOE-008 (EXPERIMENT_ORDER_008.md)
+**Report**: EXPERIMENT_REPORT_008.md
+**Evidence**: [STAT:p=0.000555] [STAT:f=F(4,145)=5.256] [STAT:eta2=0.127] [STAT:n=150]
+**Trust Level**: HIGH
+**Date Adopted**: 2026-02-08
+**Summary**: L0-only pure rule-based strategy performs significantly worse than all other architectures including random. Tukey HSD confirms all 4 pairwise comparisons with L0_only are significant (p < 0.01).
+
+### F-011: Heuristic Layer Interference [MEDIUM TRUST]
+**Hypothesis**: H-012
+**Experiment**: DOE-008
+**Report**: EXPERIMENT_REPORT_008.md
+**Evidence**: [STAT:p=0.007] Contrast C3: single-heuristic vs full_agent
+**Trust Level**: MEDIUM (planned contrast, not primary analysis)
+**Date Adopted**: 2026-02-08
+**Summary**: Full agent with both heuristic layers (memory + strength) underperforms agents with only one heuristic. Combining layers creates interference through excessive dodging.
+
+### F-012: Scenario Selection Critical [HIGH TRUST]
+**Hypothesis**: H-012
+**Experiment**: DOE-007 vs DOE-008
+**Evidence**: DOE-007 p=0.183 (defend_the_center), DOE-008 p=0.000555 (defend_the_line). Same design, different scenarios.
+**Trust Level**: HIGH (replicated design with consistent methodology)
+**Date Adopted**: 2026-02-08
+**Summary**: defend_the_line scenario is necessary for discriminating action architectures. defend_the_center (0-3 kills) is too simple.

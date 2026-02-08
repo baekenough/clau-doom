@@ -330,6 +330,81 @@ def build_doe007_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe008_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-008: Layer Ablation on defend_the_line.
+
+    Single factor: action_strategy, 5 levels (same as DOE-007).
+    Seeds: seed_i = 6001 + i * 37, i=0..29
+    Randomized run order: R3, R5, R1, R4, R2
+    Scenario: defend_the_line.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=6001, step=37)
+    exp_id = "DOE-008"
+
+    run1 = RunConfig(
+        run_id=f"{exp_id}-R1",
+        run_label="R1",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="action_strategy=random",
+        run_type="factorial",
+        action_type="random",
+    )
+    run2 = RunConfig(
+        run_id=f"{exp_id}-R2",
+        run_label="R2",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="action_strategy=L0_only",
+        run_type="factorial",
+        action_type="rule_only",
+    )
+    run3 = RunConfig(
+        run_id=f"{exp_id}-R3",
+        run_label="R3",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=L0_memory",
+        run_type="factorial",
+        action_type="l0_memory",
+    )
+    run4 = RunConfig(
+        run_id=f"{exp_id}-R4",
+        run_label="R4",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=L0_strength",
+        run_type="factorial",
+        action_type="l0_strength",
+    )
+    run5 = RunConfig(
+        run_id=f"{exp_id}-R5",
+        run_label="R5",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=full_agent",
+        run_type="factorial",
+        action_type="full_agent",
+    )
+
+    # Randomized execution order: R3, R5, R1, R4, R2
+    randomized_runs = [run3, run5, run1, run4, run2]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 6001 + i * 37, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -629,6 +704,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-005": build_doe005_config,
     "DOE-006": build_doe006_config,
     "DOE-007": build_doe007_config,
+    "DOE-008": build_doe008_config,
 }
 
 

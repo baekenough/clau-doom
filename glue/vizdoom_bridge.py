@@ -61,7 +61,7 @@ NUM_ACTIONS = 3
 class VizDoomBridge:
     """Wraps VizDoom for controlled experiment execution."""
 
-    def __init__(self, scenario: str = "defend_the_center.cfg"):
+    def __init__(self, scenario: str = "defend_the_center.cfg", episode_timeout: int = 2100):
         try:
             import vizdoom
         except ImportError:
@@ -71,6 +71,7 @@ class VizDoomBridge:
 
         self._vizdoom = vizdoom
         self._game = vizdoom.DoomGame()
+        self._episode_timeout = episode_timeout
 
         # Find scenario path
         scenario_path = Path(vizdoom.scenarios_path) / scenario
@@ -84,7 +85,7 @@ class VizDoomBridge:
         self._initial_health = 100
         self._prev_health = 100
         self._prev_kills = 0
-        self._prev_ammo = 26  # defend_the_center AMMO2 starting value
+        self._prev_ammo = 26  # fallback, overridden dynamically in start_episode
         self._shots_fired = 0
         self._hits = 0
         self._damage_dealt = 0.0
@@ -92,9 +93,13 @@ class VizDoomBridge:
         self._visited_positions: set[tuple[int, int]] = set()
         self._tick = 0
 
-        # TODO: AMMO2 tracks cell ammo, but pistol uses bullet ammo (AMMO5/clips).
-        # shots_fired calculation via AMMO2 delta won't work for pistol-only scenarios.
-        # Consider adding AMMO5 tracking if accurate shots_fired is needed.
+        # NOTE on AMMO2 tracking limitations:
+        # - Pistol scenarios use AMMO5 (clips), not AMMO2 (cells), so shots_fired
+        #   via AMMO2 delta won't work for pistol-only scenarios.
+        # - defend_the_line: enemies drop ammo pickups, so AMMO2 can *increase*
+        #   mid-episode. The ammo_used = pre - post delta only counts decreases,
+        #   so shots_fired will undercount when pickups occur on the same tick.
+        #   ammo_efficiency and shots_fired are unreliable for this scenario.
 
     def _configure_game(self) -> None:
         """Configure VizDoom for headless experiment execution."""
@@ -118,6 +123,7 @@ class VizDoomBridge:
         self._game.add_available_game_variable(self._vizdoom.GameVariable.HEALTH)     # index 1
         self._game.add_available_game_variable(self._vizdoom.GameVariable.AMMO2)      # index 2
 
+        self._game.set_episode_timeout(self._episode_timeout)
         self._game.init()
 
     def start_episode(self, seed: int) -> None:
@@ -128,13 +134,19 @@ class VizDoomBridge:
         # Reset tracking
         self._prev_health = 100
         self._prev_kills = 0
-        self._prev_ammo = 26
         self._shots_fired = 0
         self._hits = 0
         self._damage_dealt = 0.0
         self._damage_taken = 0.0
         self._visited_positions = set()
         self._tick = 0
+
+        # Detect starting ammo dynamically from first frame
+        state = self._game.get_state()
+        if state and state.game_variables is not None:
+            self._prev_ammo = int(state.game_variables[2])  # AMMO2 at index 2
+        else:
+            self._prev_ammo = 26  # fallback
 
     def get_game_state(self) -> GameState:
         """Extract current game state."""
