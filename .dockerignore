@@ -1,0 +1,6 @@
+target/
+volumes/
+node_modules/
+.git/
+dashboard/
+*.duckdb

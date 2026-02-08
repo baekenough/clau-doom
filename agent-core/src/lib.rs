@@ -7,7 +7,9 @@
 //!
 //! No LLM calls occur during gameplay. All reasoning is offline.
 
+pub mod cache;
 pub mod cascade;
 pub mod game;
+pub mod grpc;
 pub mod rag;
 pub mod strategy;

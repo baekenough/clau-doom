@@ -80,7 +80,11 @@ class EpisodeRunner:
 
             latency_ms = (t1 - t0) / 1e6
             decision_latencies.append(latency_ms)
-            decision_levels.append(decision_level)
+            # Use dynamic decision level from gRPC if available
+            if hasattr(action_fn, 'last_decision_level'):
+                decision_levels.append(action_fn.last_decision_level)
+            else:
+                decision_levels.append(decision_level)
 
             self._bridge.make_action(action)
 

@@ -2,6 +2,7 @@
 #
 # Services:
 #   doom-player  - VizDoom + Xvfb + noVNC game environment
+#   agent-core   - Rust gRPC decision engine
 #   opensearch   - RAG vector search (kNN)
 #   ollama       - Lightweight embeddings
 #   nats         - Agent pub/sub messaging
@@ -15,7 +16,6 @@ services:
     ports:
       - "6901:6901"   # noVNC web viewer
       - "5900:5900"   # VNC raw
-      - "50051:50051" # gRPC agent communication
     working_dir: /app
     volumes:
       - ../glue:/app/glue:ro          # Python experiment code (read-only)
@@ -33,6 +33,34 @@ services:
         limits:
           cpus: "2.0"
           memory: 2G
+
+  agent-core:
+    build:
+      context: ../
+      dockerfile: infra/docker/agent-core/Dockerfile
+    container_name: clau-doom-agent-core
+    ports:
+      - "50052:50051"   # gRPC decision engine (host 50052, container 50051)
+    environment:
+      - OPENSEARCH_URL=http://opensearch:9200
+      - GRPC_PORT=50051
+      - CASCADE_MODE=full_agent
+      - SEED=42
+      - HEALTH_THRESHOLD=0.3
+      - DUCKDB_PATH=/app/data/agent_cache.duckdb
+    volumes:
+      - ../volumes/data:/app/data
+    networks:
+      - clau-doom-net
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
 
   opensearch:
     image: opensearchproject/opensearch:2.17.1

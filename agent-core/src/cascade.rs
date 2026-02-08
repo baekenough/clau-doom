@@ -6,6 +6,7 @@
 //! - FullAgent: L0 → L1 → L2 cascade
 
 use std::time::Instant;
+use crate::cache::CacheClient;
 use crate::game::{Action, Decision, GameState};
 use crate::strategy::RuleEngine;
 use crate::rag::RagClient;
@@ -85,6 +86,7 @@ impl DeterministicRng {
 pub struct DecisionCascade {
     config: CascadeConfig,
     rule_engine: RuleEngine,
+    cache_client: CacheClient,
     rag_client: RagClient,
     rng: DeterministicRng,
 }
@@ -95,12 +97,19 @@ impl DecisionCascade {
         health_threshold: f32,
         opensearch_url: String,
         seed: u64,
+        duckdb_path: &str,
     ) -> Self {
         let rule_engine = RuleEngine::with_default_rules(config.l0_enabled, health_threshold);
         let rag_client = RagClient::new(config.l2_enabled, opensearch_url);
+        let cache_client = CacheClient::new(config.l1_enabled, duckdb_path)
+            .unwrap_or_else(|e| {
+                tracing::warn!("Failed to init DuckDB cache: {}, using disabled cache", e);
+                CacheClient::new(false, ":memory:").expect("in-memory cache must succeed")
+            });
         Self {
             config,
             rule_engine,
+            cache_client,
             rag_client,
             rng: DeterministicRng::new(seed),
         }
@@ -108,7 +117,7 @@ impl DecisionCascade {
 
     /// Make a decision for the given game state.
     /// Follows the cascade: L0 → L1 → L2 → fallback random
-    pub fn decide(&mut self, state: &GameState) -> Decision {
+    pub async fn decide(&mut self, state: &GameState) -> Decision {
         let start = Instant::now();
 
         // Random mode: bypass everything
@@ -134,12 +143,26 @@ impl DecisionCascade {
         }
 
         // Level 1: DuckDB Cache (< 10ms target)
-        // TODO: Implement L1 cache lookup
-        // if self.config.l1_enabled { ... }
+        if self.config.l1_enabled {
+            if let Some(decision) = self.cache_client.lookup(state) {
+                return Decision {
+                    latency_ns: start.elapsed().as_nanos() as u64,
+                    ..decision
+                };
+            }
+        }
 
         // Level 2: OpenSearch kNN (< 100ms target)
-        // TODO: Implement async L2 query (placeholder for now)
-        // if self.config.l2_enabled { ... }
+        if self.config.l2_enabled {
+            if let Some(decision) = self.rag_client.query(state).await {
+                // Cache L2 result for future L1 hits
+                self.cache_client.insert(state, &decision);
+                return Decision {
+                    latency_ns: start.elapsed().as_nanos() as u64,
+                    ..decision
+                };
+            }
+        }
 
         // Fallback: deterministic random
         let action = self.rng.random_action();
@@ -177,40 +200,43 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_random_mode_deterministic() {
+    #[tokio::test]
+    async fn test_random_mode_deterministic() {
         // Same seed must produce same sequence
         let mut c1 = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         let mut c2 = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         let state = make_state(100, 0);
         for _ in 0..100 {
-            assert_eq!(c1.decide(&state).action, c2.decide(&state).action);
+            assert_eq!(c1.decide(&state).await.action, c2.decide(&state).await.action);
         }
     }
 
-    #[test]
-    fn test_random_mode_uniform_distribution() {
+    #[tokio::test]
+    async fn test_random_mode_uniform_distribution() {
         // Chi-square test: 1000 actions should be roughly uniform across 3 actions
         let mut cascade = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             12345,
+            ":memory:",
         );
         let state = make_state(100, 0);
         let mut counts = [0u32; 3];
         for _ in 0..1000 {
-            let d = cascade.decide(&state);
+            let d = cascade.decide(&state).await;
             counts[d.action.to_index() as usize] += 1;
         }
         // Each should be roughly 333. Allow wide margin (200-500)
@@ -222,72 +248,77 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_random_mode_level_255() {
+    #[tokio::test]
+    async fn test_random_mode_level_255() {
         let mut cascade = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
-        let d = cascade.decide(&make_state(50, 1));
+        let d = cascade.decide(&make_state(50, 1)).await;
         assert_eq!(d.decision_level, 255);
         assert_eq!(d.confidence, 0.0);
     }
 
-    #[test]
-    fn test_rule_only_fires_l0() {
+    #[tokio::test]
+    async fn test_rule_only_fires_l0() {
         let mut cascade = DecisionCascade::new(
             CascadeConfig::rule_only(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         // Low health -> emergency_retreat rule fires
-        let d = cascade.decide(&make_state(20, 2));
+        let d = cascade.decide(&make_state(20, 2)).await;
         assert_eq!(d.decision_level, 0);
         assert_eq!(d.rule_matched, Some("emergency_retreat".to_string()));
     }
 
-    #[test]
-    fn test_rule_only_falls_through_to_random() {
+    #[tokio::test]
+    async fn test_rule_only_falls_through_to_random() {
         // When no rules match in rule-only mode, should still return a decision
         let mut cascade = DecisionCascade::new(
             CascadeConfig::rule_only(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         // Actually with default rules, healthy+no enemies -> reposition_no_enemies
         // healthy+enemies -> attack_visible_enemy
         // So all states match. Let's test that rules fire properly.
-        let d = cascade.decide(&make_state(80, 0));
+        let d = cascade.decide(&make_state(80, 0)).await;
         assert_eq!(d.decision_level, 0); // reposition rule fires
     }
 
-    #[test]
-    fn test_full_agent_l0_first() {
+    #[tokio::test]
+    async fn test_full_agent_l0_first() {
         let mut cascade = DecisionCascade::new(
             CascadeConfig::full_agent(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         // Low health should trigger L0 even in full mode
-        let d = cascade.decide(&make_state(20, 2));
+        let d = cascade.decide(&make_state(20, 2)).await;
         assert_eq!(d.decision_level, 0);
     }
 
-    #[test]
-    fn test_cascade_latency_under_100ms() {
+    #[tokio::test]
+    async fn test_cascade_latency_under_100ms() {
         let mut cascade = DecisionCascade::new(
             CascadeConfig::full_agent(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         let state = make_state(50, 2);
-        let d = cascade.decide(&state);
+        let d = cascade.decide(&state).await;
         // Total cascade should complete well under 100ms
         assert!(
             d.latency_ns < 100_000_000,
@@ -325,24 +356,26 @@ mod tests {
         assert_ne!(first, 0);
     }
 
-    #[test]
-    fn test_different_seeds_different_sequences() {
+    #[tokio::test]
+    async fn test_different_seeds_different_sequences() {
         let mut c1 = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             42,
+            ":memory:",
         );
         let mut c2 = DecisionCascade::new(
             CascadeConfig::random(),
             0.3,
             "http://localhost:9200".into(),
             9999,
+            ":memory:",
         );
         let state = make_state(100, 0);
         let mut different = false;
         for _ in 0..20 {
-            if c1.decide(&state).action != c2.decide(&state).action {
+            if c1.decide(&state).await.action != c2.decide(&state).await.action {
                 different = true;
                 break;
             }

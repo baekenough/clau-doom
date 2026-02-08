@@ -14,13 +14,13 @@
 **Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
 **Date Added**: 2026-02-07
 
-## Queued Hypotheses
-
 ### H-009: Memory-Strength Trend Continues Beyond 0.7 [HIGH PRIORITY]
 **Statement**: Increasing memory_weight and strength_weight beyond 0.7 (toward 0.9) continues to improve kill_rate without diminishing returns.
 **Rationale**: DOE-002 showed linear response surface with no curvature in [0.3, 0.7]. The optimal may lie beyond the tested range. If curvature appears at [0.7, 0.9], RSM is warranted. If linear continues, the optimal is at the boundary.
-**Status**: Queued (DOE-005, expanded factorial at [0.7, 0.9])
+**Status**: Experiment ordered (DOE-005)
 **Date Added**: 2026-02-08
+
+## Queued Hypotheses
 
 ## Completed Hypotheses
 

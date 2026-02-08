@@ -16,6 +16,8 @@ message GameState {
   float angle = 8;
   float episode_time = 9;
   bool is_dead = 10;
+  uint32 tick = 11;
+  string cascade_mode = 12;
 }
 
 // ActionType enumerates the discrete actions available to an agent.
@@ -41,6 +43,12 @@ message Action {
 
   // End-to-end decision latency in milliseconds.
   float latency_ms = 3;
+
+  // Confidence of the decision (0.0 = random, 1.0 = deterministic rule).
+  float confidence = 4;
+
+  // Name of the rule that matched (if any).
+  string rule_matched = 5;
 }
 
 // GameTick pairs a request (observation) with a response (action).
