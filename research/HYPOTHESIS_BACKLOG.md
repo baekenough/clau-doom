@@ -2,11 +2,12 @@
 
 ## Active Hypotheses
 
-### H-004: Memory Weight Optimization [HIGH PRIORITY]
+### H-004: Memory Weight Optimization [MEDIUM PRIORITY]
 **Statement**: Optimal memory_weight exists between 0.3-0.9 for maximizing kill_rate in the full RAG agent.
-**Rationale**: DOE-002 confirmed Memory has large main effect (eta_p^2=0.4154) with linear trend toward higher values. Need to determine if trend continues beyond 0.7 or plateaus.
-**Status**: Partially addressed by DOE-002 (significant main effect confirmed). Needs expanded range testing (DOE-005).
+**Rationale**: DOE-002 reported large Memory effect (eta_p^2=0.4154, BUT with INVALID AMMO2 data). DOE-005 confirmed performance plateau at [0.7, 0.9] with real kills data. The [0.3, 0.7] range has NOT been tested with real KILLCOUNT data -- DOE-006 will address this.
+**Status**: Partially addressed. DOE-005 rejected H-009 (no effect at [0.7, 0.9]). DOE-006 will test [0.3, 0.7] with real data.
 **Date Added**: 2026-02-07
+**Date Updated**: 2026-02-08
 
 ### H-005: Strategy Document Quality Matters [MEDIUM PRIORITY]
 **Statement**: Higher quality strategy documents (higher confidence_tier) lead to better agent performance.
@@ -14,11 +15,12 @@
 **Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
 **Date Added**: 2026-02-07
 
-### H-009: Memory-Strength Trend Continues Beyond 0.7 [HIGH PRIORITY]
-**Statement**: Increasing memory_weight and strength_weight beyond 0.7 (toward 0.9) continues to improve kill_rate without diminishing returns.
-**Rationale**: DOE-002 showed linear response surface with no curvature in [0.3, 0.7]. The optimal may lie beyond the tested range. If curvature appears at [0.7, 0.9], RSM is warranted. If linear continues, the optimal is at the boundary.
-**Status**: Experiment ordered (DOE-005)
+### H-010: Memory and Strength Have Significant Effects in the [0.3, 0.7] Range with Real KILLCOUNT Data [HIGH PRIORITY]
+**Statement**: Memory weight and strength weight have significant main effects on kill_rate in the [0.3, 0.7] range when measured with correct VizDoom KILLCOUNT (real kills, not AMMO2 bug).
+**Rationale**: DOE-002 reported large effects (Memory eta2=0.42, Strength eta2=0.32) but used INVALID data (AMMO2 mapped as kills). DOE-005 found no effects at [0.7, 0.9] with REAL data. The [0.3, 0.7] range may reveal effects masked by the performance plateau if wider separation between factor levels produces genuinely different agent behaviors. This is a critical re-validation experiment.
+**Status**: Experiment ordered (DOE-006)
 **Date Added**: 2026-02-08
+**Linked Experiment**: DOE-006
 
 ## Queued Hypotheses
 
@@ -81,4 +83,12 @@
 
 ## Rejected Hypotheses
 
-(None yet)
+### H-009: Memory-Strength Trend Continues Beyond 0.7 [REJECTED]
+**Statement**: Increasing memory_weight and strength_weight beyond 0.7 (toward 0.9) continues to improve kill_rate without diminishing returns.
+**Evidence**: RPT-005, F-008
+- Memory: [STAT:f=F(1,116)=0.814] [STAT:p=0.3689] [STAT:eta2=partial eta2=0.0070] -- negligible
+- Strength: [STAT:f=F(1,116)=2.593] [STAT:p=0.1101] [STAT:eta2=partial eta2=0.0219] -- small, non-significant
+- No curvature: [STAT:p=0.6242]
+- Performance plateau at ~8.4 kills/min across all conditions in [0.7, 0.9]
+**Trust**: MEDIUM (non-parametric verification confirms, normality violation mitigated)
+**Date Rejected**: 2026-02-08

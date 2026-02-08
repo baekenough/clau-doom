@@ -279,4 +279,47 @@ Design DOE-005 as a confirmatory factorial at expanded range [0.7, 0.9] to test 
 
 ## Rejected Findings
 
-(None currently)
+### F-008: Memory and Strength Have No Significant Effect in [0.7, 0.9] Range (Performance Plateau)
+
+**Hypothesis**: H-009 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-005 (EXPERIMENT_ORDER_005.md)
+**Experiment Report**: RPT-005 (EXPERIMENT_REPORT_005.md)
+
+**Evidence**:
+- Memory main effect: [STAT:f=F(1,116)=0.814] [STAT:p=0.3689] [STAT:eta2=partial eta2=0.0070] -- NOT significant (negligible)
+- Strength main effect: [STAT:f=F(1,116)=2.593] [STAT:p=0.1101] [STAT:eta2=partial eta2=0.0219] -- NOT significant (small)
+- Interaction: [STAT:f=F(1,116)=0.079] [STAT:p=0.7795] [STAT:eta2=partial eta2=0.0007] -- NOT significant (negligible)
+- Curvature test: [STAT:p=0.6242] -- NOT significant (no curvature, flat surface)
+- Non-parametric verification: Kruskal-Wallis H=4.428 [STAT:p=0.2188], ART ANOVA all p>0.07 -- all confirm non-significance
+- Sample size: [STAT:n=120 factorial episodes (30 per cell) + 30 center = 150 total]
+- Power for medium effects (f=0.25): [STAT:power=0.775]
+- All secondary responses (kills, survival_time) also non-significant
+- Memory effect CI: [STAT:ci=95%: -1.97 to 0.74] (includes zero)
+- Strength effect CI: [STAT:ci=95%: -0.25 to 2.44] (includes zero)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Normality assumption violated (Shapiro-Wilk p=0.000001) due to zero-inflated kill_rate distribution (14/150 episodes with zero kills)
+- Equal variance PASS (Levene p=0.88) -- strong homoscedasticity
+- Non-parametric methods (Kruskal-Wallis, ART ANOVA) fully confirm parametric conclusions
+- Balanced design (n=30 per cell) provides robustness to non-normality
+- Power adequate for medium effects but insufficient for small effects
+- This is the FIRST valid experiment with real VizDoom KILLCOUNT data (DOE-002 data invalidated by AMMO2 mapping bug)
+
+**Interpretation**:
+The kill_rate response surface is essentially FLAT in the [0.7, 0.9] range. The performance plateau at approximately 8.4 kills/min (~1.2 kills/episode, ~8.5s survival) represents the ceiling for these two parameters in this operating region. All four factorial cells and the center point produce statistically indistinguishable kill_rate values (range: 7.60 to 9.32 kills/min with overlapping confidence intervals).
+
+The directional trends are noteworthy but non-significant:
+- Memory has a slightly NEGATIVE trend: Memory=0.9 yields 0.62 kills/min LESS than Memory=0.7 [STAT:effect_size=Cohen's d=-0.164] (negligible)
+- Strength has a slightly POSITIVE trend: Strength=0.9 yields 1.10 kills/min MORE than Strength=0.7 [STAT:effect_size=Cohen's d=0.295] (small)
+
+**DOE-002 Data Invalidation Note**:
+DOE-002 reported large effects (Memory eta2=0.42, Strength eta2=0.32) in the [0.3, 0.7] range, but those results used ERRONEOUS data where the KILLCOUNT variable was actually AMMO2=26 (a constant). The DOE-002 kill_rate values were computed from fictitious kill counts. Cross-experiment comparison between DOE-002 and DOE-005 is INVALID because the measurement instruments differed fundamentally.
+
+**Status**: REJECTED (2026-02-08)
+
+**Recommended Next**:
+1. Re-test Memory and Strength at [0.3, 0.7] range with REAL KILLCOUNT data (DOE-006) to establish valid baseline effects
+2. If effects are confirmed in [0.3, 0.7] with real data, the plateau onset is between 0.7 and 0.9
+3. Pivot to other factors: layer ablation (DOE-003), document quality (DOE-004)

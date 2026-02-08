@@ -166,6 +166,117 @@ Next experiment: DOE-002 — 2x2 factorial design testing memory_weight and stre
 4. If interaction significant: plan DOE-005 (3x2 confirmatory factorial)
 5. If no interaction: proceed to DOE-003 (layer ablation) or DOE-004 (doc quality)
 
+## 2026-02-08 — DOE-006 Designed: Wide Range Re-validation [0.3, 0.7] with Real KILLCOUNT
+
+### Context
+After DOE-005 confirmed a performance plateau at [0.7, 0.9] and the KILLCOUNT mapping bug invalidated DOE-002's results, DOE-006 repeats the [0.3, 0.7] factorial design with corrected measurement. This is the critical re-validation experiment: if DOE-002's large effects (Memory eta2=0.42, Strength eta2=0.32) were genuine, DOE-006 will confirm them; if they were measurement artifacts, DOE-006 will show a flat surface.
+
+### Hypothesis
+H-010: Memory and Strength have significant main effects on kill_rate in the [0.3, 0.7] range when measured with correct VizDoom KILLCOUNT.
+Priority: High
+Rationale: DOE-002 used INVALID data (AMMO2 mapped as kills). The [0.3, 0.7] range with wider factor separation may reveal genuine behavioral differences not visible in DOE-005's narrow [0.7, 0.9] range.
+
+### Design
+DOE type: 2^2 Full Factorial with 3 Center Points
+Factors: Memory [0.3, 0.7], Strength [0.3, 0.7], Center [0.5, 0.5]
+Sample size: 30 per factorial cell, 10 per center point batch = 150 total
+Seeds: seed_i = 3501 + i*29, i=0..29
+Cross-experiment anchor: Run R4 (0.7, 0.7) replicates DOE-005 Run 1
+
+### Status
+EXPERIMENT_ORDER_006.md written. Awaiting execution by research-doe-runner.
+
+### Decision Rationale
+
+**Why re-validate rather than pivot to new factors?**
+
+1. DOE-002 was the only factorial experiment in the project, and its data is invalid. Without re-validation, we have NO valid factorial results.
+2. The [0.3, 0.7] range provides 2x wider factor separation than DOE-005's [0.7, 0.9], making effects more likely to be detectable if they exist.
+3. DOE-006 establishes a valid baseline for Memory-Strength effects, enabling sound comparison with DOE-005's plateau result.
+4. If effects ARE confirmed, the combined DOE-005 + DOE-006 picture provides a complete characterization of the response surface from 0.3 to 0.9.
+
+**Why not expand to new factors yet?**
+
+The KILLCOUNT bug means we have NO validated understanding of how ANY factor affects real kills. Starting new factor experiments (layer ablation, document quality) before establishing whether the most basic factors (Memory, Strength) have real effects would be building on an unknown foundation.
+
+### Next Steps
+1. Execute DOE-006 (150 episodes)
+2. Analyze with both parametric ANOVA and non-parametric fallbacks (per DOE-005 lessons)
+3. Cross-reference R4 cell with DOE-005 Run 1 for replication check
+4. Based on results, either close Memory-Strength thread or proceed to Phase 2 RSM
+
+---
+
+## 2026-02-08 — DOE-005 Memory x Strength [0.7, 0.9] -- Performance Plateau Confirmed
+
+### Context
+Steepest ascent follow-up to DOE-002. After DOE-002 found large effects and a linear surface in the [0.3, 0.7] range, DOE-005 tested whether the trend continues at [0.7, 0.9]. This was the FIRST experiment executed with REAL VizDoom KILLCOUNT data after discovering and fixing a critical mapping bug (AMMO2 was being read as kills since DOE-001).
+
+### Hypothesis
+H-009: Increasing memory_weight and strength_weight beyond 0.7 (toward 0.9) continues to improve kill_rate without diminishing returns.
+Priority: High
+Rationale: If the linear trend from DOE-002 continues, the optimal configuration lies beyond (0.7, 0.7).
+
+### Design
+DOE type: 2^2 Full Factorial with 3 Center Points
+Factors: Memory [0.7, 0.9], Strength [0.7, 0.9], Center [0.8, 0.8]
+Sample size: 30 per factorial cell, 10 per center point batch = 150 total
+Seeds: seed_i = 2501 + i*23, i=0..29
+
+### Critical Discovery: KILLCOUNT Mapping Bug
+
+During DOE-005 execution, a critical data integrity bug was discovered and fixed:
+- **Bug**: VizDoom's KILLCOUNT game variable was mapped incorrectly. The value read as "kills" was actually AMMO2 (a constant = 26).
+- **Impact**: ALL prior experiments (DOE-001, DOE-002) used erroneous kill data. The large effects reported in DOE-002 (Memory eta2=0.42, Strength eta2=0.32) were computed from fabricated kill counts.
+- **Fix**: Corrected the KILLCOUNT mapping to read the actual kill count from VizDoom game state.
+- **Consequence**: DOE-005 is the first experiment with valid kills data. Cross-experiment comparison between DOE-005 and DOE-002 is INVALID. DOE-002 findings (F-005, F-006, F-007) require re-validation with real data.
+
+### Result
+
+[STAT:f=F(1,116)=0.814] [STAT:p=0.3689] Memory -- NOT significant
+[STAT:f=F(1,116)=2.593] [STAT:p=0.1101] Strength -- NOT significant
+[STAT:f=F(1,116)=0.079] [STAT:p=0.7795] Interaction -- NOT significant
+[STAT:p=0.6242] Curvature test -- NOT significant (flat surface)
+[STAT:n=150 episodes (120 factorial + 30 center)]
+
+Non-parametric verification (Kruskal-Wallis, ART ANOVA): ALL confirm non-significance.
+
+Real VizDoom baseline established:
+- Grand mean kill_rate: ~8.4 kills/min
+- Average kills per episode: ~1.2
+- Average survival time: ~8.5 seconds
+- Zero-kill episodes: 9.3%
+- High variance (SD ~3.7) -- characteristic of real gameplay
+
+Conclusion: H-009 REJECTED. Performance plateau at [0.7, 0.9].
+Trust level: MEDIUM (normality violated but mitigated by non-parametric confirmation and balanced design)
+
+### Findings
+F-008 recorded in FINDINGS.md (Rejected Findings section).
+
+### Phase Transition Assessment
+
+Phase 2 RSM NOT warranted:
+1. No curvature detected (p=0.62) -- no quadratic surface to model
+2. No significant main effects -- nothing to optimize in this range
+3. Response surface is FLAT (plateau) in [0.7, 0.9]
+
+This matches Scenario C from EXPERIMENT_ORDER_005.md: Performance Plateau.
+
+### New Hypothesis Generated
+
+H-010: Memory and strength have significant effects on kill_rate in the wider [0.3, 0.7] range when measured with correct VizDoom KILLCOUNT data (real kills, not AMMO2 bug).
+
+Rationale: DOE-002 reported large effects but used invalid data. The [0.3, 0.7] range may reveal genuine effects with wider factor level separation. This is a critical re-validation experiment.
+
+### Next Steps
+1. Design DOE-006: 2^2 factorial at [0.3, 0.7] with real KILLCOUNT data to re-validate DOE-002 findings
+2. If effects confirmed: plateau onset is between 0.7 and 0.9; adopt (0.7, 0.7) as optimal
+3. If effects NOT confirmed: DOE-002 results were entirely artifacts of the measurement bug
+4. Pivot to other factors: layer ablation (DOE-003), document quality (DOE-004)
+
+---
+
 ## 2026-02-08 — DOE-002 Execution and Analysis Complete
 
 ### Context
