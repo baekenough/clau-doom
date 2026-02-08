@@ -5,7 +5,7 @@
 ### H-001: RAG System Outperforms Baselines [HIGH PRIORITY]
 **Statement**: Full RAG agent (L0+L1+L2) achieves significantly higher kill_rate than random and rule-only baselines in defend_the_center.
 **Rationale**: Core validation of the RAG-based decision system. If this fails, the entire approach needs rethinking.
-**Status**: Experiment ordered (DOE-001)
+**Status**: TENTATIVE (DOE-001 complete, 2026-02-08, LOW trust)
 **Date Added**: 2026-02-07
 
 ### H-002: Rule Engine Provides Meaningful Structure [MEDIUM PRIORITY]
