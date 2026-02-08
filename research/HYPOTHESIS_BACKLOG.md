@@ -18,6 +18,24 @@
 **Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
 **Date Added**: 2026-02-07
 
+### H-015: Expanded Action Space (Turn+Strafe) Enables Strategy Differentiation [PARTIALLY REJECTED]
+**Statement**: When both turning (aim) and strafing (dodge) actions are available in defend_the_line, structured strategies will outperform random selection, unlike with the turn-only 3-action space where random is near-optimal.
+**Rationale**: With only 3 actions (turn_left, turn_right, attack), random selection achieves ~43 kr because turning is inherently a scanning mechanism where random is near-optimal (F-018). With 5 actions (add move_left, move_right for strafing), random wastes ~40% of ticks on movement instead of attack/turn, while intelligent strategies can separate aiming (turn) from dodging (strafe) and attack timing. The extra degrees of freedom should create separable performance tiers.
+**Critical Context**: The "MOVE_LEFT/MOVE_RIGHT" in VizDoomBridge code are actually TURN_LEFT/TURN_RIGHT in defend_the_line.cfg. Adding true MOVE_LEFT/MOVE_RIGHT buttons creates a 5-action space with two independent degrees of freedom (rotation and translation).
+**Status**: Partially Rejected (DOE-011)
+**Evidence**: EXPERIMENT_REPORT_011.md, F-020 through F-024
+**Result**: Action space expansion creates inter-space differentiation (3-action vs 5-action, C4: p=0.003) but NOT intra-space differentiation (smart_5 vs random_5, C3: p=0.213). Strafing hurts kill_rate (C2: p=0.003) but dramatically improves survival (F-023, eta2=0.225).
+**Trust**: HIGH for significant findings, MEDIUM for null findings
+**Date**: 2026-02-08
+**Date Added**: 2026-02-08
+**Linked Experiment**: DOE-011
+**Key Contrasts**:
+- C1: random_3 vs random_5 (dilution effect of action space expansion)
+- C2: turn_burst_3 vs strafe_burst_3 (value of dodging vs turning between bursts)
+- C3: random_5 vs smart_5 (strategy differentiation in expanded space)
+- C4: random_3 vs smart_5 (cross-space best-vs-best comparison)
+- C5: 5-action group vs 3-action group (overall action space effect)
+
 ### H-014: Structured Lateral Movement Outperforms Random [REJECTED]
 **Statement**: Structured lateral movement patterns (sweep, burst-fire) produce higher kill_rate than random lateral movement on defend_the_line.
 **Rationale**: DOE-008 showed ANY lateral movement helps equally (~38 kr), but all tested strategies used reactive/probabilistic movement. Deterministic patterns (sweep, burst) may provide better enemy line coverage or more efficient attack windows.

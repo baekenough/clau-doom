@@ -1,5 +1,92 @@
 # Research Log
 
+## 2026-02-08 — DOE-011 Designed: Expanded Action Space (5-Action) Strategy Differentiation
+
+### Context
+DOE-010 rejected H-014: structured movement patterns do not outperform random in the 3-action space (F-018). Further investigation revealed that defend_the_line.cfg uses TURN_LEFT/TURN_RIGHT/ATTACK — the agent can only rotate and fire but cannot physically move. The "lateral movement" in all prior experiments was actually view rotation.
+
+This is a fundamental constraint: with only 3 actions, random selection is near-optimal (~43 kr) because turning randomly scans the enemy line effectively. No structured pattern can significantly beat random scanning in such a coarse action space.
+
+**Critical Discovery**: Adding MOVE_LEFT and MOVE_RIGHT (true strafing) to the action space creates a 5-action environment with two independent degrees of freedom:
+- **Rotation** (turn_left, turn_right): controls aiming direction
+- **Translation** (move_left, move_right): controls physical position (dodging)
+- **Attack**: fires weapon
+
+This separation should enable intelligent strategies that coordinate aiming and dodging, which random selection cannot efficiently exploit.
+
+### Hypothesis
+H-015: Expanded action space (turn+strafe) enables strategy differentiation.
+Priority: High
+Rationale: With 5 actions, random wastes ~40% of ticks on strafing (which does not help aiming). Intelligent strategies can allocate turn commands for aiming and strafe commands for dodging, achieving both effective target acquisition AND survival. This should break the "random is near-optimal" ceiling found in 3-action space.
+
+### Design
+DOE type: One-way CRD (5 levels)
+Factor: action_strategy [random_3, random_5, turn_burst_3, strafe_burst_3, smart_5]
+Sample size: 30 per condition, 150 total
+Seed formula: seed_i = 12001 + i x 47 (range [12001, 13364], zero collisions)
+Scenario: defend_the_line.cfg (3-action) and defend_the_line_5action.cfg (5-action)
+
+### Conditions
+1. **random_3**: Standard 3-action random (DOE-010 replication control)
+2. **random_5**: 5-action random (tests dilution tax of expanded space)
+3. **turn_burst_3**: 3-action burst_3 (DOE-010 replication control)
+4. **strafe_burst_3**: 5-action burst with strafing between bursts (dodge value)
+5. **smart_5**: Coordinated aim-attack-dodge cycle (flagship test)
+
+### Infrastructure Requirements
+- Modified defend_the_line_5action.cfg with 5 buttons
+- VizDoomBridge update to support NUM_ACTIONS=5
+- New action strategy implementations (random_5, strafe_burst_3, smart_5)
+
+### Key Planned Contrasts
+- C1: random_3 vs random_5 — quantifies dilution tax
+- C2: turn_burst_3 vs strafe_burst_3 — isolates dodge vs aim between bursts
+- C3: random_5 vs smart_5 — tests strategy differentiation in 5-action space
+- C4: random_3 vs smart_5 — cross-space best-vs-best
+- C5: 5-action group vs 3-action group — overall action space effect
+
+### Expected Outcomes
+Best case: smart_5 > random_3 > random_5, proving that intelligence overcomes dilution and the expanded space enables real strategy differentiation. This would open a rich optimization target (smart_5 parameters) for Phase 2.
+
+Worst case: random_3 >= all others, confirming the 3-action ceiling. Would force pivot to scenario design or enemy behavior manipulation.
+
+### Status
+EXPERIMENT_ORDER_011.md written. Awaiting infrastructure changes (modified cfg, VizDoomBridge update, new action functions) before execution.
+
+### Next Steps
+1. Create defend_the_line_5action.cfg (infrastructure change)
+2. Update VizDoomBridge for 5-action support
+3. Implement random_5, strafe_burst_3, smart_5 action functions
+4. Execute DOE-011 (150 episodes)
+5. research-analyst: One-way ANOVA + planned contrasts + Tukey HSD
+6. research-pi: Interpret results and decide Phase 2 direction
+
+### DOE-011 Results (2026-02-08)
+
+**Primary**: kill_rate one-way ANOVA: [STAT:f=F(4,145)=3.774] [STAT:p=0.005969] [STAT:eta2=0.094] — SIGNIFICANT
+- Kruskal-Wallis confirmation: H(4)=13.002, p=0.011
+- Diagnostics: Normality PASS, Levene FAIL (1.93x, compensated by K-W)
+- Power: 0.894, Cohen's f=0.323
+
+**Planned Contrasts**:
+- C1 (dilution): random_3 vs random_5 — p=0.061, d=0.494 (NS after Bonferroni)
+- C2 (strafe value): strafe_burst_3 vs turn_burst_3 — p=0.003, d=-0.789 (SIGNIFICANT: strafing WORSE)
+- C3 (strategy diff): smart_5 vs random_5 — p=0.213, d=0.325 (NS)
+- C4 (cross-space): 3-action vs 5-action — p=0.003, d=0.523 (SIGNIFICANT: 3-action better)
+- C5 (5-action strategy): smart_5 vs strafe_burst_3 — p=0.789, d=-0.070 (NS)
+
+**Secondary**:
+- kills: F(4,145)=6.936, p<0.001, eta2=0.161 (5-action MORE kills)
+- survival: F(4,145)=10.548, p<0.001, eta2=0.225 (5-action MUCH longer survival)
+
+**Key Findings**: F-020 through F-024 adopted. Rate-vs-total paradox discovered. Strafing is double-edged sword: hurts kill_rate but dramatically improves survival and total kills.
+
+**H-015**: PARTIALLY REJECTED — differentiation occurs between action spaces, not within them.
+
+**Replication**: random_3 and turn_burst_3 replicate DOE-010 (d<0.2).
+
+---
+
 ## 2026-02-08 — DOE-010: Structured Lateral Movement Strategies
 
 ### Context

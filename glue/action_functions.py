@@ -1,7 +1,7 @@
-"""Action selection functions for VizDoom defend_the_center scenario.
+"""Action selection functions for VizDoom defend_the_center/defend_the_line scenarios.
 
-Provides eight action strategies (DOE-007/008/010 ablation levels):
-1. random_action -- uniform random choice
+Provides eleven action strategies (DOE-007/008/010/011 ablation levels):
+1. random_action -- uniform random choice (3-action space)
 2. rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
 3. L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
 4. L0StrengthAction -- L0 rules + strength attack probability (no memory dodge)
@@ -9,6 +9,9 @@ Provides eight action strategies (DOE-007/008/010 ablation levels):
 6. SweepLRAction -- deterministic sweep-fire: attack-left-attack-right cycle
 7. Burst3Action -- burst-fire with repositioning: 3 attacks then 1 random move
 8. Burst5Action -- burst-fire with repositioning: 5 attacks then 1 random move
+9. Random5Action -- uniform random over 5-action space (DOE-011)
+10. StrafeBurst3Action -- 3 attacks then 1 random strafe (DOE-011, 5-action)
+11. Smart5Action -- coordinated aim-attack-dodge for 5-action space (DOE-011)
 """
 
 from __future__ import annotations
@@ -336,3 +339,124 @@ class Burst5Action:
             return ACTION_ATTACK
         else:
             return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class Random5Action:
+    """Uniform random over 5-action space (turn_left, turn_right, move_left, move_right, attack).
+
+    For DOE-011: Tests dilution effect of expanded action space.
+    Only 20% attack rate vs 33% for 3-action random.
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        return self._rng.randint(0, 4)
+
+
+class StrafeBurst3Action:
+    """3 attacks then 1 random strafe (move_left or move_right).
+
+    For DOE-011: Tests value of strafing vs turning between attack bursts.
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+    L0 emergency rules still use turn (actions 0,1) for aiming.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._cycle_pos = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._cycle_pos = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # L0 emergency: low health -> strafe away
+        if state.health < 20:
+            return 2  # MOVE_LEFT (strafe to dodge)
+        if state.ammo == 0:
+            return 2  # MOVE_LEFT
+
+        pos = self._cycle_pos % 4
+        self._cycle_pos += 1
+
+        if pos < 3:
+            return 4  # ATTACK
+        else:
+            return self._rng.choice([2, 3])  # random strafe: MOVE_LEFT or MOVE_RIGHT
+
+
+class Smart5Action:
+    """Coordinated aim-attack-dodge strategy for 5-action space.
+
+    For DOE-011: Flagship test of strategy differentiation in expanded space.
+    Cycle: attack 3 ticks -> if got kill, dodge (strafe); if no kill, turn to scan -> repeat.
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._phase = "attack"  # attack, turn, dodge
+        self._phase_counter = 0
+        self._last_kills = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._phase = "attack"
+        self._phase_counter = 0
+        self._last_kills = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # L0 emergency: low health -> strafe to dodge
+        if state.health < 20:
+            return self._rng.choice([2, 3])  # random strafe
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])  # strafe away
+
+        if self._phase == "attack":
+            self._phase_counter += 1
+            if self._phase_counter >= 3:
+                # After 3 attacks, decide next phase
+                if state.kills > self._last_kills:
+                    # Got a kill -> dodge to avoid return fire
+                    self._phase = "dodge"
+                    self._last_kills = state.kills
+                else:
+                    # No kill -> turn to find enemy
+                    self._phase = "turn"
+                self._phase_counter = 0
+            return 4  # ATTACK
+
+        elif self._phase == "turn":
+            self._phase_counter += 1
+            if self._phase_counter >= 2:
+                self._phase = "attack"
+                self._phase_counter = 0
+            return self._rng.choice([0, 1])  # random turn direction
+
+        elif self._phase == "dodge":
+            # Single strafe then back to attack
+            self._phase = "attack"
+            self._phase_counter = 0
+            return self._rng.choice([2, 3])  # random strafe direction
+
+        return 4  # fallback: ATTACK

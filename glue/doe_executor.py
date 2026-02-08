@@ -44,7 +44,9 @@ class RunConfig:
     seeds: list[int]
     condition: str  # e.g., "memory=0.7_strength=0.7"
     run_type: str  # "factorial" or "center"
-    action_type: str = "full_agent"  # "random", "rule_only", "l0_memory", "l0_strength", "full_agent"
+    action_type: str = "full_agent"  # "random", "rule_only", "l0_memory", "l0_strength", "full_agent", "random_5", "strafe_burst_3", "smart_5"
+    scenario: str = "defend_the_line.cfg"  # Per-run scenario override (used by DOE-011)
+    num_actions: int = 3  # Number of available actions (3 or 5)
 
 
 @dataclass
@@ -537,6 +539,95 @@ def build_doe010_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe011_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-011: Expanded Action Space (5-Action) Strategy Differentiation.
+
+    H-015: Turn+Strafe enables strategy differentiation.
+    5 conditions: random_3, random_5, turn_burst_3, strafe_burst_3, smart_5.
+    Two cfgs: defend_the_line.cfg (3-action) and defend_the_line_5action.cfg (5-action).
+
+    Seeds: seed_i = 12001 + i * 47, i=0..29
+    Randomized run order: R3, R5, R1, R4, R2
+    """
+    seeds = [12001 + i * 47 for i in range(30)]
+    exp_id = "DOE-011"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_3",
+            run_type="factorial",
+            action_type="random",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_5",
+            run_type="factorial",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="turn_burst_3",
+            run_type="factorial",
+            action_type="burst_3",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="strafe_burst_3",
+            run_type="factorial",
+            action_type="strafe_burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="smart_5",
+            run_type="factorial",
+            action_type="smart_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+    ]
+
+    # Randomized order: R3, R5, R1, R4, R2
+    order = [runs[2], runs[4], runs[0], runs[3], runs[1]]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=order,
+        seed_set=seeds,
+        seed_formula="seed_i = 12001 + i * 47, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -558,6 +649,9 @@ def execute_experiment(config: ExperimentConfig) -> None:
         FullAgentAction,
         L0MemoryAction,
         L0StrengthAction,
+        Random5Action,
+        Smart5Action,
+        StrafeBurst3Action,
         SweepLRAction,
         random_action,
         rule_only_action,
@@ -576,9 +670,11 @@ def execute_experiment(config: ExperimentConfig) -> None:
     )
     logger.info("=" * 70)
 
-    # Initialize VizDoom
+    # Initialize VizDoom with default scenario
+    current_scenario = config.scenario
+    current_num_actions = 3  # default
     try:
-        bridge = VizDoomBridge(scenario=config.scenario)
+        bridge = VizDoomBridge(scenario=current_scenario, num_actions=current_num_actions)
     except Exception as exc:
         logger.error(
             "Failed to initialize VizDoom: %s. "
@@ -657,6 +753,23 @@ def execute_experiment(config: ExperimentConfig) -> None:
                     )
                     continue
 
+            # Switch scenario if this run requires a different one
+            run_scenario = getattr(run, "scenario", config.scenario)
+            run_num_actions = getattr(run, "num_actions", 3)
+            if run_scenario != current_scenario or run_num_actions != current_num_actions:
+                logger.info(
+                    "  Switching scenario: %s -> %s (num_actions: %d -> %d)",
+                    current_scenario,
+                    run_scenario,
+                    current_num_actions,
+                    run_num_actions,
+                )
+                bridge.close()
+                bridge = VizDoomBridge(scenario=run_scenario, num_actions=run_num_actions)
+                runner = EpisodeRunner(bridge)
+                current_scenario = run_scenario
+                current_num_actions = run_num_actions
+
             # Create action function based on run's action_type
             if run.action_type == "random":
                 action_fn = random_action
@@ -672,6 +785,12 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = Burst3Action()
             elif run.action_type == "burst_5":
                 action_fn = Burst5Action()
+            elif run.action_type == "random_5":
+                action_fn = Random5Action()
+            elif run.action_type == "strafe_burst_3":
+                action_fn = StrafeBurst3Action()
+            elif run.action_type == "smart_5":
+                action_fn = Smart5Action()
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -848,6 +967,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-008": build_doe008_config,
     "DOE-009": build_doe009_config,
     "DOE-010": build_doe010_config,
+    "DOE-011": build_doe011_config,
 }
 
 

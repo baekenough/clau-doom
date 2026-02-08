@@ -358,6 +358,7 @@ How many factors are you testing?
 | H-012 | 0/1 | One-way ANOVA (5 levels, scenario replication) | DOE-008 | action_strategy on defend_the_line (5 levels) | 150 (ORDERED) |
 | H-013 | 1 | 3×3 factorial (memory × strength) | DOE-009 | memory_weight × strength_weight on defend_the_line | 270 (ORDERED) |
 | H-014 | 1 | One-way CRD (5 levels) | DOE-010 | action_strategy structured patterns on defend_the_line | 150 (5 × 30) |
+| H-015 | 1 | One-way CRD (5 levels, cross-space) | DOE-011 | 3-action vs 5-action space, strafing vs turning on defend_the_line | 150 (5 × 30) |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -377,7 +378,8 @@ How many factors are you testing?
 | 1 — Scenario Replication | H-012 | DOE-008 | 150 (5 levels x 30 episodes) | 1500 |
 | 1 — Memory × Strength Factorial | H-013 | DOE-009 | 270 (9 cells x 30 episodes) | 1770 |
 | 1 — Structured Movement | H-014 | DOE-010 | 150 (5 levels x 30 episodes) | 1920 |
-| 2 — RSM | TBD | TBD | 330-510 | 2250-2430 |
+| 1 — Action Space Expansion | H-015 | DOE-011 | 150 (5 levels x 30 episodes) | 2070 |
+| 2 — RSM | TBD | TBD | 330-510 | 2400-2580 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 3330-3510+ |
 
 **Notes**:

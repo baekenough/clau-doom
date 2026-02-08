@@ -61,7 +61,7 @@ NUM_ACTIONS = 3
 class VizDoomBridge:
     """Wraps VizDoom for controlled experiment execution."""
 
-    def __init__(self, scenario: str = "defend_the_center.cfg", episode_timeout: int = 2100):
+    def __init__(self, scenario: str = "defend_the_center.cfg", episode_timeout: int = 2100, num_actions: int = 3):
         try:
             import vizdoom
         except ImportError:
@@ -72,6 +72,7 @@ class VizDoomBridge:
         self._vizdoom = vizdoom
         self._game = vizdoom.DoomGame()
         self._episode_timeout = episode_timeout
+        self._num_actions = num_actions
 
         # Find scenario path
         scenario_path = Path(vizdoom.scenarios_path) / scenario
@@ -171,8 +172,8 @@ class VizDoomBridge:
     def make_action(self, action_index: int) -> float:
         """Execute action. Returns step reward."""
         # Encode as 1-hot vector for VizDoom
-        action = [0] * NUM_ACTIONS
-        if 0 <= action_index < NUM_ACTIONS:
+        action = [0] * self._num_actions
+        if 0 <= action_index < self._num_actions:
             action[action_index] = 1
 
         # Track pre-action state for delta computation

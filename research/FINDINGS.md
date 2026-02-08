@@ -637,3 +637,144 @@ H-014 is rejected. Structured lateral movement patterns do not outperform random
 The five strategies form two distinct performance tiers. Group membership is determined by whether the strategy produces effective physical displacement (multiple consecutive same-direction moves) vs oscillation or stasis. All three secondary responses (kill_rate, kills, survival_time) show the same grouping pattern. The 3-action space ceiling is approximately 43-45 kr for any strategy that achieves effective displacement.
 
 **Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+## DOE-011 Findings (Expanded Action Space — 5-Action Strategy Differentiation)
+
+### F-020: Expanding Action Space from 3 to 5 Reduces Kill Rate
+
+**Hypothesis**: H-015 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-011 (EXPERIMENT_ORDER_011.md)
+**Experiment Report**: RPT-011 (EXPERIMENT_REPORT_011.md)
+
+**Evidence**:
+- C4 contrast (3-action vs 5-action): Welch's t=3.091 [STAT:p=0.003] [STAT:effect_size=Cohen's d=0.523] (medium)
+- 3-action group mean: 44.38 kr (n=60), 5-action group mean: 41.20 kr (n=90)
+- Overall ANOVA: [STAT:f=F(4,145)=3.774] [STAT:p=0.006] [STAT:eta2=eta^2=0.094]
+- Kruskal-Wallis confirms: H(4)=13.002 [STAT:p=0.011]
+- Sample size: [STAT:n=150 (30 per group)]
+- Achieved power: [STAT:power=0.894]
+- Survives Bonferroni correction (p=0.003 < 0.01)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Normality PASS (Shapiro-Wilk p=0.346)
+- Levene FAIL (p=0.005, SD ratio 1.93x) but compensated by Kruskal-Wallis confirmation and Welch's t-test
+- Cross-experiment replication anchors confirmed (DOE-010 random and burst_3 both replicate within d<0.2)
+- Effect survives Bonferroni correction for 5 planned contrasts
+
+**Interpretation**:
+Adding strafing actions (move_left, move_right) to the 3-action space (turn_left, turn_right, attack) REDUCES kill efficiency by 3.18 kr on average. Every tick spent strafing is a tick not spent aiming (turning) or attacking. The 5-action space inherently dilutes offensive action frequency. This holds across all strategy types — random, burst, and intelligent. The action space itself, not the strategy within it, is the primary determinant of kill_rate.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-021: Strafe Repositioning Inferior to Turn Repositioning for Kill Rate
+
+**Hypothesis**: H-015 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-011 (EXPERIMENT_ORDER_011.md)
+**Experiment Report**: RPT-011 (EXPERIMENT_REPORT_011.md)
+
+**Evidence**:
+- C2 contrast (strafe_burst_3 vs turn_burst_3): Welch's t=-3.056 [STAT:p=0.003] [STAT:effect_size=Cohen's d=-0.789] (medium-large)
+- strafe_burst_3 mean: 42.11 kr, turn_burst_3 mean: 45.49 kr
+- Both use identical burst pattern (3 attacks + 1 reposition); only the reposition type differs (strafe vs turn)
+- Survives Bonferroni correction (p=0.003 < 0.01)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Clean contrast design: identical attack pattern, single manipulated variable (reposition type)
+- Welch's t-test robust to Levene violation
+- Large effect size (d=0.789) far exceeds minimum detectable effect
+- Mechanistic explanation is clear: turning changes aim direction, strafing does not
+
+**Interpretation**:
+When an agent pauses its burst to reposition, turning (which scans new enemies into the crosshair) is significantly better than strafing (which moves the body without changing aim direction). This is a critical distinction: the value of between-burst repositioning comes from REORIENTING AIM, not from PHYSICAL DISPLACEMENT. In the defend_the_line scenario, where enemies are spread across a line, scanning via turning is the effective mechanism. Strafing provides defensive value (dodging) but at the cost of offensive efficiency.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-022: Intelligent 5-Action Strategy Does Not Outperform Random (H-015 Partially Rejected)
+
+**Hypothesis**: H-015 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-011 (EXPERIMENT_ORDER_011.md)
+**Experiment Report**: RPT-011 (EXPERIMENT_REPORT_011.md)
+
+**Evidence**:
+- C3 contrast (smart_5 vs random_5): Welch's t=1.260 [STAT:p=0.213] [STAT:effect_size=Cohen's d=0.325] (small)
+- smart_5 mean: 41.74 kr, random_5 mean: 39.74 kr
+- C5 contrast (smart_5 vs strafe_burst_3): Welch's t=-0.269 [STAT:p=0.789] [STAT:effect_size=Cohen's d=-0.070] (negligible)
+- Neither 5-action strategy differentiates from any other 5-action strategy
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Null finding with moderate power (0.894 for medium effects)
+- Cannot definitively rule out small effects (d<0.3)
+- Consistent with DOE-010 F-018 (random not beaten by structured strategies in 3-action space)
+- Extends the finding to 5-action space
+
+**Interpretation**:
+H-015 predicted that expanding to 5 actions would enable intelligent strategy differentiation. The phase-based aim-attack-dodge strategy (smart_5) does not significantly outperform uniform random selection in the 5-action space. This extends F-018 (from DOE-010) to the expanded action space: random action selection remains near-optimal regardless of the number of available actions. The bottleneck to intelligent strategy differentiation is not the action space size but something more fundamental — possibly the tick-level granularity (28.6ms per action at 35fps) makes fine coordination unreliable.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-023: Strafing Dramatically Increases Survival Time
+
+**Hypothesis**: H-015 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-011 (EXPERIMENT_ORDER_011.md)
+**Experiment Report**: RPT-011 (EXPERIMENT_REPORT_011.md)
+
+**Evidence**:
+- survival_time ANOVA: [STAT:f=F(4,145)=10.548] [STAT:p<0.000001] [STAT:eta2=eta^2=0.225] (LARGE)
+- Kruskal-Wallis: H(4)=36.316 [STAT:p<0.000001]
+- random_5 survival: 26.35s vs random_3 survival: 16.18s (+10.17s, +63%)
+- Tukey HSD significant pairs: random_5 > random_3 (p<0.001), random_5 > turn_burst_3 (p<0.001), random_5 > smart_5 (p=0.001), strafe_burst_3 > random_3 (p=0.002), strafe_burst_3 > turn_burst_3 (p=0.029)
+- Largest effect size in entire DOE-011 experiment
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Highly significant (p<0.000001) with non-parametric confirmation
+- Largest effect (eta^2=0.225) among all DOE-011 responses
+- Clear dose-response: more strafing = more survival (random_5 > strafe_burst > smart_5 > turn_burst > random_3)
+- Mechanistic explanation clear: physical displacement dodges enemy projectiles
+
+**Interpretation**:
+Strafing (physical lateral movement) is the most effective survival mechanism discovered in the clau-doom experiments. Moving the agent's body left/right makes it harder for enemies to hit. The survival benefit is dramatic — random_5 survives 63% longer than random_3 despite identical randomness, differing only in the availability of strafe actions. This is the LARGEST effect size (eta^2=0.225) observed in DOE-011, exceeding the kill_rate effect (eta^2=0.094) by 2.4x. Survival extension is the dominant consequence of strafing.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-024: Kill Rate and Total Kills Inversely Ranked (Rate-vs-Total Tradeoff)
+
+**Hypothesis**: H-015 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-011 (EXPERIMENT_ORDER_011.md)
+**Experiment Report**: RPT-011 (EXPERIMENT_REPORT_011.md)
+
+**Evidence**:
+- kill_rate ranking: turn_burst_3 (45.5) > random_3 (43.3) > strafe_burst_3 (42.1) > smart_5 (41.7) > random_5 (39.7)
+- kills ranking: random_5 (17.3) > strafe_burst_3 (16.1) > turn_burst_3 (13.4) > smart_5 (13.0) > random_3 (11.5)
+- Spearman rank correlation between kill_rate and kills: negative (rankings are approximately reversed)
+- kills ANOVA: [STAT:f=F(4,145)=6.936] [STAT:p=0.000039] [STAT:eta2=eta^2=0.161]
+- The rate denominator (survival_time) varies 63% between extremes, creating the inversion
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Both kill_rate and kills ANOVAs are highly significant
+- The inversion is explained by a clear mechanism (survival time variation)
+- Consistent across all 5 conditions (not driven by outliers)
+
+**Interpretation**:
+The choice of optimization metric fundamentally changes which strategy is "best." For kill efficiency (kills per minute), the 3-action turn_burst_3 strategy wins. For total lethality (raw kill count per episode), the 5-action random_5 strategy wins. For survival, random_5 also wins. This tradeoff means future agent optimization requires multi-objective methods (TOPSIS, Pareto front) rather than single-metric optimization. The kill_rate metric alone is insufficient to characterize agent performance when survival varies across conditions.
+
+**Adopted**: 2026-02-08 (Phase 1)
