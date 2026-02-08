@@ -16,6 +16,12 @@ services:
       - "6901:6901"   # noVNC web viewer
       - "5900:5900"   # VNC raw
       - "50051:50051" # gRPC agent communication
+    working_dir: /app
+    volumes:
+      - ../glue:/app/glue:ro          # Python experiment code (read-only)
+      - ../volumes/data:/app/data      # DuckDB output (read-write)
+      - ../research:/app/research      # Reports output (read-write)
+      - ../agent-core:/app/agent-core:ro  # Reference (read-only)
     environment:
       - DISPLAY=:99
       - SCREEN_RESOLUTION=640x480x24

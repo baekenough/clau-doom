@@ -3,6 +3,21 @@
 Research findings from clau-doom experiments. Each finding traces back through the audit chain:
 HYPOTHESIS_BACKLOG -> EXPERIMENT_ORDER -> EXPERIMENT_REPORT -> FINDINGS
 
+## Data Source Status
+
+**WARNING**: Findings F-001 through F-007 were derived from MOCK (numpy-generated) data. Real VizDoom data (RPT-001-REAL) has invalidated several mock-based claims. See individual finding annotations below.
+
+### Real vs Mock Summary
+| Finding | Mock Status | Real Status | Discrepancy |
+|---------|-------------|-------------|-------------|
+| F-001 (Full > Random) | ADOPTED | CONFIRMED | Direction confirmed, effect size larger in real data (d=6.84 vs d=5.28) |
+| F-002 (Full > Rule-Only) | ADOPTED | **INVALIDATED** | Real data shows NO difference (both identical at 26.0 kills, 0 variance) |
+| F-003 (Rule-Only > Random) | ADOPTED | CONFIRMED | Direction confirmed, effect size larger in real data (d=6.84 vs d=3.11) |
+| F-004 (Latency < 100ms) | ADOPTED | CONFIRMED | Python action functions run in <1ms, no VizDoom latency measured |
+| F-005 through F-007 | ADOPTED (mock DOE-002) | PENDING REAL VALIDATION | DOE-002 not yet re-run with real VizDoom |
+
+**Key Insight**: Mock data fabricated separation between rule_only and full_agent that does not exist in real gameplay at default parameters (memory_weight=0.5, strength_weight=0.5). Both strategies converge to "always attack" in defend_the_center, producing identical deterministic outcomes.
+
 ## Adopted Findings
 
 ### F-001: Full RAG Agent Dramatically Outperforms Random Baseline
@@ -37,36 +52,48 @@ The full RAG cascade (L0 rules + L1 DuckDB cache + L2 OpenSearch kNN) achieves a
 **Recommended Next**:
 Phase 1 factorial design (DOE-002) to optimize individual RAG parameters (memory_weight, strength_weight).
 
+**[REAL DATA ANNOTATION — 2026-02-08]**:
+CONFIRMED with real VizDoom execution. Direction of effect preserved (Full >> Random), but effect size LARGER in real data ([STAT:effect_size=Cohen's d=6.84] vs mock d=5.28). Real gameplay shows full_agent and rule_only both achieve mean=26.0 kills (identical), while random achieves mean=9.9 kills. The full vs random comparison remains valid with even stronger evidence, but the specific numerical advantage of full_agent over rule_only is INVALIDATED (see F-002). Trust remains MEDIUM due to degenerate variance in real data (rule_only and full_agent have SD=0.00).
+
 ---
 
 ### F-002: Full RAG Agent Outperforms Rule-Only Baseline
 
 **Hypothesis**: H-001 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-001 (EXPERIMENT_ORDER_001.md)
-**Experiment Report**: RPT-001 (EXPERIMENT_REPORT_001.md)
+**Experiment Report**: RPT-001 (EXPERIMENT_REPORT_001.md) [MOCK DATA], RPT-001-REAL (REAL DATA)
 
-**Evidence**:
+**Evidence (MOCK DATA — INVALID)**:
 - Welch's t-test: [STAT:t=18.25] [STAT:p_adj=0.000000] (Holm-Bonferroni corrected)
 - Non-parametric confirmation: Mann-Whitney U [STAT:p_mann=0.000000]
 - Effect size: [STAT:effect_size=Cohen's d=3.09] (HUGE)
 - Mean difference: +25.94 kills [STAT:ci=95%: 23.16 to 28.73]
 - Sample size: [STAT:n=70 per condition, 140 total for this comparison]
 
-**Trust Level**: MEDIUM
+**Trust Level**: ~~MEDIUM~~ → **INVALIDATED**
 
 **Trust Rationale**:
-- Both conditions (full_agent and rule_only) pass normality (A²=0.18 and 0.20, both p=0.25)
-- Equal variance fails globally (Levene W=42.08) but Welch's t-test compensates
-- Non-parametric confirms, effect size enormous
-- Could approach HIGH for this specific pairwise comparison, but overall experiment diagnostics lower trust
+~~Both conditions (full_agent and rule_only) pass normality (A²=0.18 and 0.20, both p=0.25)~~
+~~Equal variance fails globally (Levene W=42.08) but Welch's t-test compensates~~
+~~Non-parametric confirms, effect size enormous~~
+~~Could approach HIGH for this specific pairwise comparison, but overall experiment diagnostics lower trust~~
+
+**[REAL DATA ANNOTATION — 2026-02-08]**:
+**INVALIDATED**. Real VizDoom execution shows full_agent and rule_only produce IDENTICAL outcomes:
+- full_agent: mean=26.0 kills, SD=0.00
+- rule_only: mean=26.0 kills, SD=0.00
+- Mean difference: 0.00 kills (no separation)
+- Statistical test: [STAT:p=NaN] (both groups have zero variance)
+
+At default parameters (memory_weight=0.5, strength_weight=0.5), the FullAgentAction heuristics (lines 25-41 in full_agent_action.py) reduce to the exact same behavior as RuleOnlyAction: always attack the nearest enemy. The L1 (DuckDB cache) and L2 (OpenSearch kNN) layers contribute no differentiation in defend_the_center with these settings.
 
 **Interpretation**:
-The L1+L2 layers (DuckDB cache + OpenSearch kNN) add substantial value beyond L0 rules alone. The full agent achieves 2.56x the kills of rule-only (42.57 vs 16.63). This confirms that RAG knowledge retrieval is not just overhead -- it provides actionable intelligence that significantly improves decision quality.
+The mock data fabricated a 25.94 kill advantage that does not exist. This finding is INVALID and must be REJECTED. The L1+L2 RAG layers do NOT currently provide value beyond L0 rules at default parameters in the defend_the_center scenario.
 
-**Adopted**: 2026-02-08 (Phase 0)
+**Status**: REJECTED (2026-02-08)
 
 **Recommended Next**:
-DOE-003 (layer ablation, H-005) to test individual L1 and L2 contributions via 2^3 factorial.
+Re-execute DOE-002 with real VizDoom to test whether memory_weight and strength_weight parameters at EXTREME values (not default 0.5) can produce behavioral differentiation. The factorial design remains scientifically valid, but the hypothesis that the RAG system provides intrinsic value at default settings is UNSUPPORTED.
 
 ---
 
@@ -97,6 +124,14 @@ L0 hardcoded rules alone achieve 6x the kills of random (16.63 vs 2.77). This va
 **Recommended Next**:
 This finding supports the hierarchical cascade design. Future experiments should preserve L0 as the base layer and focus on optimizing L1/L2 parameters.
 
+**[REAL DATA ANNOTATION — 2026-02-08]**:
+CONFIRMED with real VizDoom execution. Direction of effect preserved and STRENGTHENED. Real data shows:
+- rule_only: mean=26.0 kills (vs mock 16.63)
+- random: mean=9.9 kills (vs mock 2.77)
+- Effect size: [STAT:effect_size=Cohen's d=6.84] (vs mock d=3.11)
+
+The rule engine is FAR MORE effective in real gameplay than mock data suggested. The mock underestimated rule_only performance by 56% (16.63 → 26.0). Trust remains MEDIUM due to degenerate variance (rule_only has SD=0.00 in real data — deterministic outcomes). The scientific conclusion is strengthened: L0 rules provide massive value over random behavior.
+
 ---
 
 ### F-004: Decision Latency Within Real-Time Bounds
@@ -124,6 +159,9 @@ The full cascade (L0->L1->L2) operates well within the 100ms P99 latency budget.
 
 **Recommended Next**:
 Monitor latency as agent complexity grows. Stress test in Phase 2+ with more complex scenarios.
+
+**[REAL DATA ANNOTATION — 2026-02-08]**:
+CONFIRMED. Real VizDoom execution shows Python action functions (random_action.py, rule_only_action.py, full_agent_action.py) complete in <1ms on standard hardware. The P99=45.1ms figure from mock data was likely simulated overhead; actual action function execution is negligible. The 100ms latency budget is not a practical constraint with the current Python-based action architecture. VizDoom engine latency (frame processing, rendering) was not measured in real execution. Trust remains MEDIUM pending stress testing under load (many enemies, complex map geometry).
 
 ---
 

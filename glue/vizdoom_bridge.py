@@ -156,9 +156,10 @@ class VizDoomBridge:
         pre_ammo = 52
         pre_health = 100
         if pre_state and pre_state.game_variables is not None:
-            pre_kills = int(pre_state.game_variables[0])
-            pre_health = int(pre_state.game_variables[1])
-            pre_ammo = int(pre_state.game_variables[2])
+            gv = pre_state.game_variables
+            pre_kills = int(gv[0]) if len(gv) > 0 else 0
+            pre_health = int(gv[1]) if len(gv) > 1 else 100
+            pre_ammo = int(gv[2]) if len(gv) > 2 else 52
 
         reward = self._game.make_action(action)
         self._tick += 1
@@ -166,9 +167,10 @@ class VizDoomBridge:
         # Track deltas
         post_state = self._game.get_state()
         if post_state and post_state.game_variables is not None:
-            post_kills = int(post_state.game_variables[0])
-            post_health = int(post_state.game_variables[1])
-            post_ammo = int(post_state.game_variables[2])
+            gv = post_state.game_variables
+            post_kills = int(gv[0]) if len(gv) > 0 else 0
+            post_health = int(gv[1]) if len(gv) > 1 else 100
+            post_ammo = int(gv[2]) if len(gv) > 2 else 52
 
             # Track kills
             new_kills = post_kills - pre_kills

@@ -1,5 +1,63 @@
 # Research Log
 
+## 2026-02-08 — DOE-001 Real VizDoom Baseline (RPT-001-REAL)
+
+### Context
+DOE-001 re-executed with real VizDoom gameplay after discovering all prior experiments used numpy mock data. Docker containerized VizDoom (v1.2.4) with Xvfb headless display.
+
+### Hypothesis
+H-001: Full RAG agent outperforms baselines in defend_the_center.
+H-002: Rule engine provides meaningful structure over random.
+Priority: High
+Rationale: Foundation validation — must confirm real gameplay matches theoretical expectations.
+
+### Design
+DOE type: OFAT (One Factor At a Time)
+Factor: Decision Architecture (Random, Rule-Only, Full Agent)
+Episodes: 70 per condition, 210 total
+Seeds: seed_i = 42 + i*31, i=0..69
+Scenario: defend_the_center.cfg (VizDoom built-in)
+
+### Result
+
+#### Primary Metric: Kills
+| Condition | Mean | SD | n |
+|-----------|------|-----|---|
+| random | 9.90 | 3.33 | 70 |
+| rule_only | 26.00 | 0.00 | 70 |
+| full_agent | 26.00 | 0.00 | 70 |
+
+#### Statistical Comparisons
+- full_agent vs random: [STAT:p_adj=0.000000] [STAT:effect_size=Cohen's d=6.84] → SIGNIFICANT
+- full_agent vs rule_only: [STAT:p=NaN] (identical groups) → NOT SIGNIFICANT
+- rule_only vs random: [STAT:p_adj=0.000000] [STAT:effect_size=Cohen's d=6.84] → SIGNIFICANT
+
+#### Diagnostics
+- Normality: FAIL (zero variance in rule_only and full_agent)
+- Equal Variance: FAIL (Levene's W=138.24, p<0.001)
+- Independence: PASS
+
+Trust level: LOW (degenerate case: 2 groups with zero variance)
+
+### Critical Finding: Mock vs Real Discrepancy
+The mock DOE-001 fabricated differentiation between rule_only and full_agent that does not exist in real gameplay. With default parameters (memory_weight=0.5, strength_weight=0.5), both strategies converge to "always attack" behavior in defend_the_center, producing identical deterministic outcomes.
+
+This invalidates mock-based findings F-001 through F-004 that claimed full_agent > rule_only separation.
+
+### Implications
+1. H-001 PARTIALLY SUPPORTED: Full agent = Rule-only >> Random
+2. H-002 SUPPORTED: Rule engine massively outperforms random (d=6.84)
+3. The memory/strength heuristics in FullAgentAction do not differentiate from simple rules at default params
+4. DOE-002 factorial design remains valid IF real VizDoom shows behavioral differences at extreme parameter values
+5. All prior mock-based trust levels should be downgraded to UNTRUSTED
+
+### Next Steps
+- Re-execute DOE-002 with real VizDoom to test if memory_weight and strength_weight actually produce different behaviors
+- Consider scenario modifications (more complex scenarios where rule-only isn't sufficient)
+- Investigate why ammo_efficiency reads 0.000 across all conditions (tracking bug)
+
+---
+
 ## 2026-02-07 — Project Initialization and DOE-001 Design
 
 ### Context

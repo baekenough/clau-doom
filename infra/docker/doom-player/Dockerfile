@@ -51,7 +51,11 @@ RUN pip3 install --no-cache-dir \
     grpcio \
     grpcio-tools \
     protobuf \
-    numpy
+    numpy \
+    duckdb \
+    scipy \
+    statsmodels \
+    matplotlib
 
 # Verify VizDoom installation and scenario availability
 RUN python3 -c "import vizdoom; print('VizDoom version:', vizdoom.__version__); print('Scenarios path:', vizdoom.scenarios_path)"
