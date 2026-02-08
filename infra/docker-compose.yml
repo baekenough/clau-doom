@@ -4,7 +4,6 @@
 #   doom-player  - VizDoom + Xvfb + noVNC game environment
 #   agent-core   - Rust gRPC decision engine
 #   opensearch   - RAG vector search (kNN)
-#   ollama       - Lightweight embeddings
 #   nats         - Agent pub/sub messaging
 
 services:
@@ -89,28 +88,6 @@ services:
           cpus: "1.0"
           memory: 1G
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: clau-doom-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-models:/root/.ollama
-    networks:
-      - clau-doom-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 4G
-
   nats:
     image: nats:latest
     container_name: clau-doom-nats
@@ -137,6 +114,4 @@ networks:
 
 volumes:
   opensearch-data:
-    driver: local
-  ollama-models:
     driver: local
