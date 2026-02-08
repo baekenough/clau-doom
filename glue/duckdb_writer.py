@@ -26,7 +26,8 @@ class DuckDBWriter:
 
     def _ensure_schema(self) -> None:
         if SCHEMA_SQL_PATH.exists():
-            self._con.executescript(SCHEMA_SQL_PATH.read_text())
+            # DuckDB Python API uses execute(), not executescript()
+            self._con.execute(SCHEMA_SQL_PATH.read_text())
 
     def write_episode(
         self,
