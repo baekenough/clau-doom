@@ -25,7 +25,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_DB_PATH = Path("volumes/data/clau-doom.duckdb")
+DEFAULT_DB_PATH = Path("data/clau-doom.duckdb")
 
 
 # ---------------------------------------------------------------------------
@@ -303,8 +303,10 @@ def execute_experiment(config: ExperimentConfig) -> None:
                     skipped_episodes += 1
                     continue
 
-                # Reset action function state between episodes
-                action_fn.reset()
+                # Reset action function state between episodes.
+                # Pass seed so RNG is seeded per (seed, params) for
+                # parameter-dependent stochastic action selection.
+                action_fn.reset(seed=seed)
 
                 result = runner.run_episode(
                     seed=seed,

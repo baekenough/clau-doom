@@ -22,7 +22,7 @@ class GameState:
     """Current game frame observation."""
 
     health: int = 100
-    ammo: int = 52  # pistol starting ammo
+    ammo: int = 26  # defend_the_center starting AMMO2 (cell ammo)
     kills: int = 0
     enemies_visible: int = 0
     position_x: float = 0.0
@@ -84,13 +84,17 @@ class VizDoomBridge:
         self._initial_health = 100
         self._prev_health = 100
         self._prev_kills = 0
-        self._prev_ammo = 52
+        self._prev_ammo = 26  # defend_the_center AMMO2 starting value
         self._shots_fired = 0
         self._hits = 0
         self._damage_dealt = 0.0
         self._damage_taken = 0.0
         self._visited_positions: set[tuple[int, int]] = set()
         self._tick = 0
+
+        # TODO: AMMO2 tracks cell ammo, but pistol uses bullet ammo (AMMO5/clips).
+        # shots_fired calculation via AMMO2 delta won't work for pistol-only scenarios.
+        # Consider adding AMMO5 tracking if accurate shots_fired is needed.
 
     def _configure_game(self) -> None:
         """Configure VizDoom for headless experiment execution."""
@@ -105,6 +109,15 @@ class VizDoomBridge:
         # defend_the_center uses: MOVE_LEFT, MOVE_RIGHT, ATTACK
         # These are already defined in the .cfg file
 
+        # CRITICAL FIX: Override game variables to ensure correct index mapping
+        # The defend_the_center.cfg defines: available_game_variables = { AMMO2 HEALTH }
+        # which would give us only [AMMO2, HEALTH] (2 elements, missing KILLCOUNT!)
+        # We MUST explicitly set the correct order BEFORE init()
+        self._game.clear_available_game_variables()
+        self._game.add_available_game_variable(self._vizdoom.GameVariable.KILLCOUNT)  # index 0
+        self._game.add_available_game_variable(self._vizdoom.GameVariable.HEALTH)     # index 1
+        self._game.add_available_game_variable(self._vizdoom.GameVariable.AMMO2)      # index 2
+
         self._game.init()
 
     def start_episode(self, seed: int) -> None:
@@ -115,7 +128,7 @@ class VizDoomBridge:
         # Reset tracking
         self._prev_health = 100
         self._prev_kills = 0
-        self._prev_ammo = 52
+        self._prev_ammo = 26
         self._shots_fired = 0
         self._hits = 0
         self._damage_dealt = 0.0
@@ -153,13 +166,13 @@ class VizDoomBridge:
         # Track pre-action state for delta computation
         pre_state = self._game.get_state()
         pre_kills = 0
-        pre_ammo = 52
+        pre_ammo = 26
         pre_health = 100
         if pre_state and pre_state.game_variables is not None:
             gv = pre_state.game_variables
             pre_kills = int(gv[0]) if len(gv) > 0 else 0
             pre_health = int(gv[1]) if len(gv) > 1 else 100
-            pre_ammo = int(gv[2]) if len(gv) > 2 else 52
+            pre_ammo = int(gv[2]) if len(gv) > 2 else 26
 
         reward = self._game.make_action(action)
         self._tick += 1
@@ -170,7 +183,7 @@ class VizDoomBridge:
             gv = post_state.game_variables
             post_kills = int(gv[0]) if len(gv) > 0 else 0
             post_health = int(gv[1]) if len(gv) > 1 else 100
-            post_ammo = int(gv[2]) if len(gv) > 2 else 52
+            post_ammo = int(gv[2]) if len(gv) > 2 else 26
 
             # Track kills
             new_kills = post_kills - pre_kills
