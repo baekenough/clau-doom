@@ -1,5 +1,90 @@
 # Research Log
 
+## 2026-02-08 — DOE-007 Designed: Layer Ablation Study
+
+### Context
+The Memory-Strength optimization thread is now CLOSED. DOE-005 found no effects at [0.7, 0.9] with real KILLCOUNT data. DOE-006 confirmed no effects at [0.3, 0.7]. DOE-002's reported large effects (Memory eta2=0.42, Strength eta2=0.32) were entirely artifacts of the AMMO2 measurement bug. Memory_weight and strength_weight parameters do NOT influence kill_rate at any tested range.
+
+This raises a fundamental question: if varying the parameters of the memory and strength heuristics has no effect, do the heuristic layers themselves contribute anything? Or does all structured performance come from the L0 reflex rules?
+
+### Hypothesis
+H-011: Action selection architecture (L0 rules, memory heuristic, strength heuristic) has a significant effect on kill_rate performance.
+Priority: High
+Rationale: With the parameter optimization thread closed, the next scientific question is whether the architectural layers themselves matter. An ablation study systematically removes components to isolate each layer's contribution.
+
+### Design
+DOE type: One-Way ANOVA (Single Factor, 5 Levels)
+Factor: action_strategy with 5 levels:
+  1. random — uniform random choice (baseline)
+  2. L0_only — pure deterministic reflex rules
+  3. L0_memory — L0 rules + memory dodge heuristic (fixed attack prob)
+  4. L0_strength — L0 rules + strength attack modulation (no memory dodge)
+  5. full_agent — L0 + memory + strength (complete pipeline)
+
+Sample size: 30 episodes per level, 150 total
+Seeds: seed_i = 4501 + i*31, i=0..29 (range [4501, 5400], zero collisions with prior experiments)
+Expected power: [STAT:power=0.83] for medium effect (f=0.25) with k=5, n=30
+
+### Decision Rationale
+
+**Why ablation now?**
+
+1. The Memory-Strength thread consumed 4 experiments (DOE-002, DOE-005, DOE-006) without finding real effects. Before pursuing other parameter optimization, we need to determine whether the heuristic layers contribute AT ALL.
+
+2. If L0 rules dominate (Scenario B), then optimizing heuristic parameters is futile by design. This insight redirects the entire research program.
+
+3. DOE-001's comparison of random vs rule_only vs full_agent was collected with the AMMO2 bug for rule_only and full_agent conditions. The ablation provides clean re-measurement with correct KILLCOUNT.
+
+4. The ablation also tests whether the specific heuristic layers (memory dodge vs strength modulation) contribute independently or only together, answering a question the factorial designs could not.
+
+**Why 5 levels (not 3)?**
+
+DOE-001 tested 3 levels (random, rule_only, full_agent). DOE-007 adds L0_memory and L0_strength to decompose the full_agent into its constituent parts. This is a true ablation: systematically adding one component at a time to measure each component's incremental contribution.
+
+### Status
+EXPERIMENT_ORDER_007.md written. Awaiting execution by research-doe-runner.
+
+### Next Steps
+1. research-doe-runner: Implement ablation variants in action_functions.py (may require lang-python-expert)
+2. Execute DOE-007 (150 episodes, ~2 hours)
+3. research-analyst: One-way ANOVA with Tukey HSD post-hoc
+4. research-pi: Interpret results and decide research direction
+
+---
+
+## 2026-02-08 — Memory-Strength Thread Closed
+
+### Context
+DOE-006 results (communicated by team lead) confirm that Memory and Strength weight parameters have NO significant effect on kill_rate in the [0.3, 0.7] range with real KILLCOUNT data. This closes the Memory-Strength optimization thread.
+
+### Summary of Memory-Strength Investigation
+
+| Experiment | Range | Data Type | Result |
+|-----------|-------|-----------|--------|
+| DOE-002 | [0.3, 0.7] | INVALID (AMMO2 bug) | Large effects: Memory eta2=0.42, Strength eta2=0.32 |
+| DOE-005 | [0.7, 0.9] | REAL KILLCOUNT | ALL non-significant. Plateau at ~8.4 kills/min |
+| DOE-006 | [0.3, 0.7] | REAL KILLCOUNT | ALL non-significant. DOE-002 effects confirmed as artifacts |
+
+### Conclusions
+1. DOE-002's effects were entirely measurement artifacts of the AMMO2 bug
+2. Memory_weight and strength_weight DO NOT influence kill_rate at any tested range [0.3, 0.9]
+3. The response surface is FLAT across all tested parameter combinations
+4. The full_agent pipeline at ANY parameter setting produces ~8.4 kills/min
+
+### Hypotheses Closed
+- H-004 (Memory optimization): CLOSED — superseded by null results
+- H-010 (Effects at [0.3, 0.7]): REJECTED — no effects confirmed
+
+### Impact on Findings
+- F-005 (Memory main effect): Should be marked as INVALIDATED (based on AMMO2 data)
+- F-006 (Strength main effect): Should be marked as INVALIDATED
+- F-007 (Memory-Strength interaction): Should be marked as INVALIDATED
+
+### Research Direction
+Pivot from parameter optimization to architectural ablation (DOE-007) to answer: do the heuristic layers themselves contribute, or does all performance come from L0 rules?
+
+---
+
 ## 2026-02-08 — DOE-001 Real VizDoom Baseline (RPT-001-REAL)
 
 ### Context

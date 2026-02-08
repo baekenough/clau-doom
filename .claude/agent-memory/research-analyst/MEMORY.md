@@ -46,6 +46,30 @@
 - n=50/cell: power ~0.80 for small-medium effect (f=0.20)
 - n=88/cell: power ~0.80 for small effect (f=0.15)
 
+### DOE-007 Results (2026-02-08) - Layer Ablation Study
+- 5-level one-way ANOVA (random, L0_only, L0_memory, L0_strength, full_agent)
+- Overall ANOVA: F(4,145)=1.579, p=0.183, eta2=0.042 -- NOT significant
+- Kruskal-Wallis: H(4)=3.340, p=0.503 -- confirms non-significance
+- Random agent comparable to all structured agents (C1 contrast p=0.656)
+- Full_agent WORST performer: mean=6.74, 20% zero-kill rate
+- L0_only BEST performer: mean=9.08, SD=2.75, 0% zero-kill
+- Both normality AND equal variance FAILED (Levene p=0.039)
+- Combined heuristics may be counterproductive (C3 p=0.051, borderline)
+- Power only 49% at observed effect; MDE at 80% power = f=0.287
+- defend_the_center produces only 0-3 kills/episode -- ceiling limits differentiation
+- Consistent with DOE-005/006: parameters AND architecture both non-significant
+
+### DuckDB Schema Note
+- Table is `experiments` (NOT `experiment_runs`)
+- Has pre-computed `kill_rate` and `ammo_efficiency` columns
+- `condition` column format: "action_strategy=random", etc.
+- Parse with: str.replace('action_strategy=', '')
+
+### Power Analysis Reference (one-way, k=5)
+- n=30/group: power ~0.67 for medium effect (f=0.25), ~0.98 for large (f=0.40)
+- MDE at 80% power with k=5, n=30: f=0.287
+- Need n=55/group for 80% power at observed f=0.209
+
 ### Report Template
 - Follow R102 audit trail: link to hypothesis, order, and findings
 - Include [STAT:...] markers for all statistical claims

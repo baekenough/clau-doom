@@ -44,6 +44,7 @@ class RunConfig:
     seeds: list[int]
     condition: str  # e.g., "memory=0.7_strength=0.7"
     run_type: str  # "factorial" or "center"
+    action_type: str = "full_agent"  # "random", "rule_only", "l0_memory", "l0_strength", "full_agent"
 
 
 @dataclass
@@ -255,6 +256,80 @@ def build_doe006_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe007_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-007: Layer Ablation Study.
+
+    Single factor: action_strategy, 5 levels.
+    Seeds: seed_i = 4501 + i * 31, i=0..29
+    Randomized run order: R4, R1, R5, R2, R3
+    """
+    seeds = _generate_seed_set(n=30, base=4501, step=31)
+    exp_id = "DOE-007"
+
+    run1 = RunConfig(
+        run_id=f"{exp_id}-R1",
+        run_label="R1",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="action_strategy=random",
+        run_type="factorial",
+        action_type="random",
+    )
+    run2 = RunConfig(
+        run_id=f"{exp_id}-R2",
+        run_label="R2",
+        memory_weight=0.0,
+        strength_weight=0.0,
+        seeds=list(seeds),
+        condition="action_strategy=L0_only",
+        run_type="factorial",
+        action_type="rule_only",
+    )
+    run3 = RunConfig(
+        run_id=f"{exp_id}-R3",
+        run_label="R3",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=L0_memory",
+        run_type="factorial",
+        action_type="l0_memory",
+    )
+    run4 = RunConfig(
+        run_id=f"{exp_id}-R4",
+        run_label="R4",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=L0_strength",
+        run_type="factorial",
+        action_type="l0_strength",
+    )
+    run5 = RunConfig(
+        run_id=f"{exp_id}-R5",
+        run_label="R5",
+        memory_weight=0.5,
+        strength_weight=0.5,
+        seeds=list(seeds),
+        condition="action_strategy=full_agent",
+        run_type="factorial",
+        action_type="full_agent",
+    )
+
+    # Randomized execution order: R4, R1, R5, R2, R3
+    randomized_runs = [run4, run1, run5, run2, run3]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 4501 + i * 31, i=0..29",
+        scenario="defend_the_center.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -270,7 +345,13 @@ def execute_experiment(config: ExperimentConfig) -> None:
         RuntimeError: If VizDoom fails to initialize.
     """
     # Defer heavy imports so --help works without dependencies
-    from glue.action_functions import FullAgentAction
+    from glue.action_functions import (
+        FullAgentAction,
+        L0MemoryAction,
+        L0StrengthAction,
+        random_action,
+        rule_only_action,
+    )
     from glue.duckdb_writer import DuckDBWriter
     from glue.episode_runner import EpisodeRunner
     from glue.vizdoom_bridge import VizDoomBridge
@@ -366,11 +447,20 @@ def execute_experiment(config: ExperimentConfig) -> None:
                     )
                     continue
 
-            # Create action function with injected factor levels
-            action_fn = FullAgentAction(
-                memory_weight=run.memory_weight,
-                strength_weight=run.strength_weight,
-            )
+            # Create action function based on run's action_type
+            if run.action_type == "random":
+                action_fn = random_action
+            elif run.action_type == "rule_only":
+                action_fn = rule_only_action
+            elif run.action_type == "l0_memory":
+                action_fn = L0MemoryAction()
+            elif run.action_type == "l0_strength":
+                action_fn = L0StrengthAction()
+            else:  # "full_agent" (default)
+                action_fn = FullAgentAction(
+                    memory_weight=run.memory_weight,
+                    strength_weight=run.strength_weight,
+                )
 
             run_start = time.monotonic()
 
@@ -395,10 +485,11 @@ def execute_experiment(config: ExperimentConfig) -> None:
                     skipped_episodes += 1
                     continue
 
-                # Reset action function state between episodes.
-                # Pass seed so RNG is seeded per (seed, params) for
-                # parameter-dependent stochastic action selection.
-                action_fn.reset(seed=seed)
+                # Reset action function state between episodes (if supported).
+                # Plain functions (random_action, rule_only_action) have no
+                # reset(); class-based actions do.
+                if hasattr(action_fn, "reset"):
+                    action_fn.reset(seed=seed)
 
                 result = runner.run_episode(
                     seed=seed,
@@ -537,6 +628,7 @@ def _count_run_episodes(
 EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-005": build_doe005_config,
     "DOE-006": build_doe006_config,
+    "DOE-007": build_doe007_config,
 }
 
 

@@ -353,7 +353,8 @@ How many factors are you testing?
 | H-007 | 0/1 | 2×2 factorial (main effect) | DOE-002 | Strength (0.3, 0.7) | (shared with H-006, H-008) |
 | H-008 | 0/1 | 2x2 factorial (exploratory) + 3x2 factorial (confirmatory) | DOE-002 + DOE-005 | Memory x Strength | DOE-002: shared; DOE-005: 270 |
 | H-009 | 1 | 2x2 factorial + center points | DOE-005 | Memory [0.7,0.9] x Strength [0.7,0.9] | 150 (COMPLETE, REJECTED) |
-| H-010 | 1 | 2x2 factorial + center points (re-validation) | DOE-006 | Memory [0.3,0.7] x Strength [0.3,0.7] | 150 (ORDERED) |
+| H-010 | 1 | 2x2 factorial + center points (re-validation) | DOE-006 | Memory [0.3,0.7] x Strength [0.3,0.7] | 150 (COMPLETE, ALL NON-SIGNIFICANT) |
+| H-011 | 0/1 | One-way ANOVA (5 levels) | DOE-007 | action_strategy (random, L0_only, L0_memory, L0_strength, full_agent) | 150 (ORDERED) |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -369,7 +370,8 @@ How many factors are you testing?
 | 0 — Doc Quality Ablation | H-003 | DOE-004 | 150 (3 conditions x 50 episodes) | 750 |
 | 1 — Expanded Range | H-009 | DOE-005 | 150 (4 cells x 30 + 3 CPs x 10) | 1050 |
 | 1 — Wide Range Re-validation | H-010 | DOE-006 | 150 (4 cells x 30 + 3 CPs x 10) | 1200 |
-| 2 — RSM | TBD | TBD | 330-510 | 1380-1560 |
+| 0/1 — Layer Ablation | H-011 | DOE-007 | 150 (5 levels x 30 episodes) | 1350 |
+| 2 — RSM | TBD | TBD | 330-510 | 1530-1710 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 2460-2640+ |
 
 **Notes**:

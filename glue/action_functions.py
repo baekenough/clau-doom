@@ -1,9 +1,11 @@
 """Action selection functions for VizDoom defend_the_center scenario.
 
-Provides three action strategies:
+Provides five action strategies (DOE-007 ablation levels):
 1. random_action -- uniform random choice
 2. rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
-3. FullAgentAction -- callable class with memory/strength heuristics
+3. L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
+4. L0StrengthAction -- L0 rules + strength attack probability (no memory dodge)
+5. FullAgentAction -- callable class with memory + strength heuristics
 """
 
 from __future__ import annotations
@@ -41,6 +43,87 @@ def rule_only_action(state: GameState) -> int:
     if state.ammo == 0:
         return ACTION_MOVE_LEFT
     return ACTION_ATTACK
+
+
+class L0MemoryAction:
+    """L0 rules + memory dodge heuristic, fixed 68% attack probability.
+
+    Ablation level 3: tests the value of the memory dodge layer in
+    isolation, without strength-modulated attack probability.
+    """
+
+    def __init__(self) -> None:
+        self._rng: random.Random = random.Random(0)
+        self._health_history: deque[int] = deque(maxlen=10)
+
+    def reset(self, seed: int = 0) -> None:
+        """Reset state between episodes."""
+        self._rng = random.Random(hash(seed))
+        self._health_history.clear()
+
+    def __call__(self, state: GameState) -> int:
+        self._health_history.append(state.health)
+
+        # L0 emergency rules
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        # Memory dodge heuristic (memory_weight=0.5)
+        if self._should_dodge_memory():
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+        # Fixed 68% attack probability (no strength modulation)
+        if self._rng.random() < 0.68:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+    def _should_dodge_memory(self) -> bool:
+        """Memory dodge with memory_weight=0.5 (same logic as FullAgentAction)."""
+        if len(self._health_history) < 3:
+            return False
+        history = list(self._health_history)
+        recent_loss = history[-3] - history[-1]
+        if recent_loss <= 0:
+            return False
+        # dodge_threshold at memory=0.5 -> 30.0 * 0.6 = 18.0
+        dodge_threshold = 30.0 * (1.1 - 0.5)
+        dodge_prob = min(0.9, recent_loss / dodge_threshold)
+        return self._rng.random() < dodge_prob
+
+
+class L0StrengthAction:
+    """L0 rules + strength attack probability, no memory dodge.
+
+    Ablation level 4: tests the value of strength-modulated attack
+    probability in isolation, without the memory dodge layer.
+    """
+
+    def __init__(self) -> None:
+        self._rng: random.Random = random.Random(0)
+
+    def reset(self, seed: int = 0) -> None:
+        """Reset state between episodes."""
+        self._rng = random.Random(hash(seed))
+
+    def __call__(self, state: GameState) -> int:
+        # L0 emergency rules
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        # No memory dodge -- skip directly to attack decision
+
+        # Strength attack probability (strength_weight=0.5)
+        # attack_prob = 0.4 + 0.55 * 0.5 = 0.675
+        attack_prob = 0.4 + 0.55 * 0.5
+        if self._rng.random() < attack_prob:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
 
 
 class FullAgentAction:

@@ -2,25 +2,20 @@
 
 ## Active Hypotheses
 
-### H-004: Memory Weight Optimization [MEDIUM PRIORITY]
-**Statement**: Optimal memory_weight exists between 0.3-0.9 for maximizing kill_rate in the full RAG agent.
-**Rationale**: DOE-002 reported large Memory effect (eta_p^2=0.4154, BUT with INVALID AMMO2 data). DOE-005 confirmed performance plateau at [0.7, 0.9] with real kills data. The [0.3, 0.7] range has NOT been tested with real KILLCOUNT data -- DOE-006 will address this.
-**Status**: Partially addressed. DOE-005 rejected H-009 (no effect at [0.7, 0.9]). DOE-006 will test [0.3, 0.7] with real data.
-**Date Added**: 2026-02-07
-**Date Updated**: 2026-02-08
+### H-011: Action Selection Architecture Has Significant Effect on Kill Rate [ANALYZED — PENDING PI DISPOSITION]
+**Statement**: Action selection architecture (L0 rules, memory heuristic, strength heuristic) has a significant effect on kill_rate performance in defend_the_center. Specifically, the layer ablation study tests whether the memory dodge heuristic and/or strength attack probability modulation provide measurable improvement over bare L0 reflex rules.
+**Rationale**: DOE-005 and DOE-006 both found NO significant effect of memory_weight and strength_weight on kill_rate, closing the Memory-Strength optimization thread. This raises a fundamental question: do these heuristic layers contribute anything at all? An ablation study (DOE-007) isolates each layer's contribution.
+**Status**: Experiment completed. Analysis complete (RPT-007). Pending PI interpretation.
+**Date Added**: 2026-02-08
+**Date Analyzed**: 2026-02-08
+**Linked Experiment**: DOE-007
+**Result Summary**: One-way ANOVA NOT significant [STAT:f=F(4,145)=1.579] [STAT:p=0.183] [STAT:eta2=0.042]. Kruskal-Wallis also non-significant (p=0.503). No architectural configuration significantly outperforms any other. Random agent performs comparably to all structured agents. Full_agent (combined heuristics) is paradoxically the WORST performer (mean=6.74 vs L0_only mean=9.08, d=0.685 medium). PI must decide: reject H-011 or partially adopt with LOW trust.
 
 ### H-005: Strategy Document Quality Matters [MEDIUM PRIORITY]
 **Statement**: Higher quality strategy documents (higher confidence_tier) lead to better agent performance.
 **Rationale**: Validates the RAG curation pipeline importance. If document quality does not matter, the refinement pipeline is unnecessary overhead.
 **Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
 **Date Added**: 2026-02-07
-
-### H-010: Memory and Strength Have Significant Effects in the [0.3, 0.7] Range with Real KILLCOUNT Data [HIGH PRIORITY]
-**Statement**: Memory weight and strength weight have significant main effects on kill_rate in the [0.3, 0.7] range when measured with correct VizDoom KILLCOUNT (real kills, not AMMO2 bug).
-**Rationale**: DOE-002 reported large effects (Memory eta2=0.42, Strength eta2=0.32) but used INVALID data (AMMO2 mapped as kills). DOE-005 found no effects at [0.7, 0.9] with REAL data. The [0.3, 0.7] range may reveal effects masked by the performance plateau if wider separation between factor levels produces genuinely different agent behaviors. This is a critical re-validation experiment.
-**Status**: Experiment ordered (DOE-006)
-**Date Added**: 2026-02-08
-**Linked Experiment**: DOE-006
 
 ## Queued Hypotheses
 
@@ -82,6 +77,26 @@
 **Date Adopted**: 2026-02-08
 
 ## Rejected Hypotheses
+
+### H-010: Memory and Strength Have Significant Effects in [0.3, 0.7] with Real KILLCOUNT [REJECTED]
+**Statement**: Memory weight and strength weight have significant main effects on kill_rate in the [0.3, 0.7] range when measured with correct VizDoom KILLCOUNT.
+**Evidence**: DOE-006 (pending formal RPT-006)
+- DOE-006 confirmed ALL factors non-significant in [0.3, 0.7] with real KILLCOUNT data
+- DOE-002's large effects (Memory eta2=0.42, Strength eta2=0.32) were entirely measurement artifacts of the AMMO2 bug
+- Combined with DOE-005's null result at [0.7, 0.9]: Memory_weight and strength_weight have NO detectable effect on kill_rate at ANY tested range [0.3, 0.9]
+**Trust**: MEDIUM (consistent null across two independent experiments with different seed sets)
+**Date Rejected**: 2026-02-08
+**Linked Experiment**: DOE-006
+
+### H-004: Memory Weight Optimization [CLOSED — Superseded]
+**Statement**: Optimal memory_weight exists between 0.3-0.9 for maximizing kill_rate in the full RAG agent.
+**Evidence**: DOE-005 (RPT-005, F-008), DOE-006
+- DOE-005: No effect at [0.7, 0.9], all p > 0.10
+- DOE-006: No effect at [0.3, 0.7], all p > 0.10
+- No evidence of optimal memory_weight at any tested value
+**Status**: CLOSED. Superseded by DOE-005 and DOE-006 null results. The entire Memory-Strength optimization thread is closed.
+**Date Added**: 2026-02-07
+**Date Closed**: 2026-02-08
 
 ### H-009: Memory-Strength Trend Continues Beyond 0.7 [REJECTED]
 **Statement**: Increasing memory_weight and strength_weight beyond 0.7 (toward 0.9) continues to improve kill_rate without diminishing returns.

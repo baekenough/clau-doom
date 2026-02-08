@@ -275,7 +275,49 @@ Design DOE-005 as a confirmatory factorial at expanded range [0.7, 0.9] to test 
 
 ## Tentative Findings
 
-(None currently)
+### F-009: Action Selection Architecture Does Not Affect Kill Rate in defend_the_center (PENDING PI DISPOSITION)
+
+**Hypothesis**: H-011 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-007 (EXPERIMENT_ORDER_007.md)
+**Experiment Report**: RPT-007 (EXPERIMENT_REPORT_007.md)
+
+**Evidence**:
+- One-way ANOVA (5 levels): [STAT:f=F(4,145)=1.579] [STAT:p=0.183] [STAT:eta2=eta^2=0.042] -- NOT significant
+- Non-parametric Kruskal-Wallis: H(4)=3.340 [STAT:p=0.503] -- confirms non-significance
+- All 10 Tukey HSD pairwise comparisons: p_adj > 0.14 (none significant)
+- Planned contrasts: C1 (random vs others) p=0.656, C2 (L0 vs augmented) p=0.151, C3 (single vs combined) p=0.051, C4 (memory vs strength) p=0.689
+- Sample size: [STAT:n=150 (30 per condition)]
+- Observed power: [STAT:power=0.49] at observed effect size f=0.209
+- Zero-kill pattern: full_agent worst (20%), L0_only best (0%)
+- Both normality and equal variance assumptions violated, but non-parametric test confirms result
+
+**Trust Level**: MEDIUM (pending PI)
+
+**Trust Rationale**:
+- Non-parametric confirmation provides robustness despite assumption violations
+- Balanced design with identical seeds across conditions (strong internal validity)
+- Consistent with DOE-005 and DOE-006 null results for parameter effects
+- Power only 49% for observed effect -- cannot rule out small effects definitively
+- Very low kill counts (0-3) limit discriminability
+
+**Interpretation (Statistical)**:
+Five architectural configurations (random, L0_only, L0_memory, L0_strength, full_agent) produce statistically indistinguishable kill_rate in defend_the_center. Group means range from 6.74 (full_agent) to 9.08 (L0_only), but variation is within noise.
+
+**Key Observations**:
+1. Random agent is NOT inferior to structured agents (C1 contrast p=0.656)
+2. Full_agent (L0 + memory + strength) is paradoxically the WORST performer
+3. L0_only achieves highest mean kill_rate (9.08) with lowest variance (SD=2.75)
+4. Combined heuristics may be counterproductive (C3 contrast p=0.051, borderline)
+5. Defend_the_center may be too simple to differentiate architectures (0-3 kills/episode)
+
+**Status**: PENDING PI DISPOSITION (analyst recommends either REJECT H-011 or PARTIALLY ADOPT with LOW trust)
+
+**Recommended Next** (per analyst):
+1. Test on harder scenarios with higher kill counts for better discriminability
+2. Investigate why full_agent underperforms L0_only (excessive dodging hypothesis)
+3. Consider whether defend_the_center ceiling limits differentiation
+
+---
 
 ## Rejected Findings
 
