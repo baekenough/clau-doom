@@ -359,6 +359,15 @@ How many factors are you testing?
 | H-013 | 1 | 3×3 factorial (memory × strength) | DOE-009 | memory_weight × strength_weight on defend_the_line | 270 (ORDERED) |
 | H-014 | 1 | One-way CRD (5 levels) | DOE-010 | action_strategy structured patterns on defend_the_line | 150 (5 × 30) |
 | H-015 | 1 | One-way CRD (5 levels, cross-space) | DOE-011 | 3-action vs 5-action space, strafing vs turning on defend_the_line | 150 (5 × 30) |
+| H-016 | 1 | One-way CRD (5 levels) | DOE-012 | Compound simultaneous actions vs sequential on defend_the_line | 150 (5 × 30) |
+| H-017 | 1 | One-way CRD (5 levels) | DOE-013 | Attack ratio 50-100% effect on kill_rate | 150 (5 × 30) |
+| H-018 | 1 | One-way CRD (5 levels) | DOE-014 | L0 health threshold modulation | 150 (5 × 30) |
+| H-019 | 1 | One-way CRD (5 levels) | DOE-015 | Strategy generalization to basic.cfg | 150 (5 × 30) |
+| H-020 | 1 | One-way CRD (5 levels) | DOE-016 | Simple agents on deadly_corridor | 150 (5 × 30) |
+| H-021 | 1 | One-way CRD (5 levels) | DOE-017 | Attack_only deficit replication | 150 (5 × 30) |
+| H-022 | 1 | One-way CRD (5 levels) | DOE-018 | Adaptive vs fixed strategies | 150 (5 × 30) |
+| H-023 | 1 | One-way CRD (5 levels) | DOE-019 | Cross-validation of top strategies | 150 (5 × 30) |
+| H-024 | 1 | One-way CRD (5 levels) | DOE-020 | Best-of-breed comparison | 150 (5 × 30) |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -379,8 +388,44 @@ How many factors are you testing?
 | 1 — Memory × Strength Factorial | H-013 | DOE-009 | 270 (9 cells x 30 episodes) | 1770 |
 | 1 — Structured Movement | H-014 | DOE-010 | 150 (5 levels x 30 episodes) | 1920 |
 | 1 — Action Space Expansion | H-015 | DOE-011 | 150 (5 levels x 30 episodes) | 2070 |
-| 2 — RSM | TBD | TBD | 330-510 | 2400-2580 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 3330-3510+ |
+| 1 — Compound Actions | H-016 | DOE-012 | 150 (5 levels x 30 episodes) | 2220 |
+| 1 — Attack Ratio | H-017 | DOE-013 | 150 (5 levels x 30 episodes) | 2370 |
+| 1 — Health Threshold | H-018 | DOE-014 | 150 (5 levels x 30 episodes) | 2520 |
+| 1 — Scenario Generalization | H-019 | DOE-015 | 150 (5 levels x 30 episodes) | 2670 |
+| 1 — Deadly_Corridor Test | H-020 | DOE-016 | 150 (5 levels x 30 episodes) | 2820 |
+| 1 — Replication | H-021 | DOE-017 | 150 (5 levels x 30 episodes) | 2970 |
+| 1 — Adaptive Strategies | H-022 | DOE-018 | 150 (5 levels x 30 episodes) | 3120 |
+| 1 — Cross-Validation | H-023 | DOE-019 | 150 (5 levels x 30 episodes) | 3270 |
+| 1 — Best-of-Breed | H-024 | DOE-020 | 150 (5 levels x 30 episodes) | 3420 |
+| 2 — RSM | TBD | TBD | 330-510 | 3750-3930 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 4680-4860+ |
+
+---
+
+## Catalog Entries
+
+| ID | Design Type | Scenario | Conditions | Episodes | Key Finding | Status |
+|----|-------------|----------|------------|----------|-------------|--------|
+| DOE-001 | OFAT | defend_the_center | 3 (random, rule_only, full_agent) | 210 | Full vs Random confirmed (d=6.84), Full = Rule-Only (mock data artifact) | COMPLETE |
+| DOE-002 | 2x2 Factorial + CP | defend_the_center | 4 cells + 3 CP | 150 | INVALIDATED (AMMO2 bug, mock data) | INVALID |
+| DOE-005 | 2x2 Factorial + CP | defend_the_center | 4 cells + 3 CP | 150 | Performance plateau at [0.7, 0.9], all p>0.10 | COMPLETE |
+| DOE-006 | 2x2 Factorial + CP | defend_the_center | 4 cells + 3 CP | 150 | Re-validation FAILED, all p>0.10 | COMPLETE |
+| DOE-007 | One-way CRD | defend_the_center | 5 (architecture levels) | 150 | Scenario D: no discrimination (p=0.183) | COMPLETE |
+| DOE-008 | One-way CRD | defend_the_line | 5 (architecture levels) | 150 | L0_only worst (p<0.001), lateral movement essential | COMPLETE |
+| DOE-009 | 3x3 Factorial | defend_the_line | 9 cells | 270 | Memory/Strength NULL (all p>0.10) | COMPLETE |
+| DOE-010 | One-way CRD | defend_the_line | 5 (structured patterns) | 150 | Random ≈ structured, burst > sweep (p<0.001) | COMPLETE |
+| DOE-011 | One-way CRD | defend_the_line (3/5 action) | 5 (action space) | 150 | 3-action > 5-action, strafing hurts kill_rate, boosts survival | COMPLETE |
+| DOE-012 | One-way CRD | defend_the_line | 5 (compound vs sequential) | 150 | Compound actions WORSE than burst_3 (p<0.000001) | COMPLETE |
+| DOE-013 | One-way CRD | defend_the_line | 5 (attack ratio 50-100%) | 150 | Attack ratio does NOT affect kill_rate (p=0.812) | COMPLETE |
+| DOE-014 | One-way CRD | defend_the_line | 5 (L0 health threshold 0-100) | 150 | Monotonic gradient: threshold_0 best (46.3 kr, p=0.005) | COMPLETE |
+| DOE-015 | One-way CRD | basic.cfg | 5 (strategy generalization) | 150 | Floor effect: basic.cfg unsuitable (eta2=0.828 difference) | COMPLETE |
+| DOE-016 | One-way CRD | deadly_corridor | 5 (survival test) | 150 | Complete floor effect: all ≈0 kills (p=0.596) | COMPLETE |
+| DOE-017 | One-way CRD | defend_the_line | 5 (replication) | 150 | attack_only deficit REPLICATES (p=0.001, d=0.66) | COMPLETE |
+| DOE-018 | One-way CRD | defend_the_line | 5 (adaptive strategies) | 150 | adaptive_kill achieves highest kill_rate (46.18 kr, p<0.000002) | COMPLETE |
+| DOE-019 | One-way CRD | defend_the_line | 5 (cross-validation) | 150 | L0_only worst across 3 experiments (3x replicated) | COMPLETE |
+| DOE-020 | One-way CRD | defend_the_line | 5 (best-of-breed) | 150 | burst_3 highest kills (15.40), compound ≈ attack_only (no advantage) | COMPLETE |
+
+---
 
 **Notes**:
 - DOE-001 tests H-001 and H-002 simultaneously with shared seed set (70 seeds, 3 conditions).

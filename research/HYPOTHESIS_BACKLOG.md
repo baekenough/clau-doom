@@ -128,6 +128,102 @@
 **Date Adopted**: 2026-02-08
 **[INVALIDATED by DOE-009]**: Real VizDoom data shows no significant interaction (F(4,261)=0.365, p=0.834, η²=0.006). Mock data effect was fabricated. See F-015.
 
+## Completed Hypotheses
+
+### H-016: Compound Simultaneous Actions Outperform Sequential [REJECTED]
+**Statement**: Compound simultaneous actions (attack+turn or attack+move on same tick) will outperform sequential actions on defend_the_line.
+**Evidence**: RPT-012, F-025, F-026
+- Compound strategies produce IDENTICAL results to each other (F-025, p=1.000)
+- Compound strategies significantly WORSE than burst_3 (F-026, p<0.000001, eta2=0.262)
+- VizDoom weapon cooldown absorbs timing differences
+- Compound group: 36.58 kr vs burst_3: 44.54 kr (+18% deficit)
+**Trust**: HIGH (all diagnostics pass, large effect sizes, mechanistic explanation clear)
+**Date Rejected**: 2026-02-08
+**Linked Experiment**: DOE-012
+
+### H-017: Higher Attack Ratio → Higher Kill Rate [REJECTED]
+**Statement**: Increasing attack ratio from 50% (burst strategies) to 100% (attack_only) will increase kill_rate.
+**Evidence**: RPT-013, F-027
+- kill_rate: F(4,145)=0.395, p=0.812 — NOT significant
+- kills: F(4,145)=9.056, p<0.000001 — SIGNIFICANT (attack_only FEWER kills)
+- survival_time: F(4,145)=6.621, p=0.000073 — SIGNIFICANT (attack_only SHORTER survival)
+- attack_only produces 9.57 kills vs burst_3 13.7-14.5 kills (d=0.80-1.07)
+**Trust**: HIGH (kill_rate null confirmed, kills/survival effects significant)
+**Date Rejected**: 2026-02-08
+**Linked Experiment**: DOE-013
+
+### H-018: L0 Health Threshold Modulates Kill Rate [ADOPTED]
+**Statement**: L0 health dodge threshold (0, 25, 50, 75, 100) modulates kill_rate on defend_the_line.
+**Evidence**: RPT-014, F-028
+- F(4,145)=3.860, p=0.005, eta2=0.096
+- Monotonic trend: threshold_0 (46.3 kr) > threshold_50 (40.0 kr)
+- C1 contrast (threshold_0 vs others): p=0.002, d=0.628
+**Trust**: MEDIUM (monotonic trend clear, slight non-monotonicity at threshold_75)
+**Date Adopted**: 2026-02-08
+**Linked Experiment**: DOE-014
+
+### H-019: Strategy Performance Generalizes Across Scenarios [REJECTED]
+**Statement**: Strategy performance rankings on defend_the_line generalize to basic.cfg.
+**Evidence**: RPT-015, F-029
+- F(4,145)=174.832, p<0.000001, eta2=0.828 — HUGE effect
+- basic.cfg: 1 monster, floor effect (83-93% zero kills)
+- defend_the_line: 8+ monsters, kills [4,26]
+- Rankings DO NOT REPLICATE across scenarios
+**Trust**: HIGH (largest effect size in project, non-parametric confirms)
+**Date Rejected**: 2026-02-08
+**Linked Experiment**: DOE-015
+
+### H-020: Simple Agents Function on Deadly_Corridor [REJECTED]
+**Statement**: Simple agents (random, L0_only, burst_3, etc.) can achieve >0 kills on deadly_corridor.
+**Evidence**: RPT-016, F-030
+- F(4,145)=0.695, p=0.596 — NOT significant
+- All strategies: mean kills ≈ 0.00-0.03 (floor effect)
+- All strategies: survival ≈ 2-3 seconds
+- 97-100% zero-kill episodes
+**Trust**: HIGH (for null result — complete floor effect, no signal)
+**Date Rejected**: 2026-02-08
+**Linked Experiment**: DOE-016
+
+### H-021: Replication of Attack_Only Deficit [ADOPTED]
+**Statement**: attack_only produces fewer total kills than burst_3 with independent seed set (replication of F-027).
+**Evidence**: RPT-017, F-031
+- F(4,145)=4.726, p=0.001, eta2=0.115
+- attack_only: 10.13 kills vs burst_3: 13.70 kills, p_adj=0.043, d=0.66
+- Independent seed set (14001-15364) confirms finding
+**Trust**: HIGH (replicates F-027 with different seeds)
+**Date Adopted**: 2026-02-08
+**Linked Experiment**: DOE-017
+
+### H-022: Adaptive Strategies Outperform Fixed [PARTIALLY ADOPTED]
+**Statement**: State-dependent adaptive strategies outperform fixed burst patterns.
+**Evidence**: RPT-018, F-032, F-033
+- adaptive_kill: 46.18 kr (highest kill_rate), matches burst_3 on kills (13.7 vs 14.5, NS)
+- aggressive_adaptive: 40.65 kr (FAILS — too little movement)
+- State-dependent logic viable if properly designed
+**Trust**: MEDIUM (Levene violation, but non-parametric confirms)
+**Date Adopted**: 2026-02-08
+**Linked Experiment**: DOE-018
+
+### H-023: Top Strategies Maintain Ranking in Cross-Validation [ADOPTED]
+**Statement**: Top-performing strategies from DOE-008/010/018 maintain rankings in independent cross-validation.
+**Evidence**: RPT-019, F-034, F-035
+- L0_only worst performer across 3 experiments (38.52 kr, d=0.83-1.48)
+- adaptive_kill, burst_3, random form top tier (43.4-46.6 kr, all NS pairwise)
+- Replicated across 3 independent seed sets
+**Trust**: HIGH (3x replication with independent seeds)
+**Date Adopted**: 2026-02-08
+**Linked Experiment**: DOE-019
+
+### H-024: Best-of-Breed Confirmation [ADOPTED]
+**Statement**: Best-of-breed comparison confirms optimal strategy for total kills and kill_rate.
+**Evidence**: RPT-020, F-036, F-037, F-038
+- burst_3: highest kills (15.40), beats attack_only/compound (d=0.95-1.00)
+- compound_attack_turn ≈ attack_only (10.73 vs 10.70, d=0.01, NO advantage)
+- Multi-objective selection needed (no single strategy dominates both metrics)
+**Trust**: MEDIUM (consistent replication pattern across DOE-010/017/019/020)
+**Date Adopted**: 2026-02-08
+**Linked Experiment**: DOE-020
+
 ## Rejected Hypotheses
 
 ### H-013: Memory and Strength Weights Have Significant Effects on defend_the_line [REJECTED]

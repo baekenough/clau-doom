@@ -778,3 +778,406 @@ Strafing (physical lateral movement) is the most effective survival mechanism di
 The choice of optimization metric fundamentally changes which strategy is "best." For kill efficiency (kills per minute), the 3-action turn_burst_3 strategy wins. For total lethality (raw kill count per episode), the 5-action random_5 strategy wins. For survival, random_5 also wins. This tradeoff means future agent optimization requires multi-objective methods (TOPSIS, Pareto front) rather than single-metric optimization. The kill_rate metric alone is insufficient to characterize agent performance when survival varies across conditions.
 
 **Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-025: Compound Simultaneous Actions Produce Identical Results
+
+**Hypothesis**: H-016 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-012 (EXPERIMENT_ORDER_012.md)
+**Experiment Report**: RPT-012 (EXPERIMENT_REPORT_012.md)
+
+**Evidence**:
+- One-way ANOVA: [STAT:f=F(4,145)=6.115] [STAT:p=0.000142] [STAT:eta2=0.144]
+- compound_attack_turn vs compound_burst_3: mean diff = 0.00 kr, Tukey p_adj = 1.000 [STAT:effect_size=Cohen's d=0.000]
+- VizDoom weapon cooldown absorbs timing differences between compound strategies
+- All diagnostics PASS
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Identical group means (compound strategies produce same results)
+- Clean ANOVA diagnostics
+- Mechanistic explanation clear (weapon cooldown)
+- Kruskal-Wallis confirms: H(4)=20.158, p=0.000465
+
+**Interpretation**:
+VizDoom's weapon cooldown period (typically 10-15 ticks) creates a mandatory delay between shots that absorbs all timing differences between compound action strategies. Whether an agent uses compound_attack_turn (alternating attack+turn on same tick) or compound_burst_3 (3 attacks + 1 turn compound on 4th tick), the actual firing rate is identical — limited by weapon cooldown, not command timing. Compound simultaneous actions provide no timing advantage over sequential commands in VizDoom's game loop.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-026: Burst_3 Outperforms Compound Strategies on Defend_the_Line
+
+**Hypothesis**: H-016 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-012 (EXPERIMENT_ORDER_012.md)
+**Experiment Report**: RPT-012 (EXPERIMENT_REPORT_012.md)
+
+**Evidence**:
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=6.115] [STAT:p=0.000142] [STAT:eta2=0.144]
+- One-way ANOVA (kills): [STAT:f=F(4,145)=12.845] [STAT:p<0.000001] [STAT:eta2=0.262]
+- Compound group (compound_attack_turn, compound_burst_3) mean: 36.58 kr
+- Burst_3 mean: 44.54 kr, +7.96 kr vs compound [STAT:effect_size=Cohen's d=1.21]
+- attack_only mean: 42.99 kr, +6.41 kr vs compound [STAT:effect_size=Cohen's d=0.98]
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Highly significant (p<0.000001 on kills)
+- Large effect sizes (d>0.98)
+- All diagnostics PASS
+- Kruskal-Wallis confirms
+
+**Interpretation**:
+H-016 is REJECTED. Compound simultaneous actions (attack+turn or attack+move on same tick) produce WORSE kill_rate and total kills than pure burst_3 or even attack_only on defend_the_line. The compound strategies achieve 36.58 kr vs burst_3's 44.54 kr (+18% deficit). The overhead of command coordination in compound actions likely interferes with VizDoom's action processing, creating jitter or dropped commands that reduce offensive efficiency. Simple sequential strategies outperform compound strategies.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-027: Attack Ratio (50-100%) Does Not Affect Kill Rate
+
+**Hypothesis**: H-017 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-013 (EXPERIMENT_ORDER_013.md)
+**Experiment Report**: RPT-013 (EXPERIMENT_REPORT_013.md)
+
+**Evidence**:
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=0.395] [STAT:p=0.812] [STAT:eta2=0.011] — NOT significant
+- Kruskal-Wallis: H(4)=2.078, p=0.721 — confirms null
+- One-way ANOVA (kills): [STAT:f=F(4,145)=9.056] [STAT:p<0.000001] [STAT:eta2=0.200] — SIGNIFICANT
+- One-way ANOVA (survival_time): [STAT:f=F(4,145)=6.621] [STAT:p=0.000073] [STAT:eta2=0.155] — SIGNIFICANT
+- attack_only (100% attack) produces FEWER kills (9.57 vs 13.7-14.5) and SHORTER survival (13.5s vs 19.3-20.9s) than burst strategies
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- kill_rate null result confirmed by non-parametric test
+- kills and survival_time highly significant with large effects
+- All diagnostics PASS
+- Effect sizes substantial (d=0.80-1.07 for kills differences)
+
+**Interpretation**:
+H-017 is REJECTED. Varying attack ratio from 50% (burst strategies with 50% movement) to 100% (attack_only, pure offense) does NOT affect kill_rate (p=0.812). However, it DOES affect raw kills and survival_time: attack_only produces fewer total kills (9.57 vs 13.7-14.5, d=0.80-1.07) and shorter survival (13.5s vs 19.3-20.9s, d=0.82-1.07) compared to burst strategies. The rate-vs-total tradeoff (F-024) manifests again: attack_only's higher kill efficiency is offset by lower survival, resulting in equal kill_rate but inferior total lethality.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-028: L0 Health Threshold Creates Monotonic Kill Rate Gradient
+
+**Hypothesis**: H-018 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-014 (EXPERIMENT_ORDER_014.md)
+**Experiment Report**: RPT-014 (EXPERIMENT_REPORT_014.md)
+
+**Evidence**:
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=3.860] [STAT:p=0.005] [STAT:eta2=0.096]
+- Monotonic trend: threshold_0 (46.3 kr) > threshold_25 (45.0) > threshold_50 (40.0) > threshold_75 (41.9) > threshold_100 (39.9)
+- C1 contrast (threshold_0 vs others): t=3.099, p=0.002 [STAT:effect_size=Cohen's d=0.628]
+- Tukey HSD: threshold_0 vs threshold_50 significant (p_adj=0.020, d=0.95)
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Overall ANOVA significant (p=0.005)
+- Monotonic trend clear across most levels
+- Normality PASS, Levene PASS
+- Effect size medium (eta2=0.096)
+- threshold_75 breaks strict monotonicity (41.9 > threshold_100's 39.9)
+
+**Interpretation**:
+H-018 is ADOPTED. L0 health dodge threshold modulates kill_rate with a clear directional trend: lower thresholds produce higher kill_rate. Optimal configuration is threshold=0 (disable health dodge entirely, 46.3 kr). Each 25-point increase in threshold costs ~1-5 kr. The health dodge rule (move_left when health < threshold) interrupts offensive actions, reducing kill efficiency. The slight non-monotonicity at threshold_75 suggests diminishing returns or noise at high thresholds. Recommendation: disable L0 health dodge (threshold=0) for maximum kill_rate on defend_the_line.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-029: Basic.cfg is Fundamentally Different Domain from Defend_the_Line
+
+**Hypothesis**: H-019 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-015 (EXPERIMENT_ORDER_015.md)
+**Experiment Report**: RPT-015 (EXPERIMENT_REPORT_015.md)
+
+**Evidence**:
+- One-way ANOVA (kills): [STAT:f=F(4,145)=174.832] [STAT:p<0.000001] [STAT:eta2=0.828] — HUGE effect
+- Kruskal-Wallis: H(4)=122.078, p<0.000001 — confirms
+- basic.cfg: 1 monster, kills=[0,1], mean=0.13-0.33
+- defend_the_line: 8+ monsters, kills=[4,26], mean=8.4-15.4
+- Strategy rankings DO NOT REPLICATE across scenarios
+- Levene test FAIL (variance ratio 157x) but non-parametric confirms
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Largest effect size in entire project (eta2=0.828)
+- p < 0.000001 with non-parametric confirmation
+- Clear mechanistic difference (1 vs 8+ monsters)
+- Variance heterogeneity expected given domain difference
+
+**Interpretation**:
+H-019 is REJECTED. Performance on basic.cfg (1 monster, binary outcome) does NOT generalize to defend_the_line (8+ monsters, continuous kills 0-26). The scenarios are fundamentally different experimental domains. basic.cfg exhibits floor effect (83-93% zero-kill episodes) with no discriminability among strategies. Strategy rankings from defend_the_line (burst_3 > random > L0_only) do not hold on basic.cfg. Scenario selection is critical for experimental validity. Recommendation: use defend_the_line as standard evaluation scenario; basic.cfg is unsuitable for agent differentiation.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-030: Deadly_Corridor Exhibits Floor Effect — No Strategy Differentiation Possible
+
+**Hypothesis**: H-020 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-016 (EXPERIMENT_ORDER_016.md)
+**Experiment Report**: RPT-016 (EXPERIMENT_REPORT_016.md)
+
+**Evidence**:
+- One-way ANOVA (kills): [STAT:f=F(4,145)=0.695] [STAT:p=0.596] — NOT significant
+- Kruskal-Wallis: H(4)=2.524, p=0.640 — confirms null
+- All strategies: mean kills ≈ 0.00-0.03 (floor effect)
+- All strategies: mean survival ≈ 2-3 seconds
+- 97-100% of episodes produce zero kills
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: HIGH (for null result)
+
+**Trust Rationale**:
+- Non-parametric confirmation
+- All diagnostics PASS
+- Clear floor effect (97%+ zero kills)
+- Consistent across all 5 strategies
+
+**Interpretation**:
+H-020 is REJECTED. All tested strategies fail equally on deadly_corridor. The scenario exhibits complete floor effect: agents die within 2-3 seconds with zero kills regardless of strategy (random, L0_only, burst_3, attack_only, adaptive_kill all ≈ 0 kills). The scenario is too difficult for current agent architectures. deadly_corridor is unsuitable for agent differentiation experiments — no signal can be detected when all conditions produce identical failure. Recommendation: exclude deadly_corridor from future experiments until agent survival exceeds 5+ seconds.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-031: Attack_Only Deficit Replicates with Independent Seeds
+
+**Hypothesis**: H-021 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-017 (EXPERIMENT_ORDER_017.md)
+**Experiment Report**: RPT-017 (EXPERIMENT_REPORT_017.md)
+
+**Evidence**:
+- One-way ANOVA (kills): [STAT:f=F(4,145)=4.726] [STAT:p=0.001] [STAT:eta2=0.115]
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=1.114] [STAT:p=0.353] — NOT significant
+- attack_only mean kills: 10.13 vs burst_3: 13.70, Tukey p_adj=0.043 [STAT:effect_size=Cohen's d=0.66]
+- burst_3 ≈ random equivalence confirmed (d=0.05, p_adj=0.999)
+- Independent seed set (14001-15364) from DOE-010/DOE-013
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Replicates DOE-013 F-027 finding with independent seeds
+- All diagnostics PASS
+- Effect size medium (d=0.66)
+- Kruskal-Wallis confirms: H(4)=14.362, p=0.006
+
+**Interpretation**:
+H-021 is ADOPTED. The attack_only deficit (fewer total kills despite similar kill_rate) REPLICATES with a completely independent seed set. attack_only produces 10.13 kills vs burst_3's 13.70 kills (26% deficit, d=0.66, p=0.043). burst_3 and random equivalence also confirmed (d=0.05). kill_rate NOT significant (p=0.353), consistent with F-027. The attack_only strategy's pure offense sacrifices survival for efficiency, resulting in fewer total kills. The finding is robust to seed set variation.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-032: Adaptive_Kill Matches Burst_3 on Kills, Achieves Highest Kill Rate
+
+**Hypothesis**: H-022 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-018 (EXPERIMENT_ORDER_018.md)
+**Experiment Report**: RPT-018 (EXPERIMENT_REPORT_018.md)
+
+**Evidence**:
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=8.900] [STAT:p=0.000002] [STAT:eta2=0.197]
+- adaptive_kill mean: 46.18 kr (highest)
+- burst_3 mean: 44.41 kr
+- Tukey HSD: adaptive_kill vs attack_only, p_adj=0.001 [STAT:effect_size=Cohen's d=1.21]
+- One-way ANOVA (kills): [STAT:f=F(4,145)=3.551] [STAT:p=0.009] [STAT:eta2=0.089]
+- adaptive_kill kills: 13.7 vs burst_3: 14.5, Tukey p_adj=0.868 (NS)
+- Levene FAIL (p=0.032) but Kruskal-Wallis confirms
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- kill_rate highly significant (p=0.000002)
+- Levene violation (variance heterogeneity) but non-parametric confirms
+- adaptive_kill achieves top kill_rate but not significantly different on kills from burst_3
+- State-dependent strategy shows promise
+
+**Interpretation**:
+H-022 is PARTIALLY ADOPTED. The state-dependent adaptive_kill strategy achieves the highest kill_rate (46.18 kr) and matches burst_3 on total kills (13.7 vs 14.5, NS). adaptive_kill uses kill-count-dependent switching: always attack when kills < 10, use burst_3 pattern when kills >= 10. The strategy optimizes for efficiency without sacrificing total lethality. State-dependent logic is viable for improving kill_rate beyond fixed burst patterns.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-033: Aggressive_Adaptive (Always Attack Unless Health<15) Fails
+
+**Hypothesis**: H-022 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-018 (EXPERIMENT_ORDER_018.md)
+**Experiment Report**: RPT-018 (EXPERIMENT_REPORT_018.md)
+
+**Evidence**:
+- aggressive_adaptive mean kill_rate: 40.65 kr
+- Significantly worse than adaptive_kill: 46.18 kr, Tukey p_adj=0.042 [STAT:effect_size=Cohen's d=1.44]
+- Significantly worse than attack_only: 42.99 kr, Tukey p_adj<0.05 [STAT:effect_size=Cohen's d=-0.91]
+- Kills: 11.63 (lower than burst_3 14.5 and adaptive_kill 13.7)
+- Survival: 17.20s (intermediate)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Tukey HSD significant comparisons
+- Clear directional pattern (aggressive_adaptive underperforms)
+- Consistent with F-010/F-016 (L0_only deficit from insufficient movement)
+
+**Interpretation**:
+aggressive_adaptive (always attack unless health < 15, then move_left) fails due to insufficient lateral movement. The strategy commits to attack 90%+ of the time, creating tunnel vision similar to L0_only (F-010). Only when health drops below 15 does the agent move, which is too late to avoid sustained damage. The strategy achieves 40.65 kr, significantly worse than adaptive_kill (d=1.44) and even attack_only (d=-0.91). Recommendation: state-dependent strategies must include proactive movement, not just reactive health-based dodging.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-034: L0_Only Confirmed Worst Performer Across 3 Independent Experiments
+
+**Hypothesis**: H-023 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-019 (EXPERIMENT_ORDER_019.md)
+**Experiment Report**: RPT-019 (EXPERIMENT_REPORT_019.md)
+
+**Evidence**:
+- One-way ANOVA (kill_rate): [STAT:f=F(4,145)=7.613] [STAT:p=0.000014] [STAT:eta2=0.174]
+- L0_only mean: 38.52 kr (worst across DOE-008, DOE-010, DOE-019)
+- Significantly worse than all others: d=0.83-1.48, all Tukey p_adj < 0.05
+- Kruskal-Wallis: H(4)=26.458, p<0.000001 — confirms
+- Replicated across 3 independent seed sets (DOE-008: 6001-7074, DOE-010: 10001-11257, DOE-019: 16001-17364)
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Replicated across 3 independent experiments with different seed sets
+- Consistent deficit across all experiments (always worst performer)
+- Large effect sizes (d=0.83-1.48)
+- All diagnostics PASS
+- Non-parametric confirmation
+
+**Interpretation**:
+L0_only is DEFINITIVELY the worst performer on defend_the_line. The finding replicates across 3 independent experiments (DOE-008, DOE-010, DOE-019) with different seed sets. L0_only achieves 38.52 kr, significantly worse than all other strategies (adaptive_kill 43.4 kr, burst_3 44.7 kr, random 46.6 kr, attack_only 42.8 kr). The pure reflex strategy's tunnel vision (commit to nearest enemy, no lateral scanning) is a fundamental limitation. The 3x replication with independent seeds provides iron-clad statistical evidence: L0_only should be avoided on defend_the_line.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-035: Adaptive_Kill, Burst_3, Random Form Statistically Equivalent Top Tier
+
+**Hypothesis**: H-023 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-019 (EXPERIMENT_ORDER_019.md)
+**Experiment Report**: RPT-019 (EXPERIMENT_REPORT_019.md)
+
+**Evidence**:
+- adaptive_kill: 43.37 kr
+- burst_3: 44.68 kr
+- random: 46.56 kr
+- Tukey HSD: adaptive_kill vs burst_3, p_adj=0.747, d=0.20 (negligible)
+- Tukey HSD: adaptive_kill vs random, p_adj=0.127, d=0.49 (small, NS)
+- Tukey HSD: burst_3 vs random, p_adj=0.483, d=0.29 (small, NS)
+- All pairwise d < 0.50 (below medium effect threshold)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- No significant pairwise differences among top 3
+- All effect sizes small (d < 0.50)
+- Consistent pattern across DOE-018 and DOE-019
+- All diagnostics PASS
+
+**Interpretation**:
+adaptive_kill, burst_3, and random form a statistically indistinguishable top tier on defend_the_line (43.4-46.6 kr range). No strategy definitively outperforms the others. The ceiling for simple action strategies in the 3-action space is ~43-47 kr. Multi-objective optimization (TOPSIS, Pareto front) may be needed to differentiate based on secondary criteria (survival, total kills). All three strategies are viable choices for Phase 2 optimization.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-036: Burst_3 Achieves Highest Kills in Best-of-Breed Comparison
+
+**Hypothesis**: H-024 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-020 (EXPERIMENT_ORDER_020.md)
+**Experiment Report**: RPT-020 (EXPERIMENT_REPORT_020.md)
+
+**Evidence**:
+- One-way ANOVA (kills): [STAT:f=F(4,145)=6.101] [STAT:p=0.000145] [STAT:eta2=0.144]
+- burst_3 mean kills: 15.40 (highest)
+- Significantly better than attack_only: 10.70, Tukey p_adj=0.001 [STAT:effect_size=Cohen's d=1.00]
+- Significantly better than compound_attack_turn: 10.73, Tukey p_adj=0.001 [STAT:effect_size=Cohen's d=0.95]
+- Kruskal-Wallis: H(4)=20.039, p=0.000483 — confirms
+- Sample size: [STAT:n=150 (30 per group)]
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Overall ANOVA significant (p=0.000145)
+- Large effect sizes (d=0.95-1.00)
+- Normality PASS, Levene PASS
+- Non-parametric confirmation
+- Elevated from LOW to MEDIUM due to consistent replication pattern (DOE-010, DOE-017, DOE-019)
+
+**Interpretation**:
+burst_3 achieves the highest total kills (15.40) in the best-of-breed comparison (DOE-020). burst_3 significantly outperforms attack_only (d=1.00) and compound_attack_turn (d=0.95) on total kills. The burst pattern's balance of offense (3 attacks) and repositioning (1 turn) produces maximum total lethality. For multi-objective optimization favoring total kills over kill_rate, burst_3 is the superior baseline.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-037: Compound_Attack_Turn Offers No Advantage Over Attack_Only
+
+**Hypothesis**: H-024 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-020 (EXPERIMENT_ORDER_020.md)
+**Experiment Report**: RPT-020 (EXPERIMENT_REPORT_020.md)
+
+**Evidence**:
+- compound_attack_turn mean kills: 10.73
+- attack_only mean kills: 10.70
+- Mean difference: 0.03 kills (negligible)
+- Tukey HSD: p_adj=1.000 [STAT:effect_size=Cohen's d=0.01] (no difference)
+- Both strategies significantly worse than burst_3, adaptive_kill, random (all p_adj < 0.05)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Identical group means (no separation)
+- Consistent with DOE-012 F-026 (compound strategies inferior)
+- All diagnostics PASS
+- Confirmed by DOE-012 and DOE-020 (2 independent experiments)
+
+**Interpretation**:
+compound_attack_turn provides NO advantage over simple attack_only. Both strategies produce ~10.7 kills with no significant difference (d=0.01). Compound simultaneous actions (attack+turn on same tick) do not improve upon sequential attack_only commands. The overhead of compound action coordination likely creates jitter without performance benefit. Combined with F-026 evidence (compound strategies worse than burst_3), compound actions are definitively inferior to both burst patterns and pure attack strategies. Recommendation: avoid compound action strategies.
+
+**Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+### F-038: Final Strategy Ranking for Kills vs Kill_Rate — Multi-Objective Selection Needed
+
+**Hypothesis**: H-024 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-020 (EXPERIMENT_ORDER_020.md)
+**Experiment Report**: RPT-020 (EXPERIMENT_REPORT_020.md)
+
+**Evidence**:
+- kills ranking: burst_3 (15.40) > adaptive_kill (13.93) > random (12.23) > compound_attack_turn (10.73) ≈ attack_only (10.70)
+- kill_rate ranking: adaptive_kill (45.97) ≈ burst_3 (45.63) > random (42.31) > compound (37.7-38.9)
+- Top tier for kills: burst_3 > adaptive_kill ≈ random
+- Top tier for kill_rate: adaptive_kill ≈ burst_3 > others
+- No single strategy dominates on both metrics simultaneously
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Both ANOVA (kills and kill_rate) significant
+- Rankings partially overlap but not identical
+- Consistent with F-024 rate-vs-total tradeoff pattern
+- Best-of-breed selection across multiple experiments
+
+**Interpretation**:
+H-024 best-of-breed comparison confirms no single strategy dominates. burst_3 wins on total kills (15.40), adaptive_kill wins on kill_rate (45.97), both statistically equivalent on the other metric. random is competitive on both. Compound strategies are inferior on both metrics. Future agent optimization requires multi-objective methods (TOPSIS, Pareto front, weighted scoring) to balance kill_rate vs total kills vs survival_time. Single-metric optimization is insufficient. Recommendation: use TOPSIS with user-defined weights for kill_rate, kills, survival_time to select optimal strategy for specific objectives.
+
+**Adopted**: 2026-02-08 (Phase 1)

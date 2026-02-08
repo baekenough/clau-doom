@@ -1,5 +1,27 @@
 # Research Log
 
+## 2026-02-08 — DOE-012 through DOE-020: Systematic Strategy Exploration
+
+**DOE-012** (Compound Actions): H-016 REJECTED. Compound actions identical to each other but worse than burst_3. [STAT:f=F(4,145)=6.115] [STAT:p=0.000142]. F-025, F-026 adopted.
+
+**DOE-013** (Attack Ratio): H-017 REJECTED. Attack ratio 50-100% does NOT affect kill_rate (p=0.812) but DOES affect kills and survival. F-027 adopted.
+
+**DOE-014** (Health Threshold): H-018 ADOPTED. Monotonic gradient: threshold_0 best (46.3 kr). [STAT:f=F(4,145)=3.860] [STAT:p=0.005]. F-028 adopted.
+
+**DOE-015** (Scenario Generalization): H-019 REJECTED. basic.cfg fundamentally different (1 monster, floor effect). [STAT:eta2=0.828]. F-029 adopted.
+
+**DOE-016** (Deadly_Corridor): H-020 REJECTED. Complete floor effect, all strategies ≈0 kills. F-030 adopted.
+
+**DOE-017** (Attack_Only Replication): H-021 ADOPTED. Independent seeds confirm attack_only deficit (10.13 vs 13.70 kills, p=0.043). F-031 adopted.
+
+**DOE-018** (Adaptive Strategies): H-022 PARTIALLY ADOPTED. adaptive_kill achieves highest kill_rate (46.18 kr), aggressive_adaptive FAILS. F-032, F-033 adopted.
+
+**DOE-019** (Cross-Validation): H-023 ADOPTED. L0_only worst across 3 experiments (d=0.83-1.48), top tier formed by adaptive_kill/burst_3/random. F-034, F-035 adopted.
+
+**DOE-020** (Best-of-Breed): H-024 ADOPTED. burst_3 highest kills (15.40), compound NO advantage over attack_only. F-036, F-037, F-038 adopted.
+
+---
+
 ## 2026-02-08 — DOE-011 Designed: Expanded Action Space (5-Action) Strategy Differentiation
 
 ### Context
