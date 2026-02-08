@@ -258,7 +258,6 @@ The main conversation acts as the sole orchestrator. Subagents cannot spawn othe
 | Orchestrator | Go | Agent lifecycle, generation mgmt, CLI, gRPC |
 | Dashboard | Next.js + WebSocket + noVNC | Real-time spectation, research visualization |
 | AI Reasoning (Research) | Claude Code CLI (host) | Episode retrospection, evolution, experiment analysis |
-| AI Reasoning (Async) | Ollama | Lightweight embeddings, document refinement |
 | RAG Search | OpenSearch (container) | Strategy document kNN vector search |
 | Knowledge Store | MongoDB (container) | Know-how/strategy catalog |
 | Messaging | NATS (container) | Agent pub/sub broadcast |
