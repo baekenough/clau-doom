@@ -628,6 +628,279 @@ def build_doe011_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe012_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-012: Compound Actions (simultaneous button presses).
+
+    H-016: Compound attack+turn outperforms sequential single actions.
+    5 conditions: random_3, burst_3 (sequential), attack_only,
+    compound_attack_turn, compound_burst_3.
+    Seeds: seed_i = 13001 + i * 53, i=0..29
+    """
+    seeds = [13001 + i * 53 for i in range(30)]
+    exp_id = "DOE-012"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="random_3", run_type="factorial", action_type="random"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only", run_type="factorial", action_type="attack_only"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="compound_attack_turn", run_type="factorial", action_type="compound_attack_turn"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="compound_burst_3", run_type="factorial", action_type="compound_burst_3"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 13001 + i * 53, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe013_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-013: Attack Ratio Sweep.
+
+    H-017: Optimal attack ratio exists between 50-100%.
+    5 conditions: burst_1(50%), burst_3(75%), burst_5(83%),
+    burst_7(87.5%), attack_only(100%).
+    Seeds: seed_i = 14001 + i * 59, i=0..29
+    """
+    seeds = [14001 + i * 59 for i in range(30)]
+    exp_id = "DOE-013"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_1_50pct", run_type="factorial", action_type="burst_1"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3_75pct", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_5_83pct", run_type="factorial", action_type="burst_5"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_7_88pct", run_type="factorial", action_type="burst_7"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only_100pct", run_type="factorial", action_type="attack_only"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 14001 + i * 59, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe014_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-014: L0 Emergency Health Threshold Tuning.
+
+    H-018: Optimal health threshold for L0 emergency dodge.
+    5 conditions: threshold=0 (no L0), 10, 20, 30, 50.
+    Seeds: seed_i = 15001 + i * 61, i=0..29
+    """
+    seeds = [15001 + i * 61 for i in range(30)]
+    exp_id = "DOE-014"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="threshold_0", run_type="factorial", action_type="burst3_threshold_0"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="threshold_10", run_type="factorial", action_type="burst3_threshold_10"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="threshold_20", run_type="factorial", action_type="burst3_threshold_20"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="threshold_30", run_type="factorial", action_type="burst3_threshold_30"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="threshold_50", run_type="factorial", action_type="burst3_threshold_50"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 15001 + i * 61, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe015_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-015: basic Scenario (actual strafing with MOVE_LEFT/MOVE_RIGHT).
+
+    H-019: Findings generalize to scenarios with actual physical movement.
+    3 conditions from defend_the_line replicated on basic: random, burst_3,
+    attack_only. Plus 2 defend_the_line controls.
+    Seeds: seed_i = 16001 + i * 67, i=0..29
+    Note: basic.cfg has MOVE_LEFT, MOVE_RIGHT, ATTACK (same 3 buttons,
+    but physical strafing not turning). episode_timeout=300, doom_skill=5.
+    """
+    seeds = [16001 + i * 67 for i in range(30)]
+    exp_id = "DOE-015"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="basic_random", run_type="factorial", action_type="random",
+                  scenario="basic.cfg", num_actions=3),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="basic_burst_3", run_type="factorial", action_type="burst_3",
+                  scenario="basic.cfg", num_actions=3),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="basic_attack_only", run_type="factorial", action_type="attack_only",
+                  scenario="basic.cfg", num_actions=3),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dtl_random", run_type="factorial", action_type="random",
+                  scenario="defend_the_line.cfg", num_actions=3),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dtl_burst_3", run_type="factorial", action_type="burst_3",
+                  scenario="defend_the_line.cfg", num_actions=3),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 16001 + i * 67, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe016_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-016: deadly_corridor Scenario (7-action space).
+
+    H-020: Strategy findings generalize to complex action spaces.
+    5 conditions: random_7, attack_only_7, forward_attack_7,
+    burst_3_turn_7, adaptive_7.
+    7 buttons: MOVE_LEFT(0), MOVE_RIGHT(1), ATTACK(2), MOVE_FORWARD(3),
+    MOVE_BACKWARD(4), TURN_LEFT(5), TURN_RIGHT(6).
+    Seeds: seed_i = 17001 + i * 71, i=0..29
+    """
+    seeds = [17001 + i * 71 for i in range(30)]
+    exp_id = "DOE-016"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dc_random_7", run_type="factorial", action_type="random_7",
+                  scenario="deadly_corridor.cfg", num_actions=7),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dc_attack_only", run_type="factorial", action_type="attack_only",
+                  scenario="deadly_corridor.cfg", num_actions=7),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dc_forward_attack", run_type="factorial", action_type="forward_attack",
+                  scenario="deadly_corridor.cfg", num_actions=7),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dc_burst_3_turn", run_type="factorial", action_type="burst_3",
+                  scenario="deadly_corridor.cfg", num_actions=7),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="dc_adaptive", run_type="factorial", action_type="adaptive_kill",
+                  scenario="deadly_corridor.cfg", num_actions=7),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="deadly_corridor.cfg",
+        seed_set=seeds, seed_formula="seed_i = 17001 + i * 71, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe017_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-017: Doom Skill Level Effect (Independent Confirmation).
+
+    H-021: Difficulty level modulates strategy effectiveness.
+    Replicates DOE-013 attack ratio sweep with independent seeds
+    for confirmation. 5 conditions: random, burst_1, burst_3,
+    burst_5, attack_only.
+    Seeds: seed_i = 18001 + i * 73, i=0..29
+    """
+    seeds = [18001 + i * 73 for i in range(30)]
+    exp_id = "DOE-017"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="random", run_type="factorial", action_type="random"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_1", run_type="factorial", action_type="burst_1"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_5", run_type="factorial", action_type="burst_5"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only", run_type="factorial", action_type="attack_only"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 18001 + i * 73, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe018_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-018: Adaptive State-Dependent Strategy.
+
+    H-022: State-dependent behavior outperforms fixed patterns.
+    5 conditions: random, burst_3, attack_only, adaptive_kill,
+    aggressive_adaptive.
+    Seeds: seed_i = 19001 + i * 79, i=0..29
+    """
+    seeds = [19001 + i * 79 for i in range(30)]
+    exp_id = "DOE-018"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="random", run_type="factorial", action_type="random"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only", run_type="factorial", action_type="attack_only"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="adaptive_kill", run_type="factorial", action_type="adaptive_kill"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="aggressive_adaptive", run_type="factorial", action_type="aggressive_adaptive"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 19001 + i * 79, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe019_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-019: Replication with New Seeds.
+
+    H-023: Strategy rankings are robust across seed sets.
+    5 conditions: random, burst_3, attack_only, l0_only, adaptive_kill.
+    Seeds: seed_i = 20001 + i * 83, i=0..29
+    """
+    seeds = [20001 + i * 83 for i in range(30)]
+    exp_id = "DOE-019"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="random", run_type="factorial", action_type="random"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only", run_type="factorial", action_type="attack_only"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="l0_only", run_type="factorial", action_type="rule_only"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="adaptive_kill", run_type="factorial", action_type="adaptive_kill"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 20001 + i * 83, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe020_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-020: Best-of-Breed Confirmation.
+
+    H-024: Confirming top strategies across all prior DOEs.
+    5 conditions: the best performers from DOE-008 through DOE-019.
+    Seeds: seed_i = 21001 + i * 89, i=0..29
+    """
+    seeds = [21001 + i * 89 for i in range(30)]
+    exp_id = "DOE-020"
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="burst_3", run_type="factorial", action_type="burst_3"),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="attack_only", run_type="factorial", action_type="attack_only"),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="random", run_type="factorial", action_type="random"),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="compound_attack_turn", run_type="factorial", action_type="compound_attack_turn"),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.0, strength_weight=0.0,
+                  seeds=list(seeds), condition="adaptive_kill", run_type="factorial", action_type="adaptive_kill"),
+    ]
+    return ExperimentConfig(
+        experiment_id=exp_id, runs=runs, scenario="defend_the_line.cfg",
+        seed_set=seeds, seed_formula="seed_i = 21001 + i * 89, i=0..29",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -644,12 +917,22 @@ def execute_experiment(config: ExperimentConfig) -> None:
     """
     # Defer heavy imports so --help works without dependencies
     from glue.action_functions import (
+        AdaptiveKillAction,
+        AggressiveAdaptiveAction,
+        AttackOnlyAction,
+        Burst1Action,
         Burst3Action,
+        Burst3ThresholdAction,
         Burst5Action,
+        Burst7Action,
+        CompoundAttackTurnAction,
+        CompoundBurst3Action,
+        ForwardAttackAction,
         FullAgentAction,
         L0MemoryAction,
         L0StrengthAction,
         Random5Action,
+        Random7Action,
         Smart5Action,
         StrafeBurst3Action,
         SweepLRAction,
@@ -791,6 +1074,27 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = StrafeBurst3Action()
             elif run.action_type == "smart_5":
                 action_fn = Smart5Action()
+            elif run.action_type == "compound_attack_turn":
+                action_fn = CompoundAttackTurnAction()
+            elif run.action_type == "compound_burst_3":
+                action_fn = CompoundBurst3Action()
+            elif run.action_type == "burst_1":
+                action_fn = Burst1Action()
+            elif run.action_type == "burst_7":
+                action_fn = Burst7Action()
+            elif run.action_type == "attack_only":
+                action_fn = AttackOnlyAction()
+            elif run.action_type.startswith("burst3_threshold_"):
+                threshold = int(run.action_type.split("_")[-1])
+                action_fn = Burst3ThresholdAction(health_threshold=threshold)
+            elif run.action_type == "random_7":
+                action_fn = Random7Action()
+            elif run.action_type == "forward_attack":
+                action_fn = ForwardAttackAction()
+            elif run.action_type == "adaptive_kill":
+                action_fn = AdaptiveKillAction()
+            elif run.action_type == "aggressive_adaptive":
+                action_fn = AggressiveAdaptiveAction()
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -968,6 +1272,15 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-009": build_doe009_config,
     "DOE-010": build_doe010_config,
     "DOE-011": build_doe011_config,
+    "DOE-012": build_doe012_config,
+    "DOE-013": build_doe013_config,
+    "DOE-014": build_doe014_config,
+    "DOE-015": build_doe015_config,
+    "DOE-016": build_doe016_config,
+    "DOE-017": build_doe017_config,
+    "DOE-018": build_doe018_config,
+    "DOE-019": build_doe019_config,
+    "DOE-020": build_doe020_config,
 }
 
 

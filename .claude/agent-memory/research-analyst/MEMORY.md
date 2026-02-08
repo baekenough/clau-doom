@@ -70,8 +70,59 @@
 - MDE at 80% power with k=5, n=30: f=0.287
 - Need n=55/group for 80% power at observed f=0.209
 
+### DOE-008 Results (2026-02-08) - Layer Ablation on defend_the_line
+- FIRST SIGNIFICANT RESULT in clau-doom
+- Overall ANOVA: F(4,145)=5.256, p=0.000555, eta2=0.127 -- SIGNIFICANT
+- Kruskal-Wallis: H(4)=20.158, p=0.000465 -- confirms
+- ALL residual diagnostics PASS (normality AND equal variance) -- first ablation to achieve this
+- Effect driven entirely by L0_only performing WORST (36.78 vs 42.2-43.4 for others)
+- L0_only went from BEST (DOE-007, defend_center) to WORST (DOE-008, defend_line) -- RANK REVERSAL
+- Heuristic layers equivalent to random: lateral movement is the key, not the heuristic design
+- C2 contrast (L0_only vs augmented): p=0.000019, d=-0.938 (large)
+- C3 kills (single vs combined): p=0.007, d=0.487 (full_agent fewer raw kills)
+- C3 kill_rate: p=0.792 (NOT significant -- survival time compensates)
+- Power: 97% at observed f=0.381
+- Trust: HIGH (all diagnostics pass, p<0.001, large effect, triple test convergence)
+- defend_the_line: 4-26 kills/episode, 0% zero-kill, superior diagnostic properties
+
+### Scenario Dependency Finding
+- Agent performance ranking is SCENARIO-DEPENDENT
+- defend_the_center: too simple (0-3 kills), all architectures indistinguishable
+- defend_the_line: sufficient range (4-26 kills), reveals L0_only deficit
+- Always test on defend_the_line for future experiments
+- defend_the_line eliminates zero-inflation and produces normal residuals
+
+### DOE-010 Results (2026-02-08) - Structured Lateral Movement
+- Overall ANOVA: F(4,145)=4.938, p=0.000923, eta2=0.120 -- SIGNIFICANT
+- Confirms F-010 from DOE-008; L0_only worst
+- sweep_lr = L0_only (Tukey p=0.968) -- deterministic oscillation = no movement
+- burst_3 best performer (44.55 kr), matches random (42.16), both beat sweep/L0
+- H-014 REJECTED: structured patterns do NOT outperform random
+
+### DOE-011 Results (2026-02-08) - 5-Action Expanded Space
+- Overall ANOVA: F(4,145)=3.774, p=0.006, eta2=0.094 -- SIGNIFICANT
+- Kruskal-Wallis: H(4)=13.002, p=0.011 -- confirms
+- Normality PASS (Shapiro p=0.346), Levene FAIL (p=0.005, SD ratio 1.93x)
+- C2 (strafe vs turn burst): p=0.003, d=-0.789 -- TURNING > STRAFING for kill_rate
+- C4 (3-action vs 5-action): p=0.003, d=0.523 -- 3-ACTION > 5-ACTION for kill_rate
+- C1 (dilution): p=0.061 -- borderline, random_5 trends lower but NS after Bonferroni
+- C3 (smart_5 vs random_5): p=0.213 -- intelligent strategy does NOT beat random
+- SURVIVAL: strafing hugely beneficial (eta2=0.225, random_5 survives 63% longer)
+- RATE-VS-TOTAL PARADOX: kill_rate and kills inversely ranked across conditions
+- Strafing = defensive (survival) not offensive (kill_rate)
+- turn_burst_3 remains best for kill_rate at 45.5 kr (replicates DOE-010 burst_3)
+- Cross-experiment replication: both anchors within d<0.2 of DOE-010
+
+### DOE-011 Per-Experiment DB
+- DOE-011 uses SEPARATE duckdb file: /app/data/doe011.duckdb (NOT clau-doom.duckdb)
+- Same schema: experiments table with condition, kill_rate, kills, survival_time etc.
+- Condition format: "action_strategy=random_3", "action_strategy=smart_5", etc.
+
 ### Report Template
 - Follow R102 audit trail: link to hypothesis, order, and findings
 - Include [STAT:...] markers for all statistical claims
 - Include trust level assessment (HIGH/MEDIUM/LOW)
 - Always include both parametric and non-parametric results when normality fails
+- Include Alexander-Govern test as additional robust alternative
+- For experiments with cross-space comparisons, report ALL response variables (kill_rate, kills, survival)
+- Note rate-vs-total tradeoffs when survival varies across conditions

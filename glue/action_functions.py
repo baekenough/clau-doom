@@ -1,17 +1,27 @@
 """Action selection functions for VizDoom defend_the_center/defend_the_line scenarios.
 
-Provides eleven action strategies (DOE-007/008/010/011 ablation levels):
-1. random_action -- uniform random choice (3-action space)
-2. rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
-3. L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
-4. L0StrengthAction -- L0 rules + strength attack probability (no memory dodge)
-5. FullAgentAction -- callable class with memory + strength heuristics
-6. SweepLRAction -- deterministic sweep-fire: attack-left-attack-right cycle
-7. Burst3Action -- burst-fire with repositioning: 3 attacks then 1 random move
-8. Burst5Action -- burst-fire with repositioning: 5 attacks then 1 random move
-9. Random5Action -- uniform random over 5-action space (DOE-011)
+Provides action strategies for DOE-007 through DOE-020 ablation levels:
+1.  random_action -- uniform random choice (3-action space)
+2.  rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
+3.  L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
+4.  L0StrengthAction -- L0 rules + strength attack probability (no memory dodge)
+5.  FullAgentAction -- callable class with memory + strength heuristics
+6.  SweepLRAction -- deterministic sweep-fire: attack-left-attack-right cycle
+7.  Burst3Action -- burst-fire with repositioning: 3 attacks then 1 random move
+8.  Burst5Action -- burst-fire with repositioning: 5 attacks then 1 random move
+9.  Random5Action -- uniform random over 5-action space (DOE-011)
 10. StrafeBurst3Action -- 3 attacks then 1 random strafe (DOE-011, 5-action)
 11. Smart5Action -- coordinated aim-attack-dodge for 5-action space (DOE-011)
+12. CompoundAttackTurnAction -- attack + random turn simultaneously (DOE-012)
+13. CompoundBurst3Action -- 3-tick compound burst then reposition (DOE-012)
+14. Burst1Action -- 1 attack then 1 move, 50% attack rate (DOE-013)
+15. Burst7Action -- 7 attacks then 1 move, 87.5% attack rate (DOE-013)
+16. AttackOnlyAction -- 100% attack, never moves (DOE-013)
+17. Burst3ThresholdAction -- burst_3 with configurable L0 threshold (DOE-014)
+18. Random7Action -- uniform random over 7-action space (DOE-016)
+19. ForwardAttackAction -- move forward while attacking (DOE-016)
+20. AdaptiveKillAction -- state-dependent adaptive strategy (DOE-018)
+21. AggressiveAdaptiveAction -- aggressive adaptive, dodge only at critical health (DOE-018)
 """
 
 from __future__ import annotations
@@ -460,3 +470,312 @@ class Smart5Action:
             return self._rng.choice([2, 3])  # random strafe direction
 
         return 4  # fallback: ATTACK
+
+
+class CompoundAttackTurnAction:
+    """Compound action: attack + random turn simultaneously every tick.
+
+    For DOE-012: Tests simultaneous button presses.
+    Returns a LIST [int, ...] instead of single int.
+    The VizDoomBridge must handle list returns as multi-hot vectors.
+
+    In 3-button space (TURN_LEFT, TURN_RIGHT, ATTACK):
+    - [1, 0, 1] = turn left + attack
+    - [0, 1, 1] = turn right + attack
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> list:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        if state.health < 20:
+            return [1, 0, 0]  # turn left only (dodge)
+        if state.ammo == 0:
+            return [1, 0, 0]
+
+        # Attack + random turn direction
+        if self._rng.random() < 0.5:
+            return [1, 0, 1]  # turn_left + attack
+        else:
+            return [0, 1, 1]  # turn_right + attack
+
+
+class CompoundBurst3Action:
+    """3 ticks of attack+turn compound, then 1 tick of turn-only to reposition.
+
+    For DOE-012: Compound burst pattern.
+    Returns LIST for multi-hot encoding.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> list:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        if state.health < 20:
+            return [1, 0, 0]
+        if state.ammo == 0:
+            return [1, 0, 0]
+
+        pos = self._tick % 4
+        self._tick += 1
+
+        turn = [1, 0] if self._rng.random() < 0.5 else [0, 1]
+
+        if pos < 3:
+            return turn + [1]  # turn + attack
+        else:
+            return turn + [0]  # turn only (reposition)
+
+
+class Burst1Action:
+    """1 attack then 1 random move (50% attack rate).
+
+    For DOE-013: Attack ratio sweep.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+        pos = self._tick % 2
+        self._tick += 1
+        if pos == 0:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class Burst7Action:
+    """7 attacks then 1 random move (87.5% attack rate).
+
+    For DOE-013: Attack ratio sweep.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+        pos = self._tick % 8
+        self._tick += 1
+        if pos < 7:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class AttackOnlyAction:
+    """100% attack -- never moves.
+
+    For DOE-013: Attack ratio sweep.
+    """
+
+    def __init__(self):
+        pass
+
+    def reset(self, seed: int) -> None:
+        pass
+
+    def __call__(self, state) -> int:
+        return ACTION_ATTACK
+
+
+class Burst3ThresholdAction:
+    """Burst3 with configurable L0 health threshold.
+
+    For DOE-014: L0 emergency threshold tuning.
+    """
+
+    def __init__(self, health_threshold: int = 20):
+        self._rng = None
+        self._tick = 0
+        self._health_threshold = health_threshold
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if state.health < self._health_threshold:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+        pos = self._tick % 4
+        self._tick += 1
+        if pos < 3:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class Random7Action:
+    """Uniform random over 7-action space (deadly_corridor).
+
+    Actions: 0-6 mapping to MOVE_LEFT, MOVE_RIGHT, ATTACK, MOVE_FORWARD,
+    MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT.
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        return self._rng.randint(0, 6)
+
+
+class ForwardAttackAction:
+    """Move forward while attacking. For deadly_corridor: advance through corridor.
+
+    Cycle: 3 attack, 1 move_forward, repeat.
+    Uses action indices for deadly_corridor cfg: ATTACK=2, MOVE_FORWARD=3.
+    """
+
+    def __init__(self):
+        self._tick = 0
+
+    def reset(self, seed: int) -> None:
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        pos = self._tick % 4
+        self._tick += 1
+        if pos < 3:
+            return 2  # ATTACK
+        else:
+            return 3  # MOVE_FORWARD
+
+
+class AdaptiveKillAction:
+    """State-dependent adaptive strategy.
+
+    For DOE-018: Adaptive strategy test.
+    - High health (>60): pure attack (maximize kills)
+    - Medium health (30-60): burst_3 pattern (balanced)
+    - Low health (<30): mostly dodge with occasional attacks
+    Tracks kills to detect stagnation -> increase turning.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+        self._last_kills = 0
+        self._stagnant_ticks = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+        self._last_kills = 0
+        self._stagnant_ticks = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # Track kill stagnation
+        if state.kills > self._last_kills:
+            self._last_kills = state.kills
+            self._stagnant_ticks = 0
+        else:
+            self._stagnant_ticks += 1
+
+        self._tick += 1
+
+        # If stagnant for 20+ ticks, turn to find enemies
+        if self._stagnant_ticks > 20:
+            self._stagnant_ticks = 0
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+        # Health-based behavior
+        if state.health > 60:
+            # Aggressive: pure attack
+            return ACTION_ATTACK
+        elif state.health > 30:
+            # Balanced: burst_3 pattern
+            pos = self._tick % 4
+            if pos < 3:
+                return ACTION_ATTACK
+            else:
+                return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+        else:
+            # Defensive: mostly dodge
+            if self._rng.random() < 0.3:
+                return ACTION_ATTACK
+            else:
+                return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class AggressiveAdaptiveAction:
+    """Aggressive adaptive: always attack unless health critically low.
+
+    For DOE-018. Simpler adaptive that only dodges at health < 15.
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if state.health < 15:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+        return ACTION_ATTACK

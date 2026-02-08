@@ -169,12 +169,21 @@ class VizDoomBridge:
             tick=self._tick,
         )
 
-    def make_action(self, action_index: int) -> float:
-        """Execute action. Returns step reward."""
-        # Encode as 1-hot vector for VizDoom
-        action = [0] * self._num_actions
-        if 0 <= action_index < self._num_actions:
-            action[action_index] = 1
+    def make_action(self, action_index) -> float:
+        """Execute action. Returns step reward.
+
+        Args:
+            action_index: Either an int (one-hot encoded) or a list (multi-hot direct).
+        """
+        # Encode action vector
+        if isinstance(action_index, list):
+            # Multi-hot: use directly (for compound actions)
+            action = action_index
+        else:
+            # One-hot encoding for single action index
+            action = [0] * self._num_actions
+            if 0 <= action_index < self._num_actions:
+                action[action_index] = 1
 
         # Track pre-action state for delta computation
         pre_state = self._game.get_state()
