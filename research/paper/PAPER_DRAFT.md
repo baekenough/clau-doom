@@ -233,7 +233,7 @@ We tested the central hypothesis---that L2 RAG strategy retrieval improves agent
 
 **DOE-026: L2 in 5-action space.** A five-condition OFAT design tested L2 retrieval in the richer 5-action space, where strategy differentiation exists (F-062). Three L2 implementations (cached lookup, live OpenSearch query, random rotation among top strategies) were compared against two fixed baselines. Decision mode had no effect: $F(4,145) = 0.206$, $p = 0.935$, $\eta^2 = 0.006$. This is the smallest effect size in the entire 29-DOE program. The RAG selector was numerically the worst performer (16.57 kills vs.\ group mean 17.15), suggesting that query overhead may cause slight regression (F-069).
 
-**Synthesis (F-070): Thesis falsification.** Across three independent tests with cumulative $N = 450$ episodes, using different action spaces (3-action and 5-action), different retrieval granularities (tactic-level, meta-strategy, cached/live), and different document pools (curated vs.\ random), L2 RAG retrieval produces no measurable performance benefit. The hypothesis "Agent Skill $=$ Document Quality $\times$ Scoring Accuracy" is **falsified** for the \texttt{defend\_the\_line} scenario.
+**Synthesis (F-070): Thesis falsification.** Across three independent tests with cumulative $N = 630$ episodes, using different action spaces (3-action and 5-action), different retrieval granularities (tactic-level, meta-strategy, cached/live), and different document pools (curated vs.\ random), L2 RAG retrieval produces no measurable performance benefit. The hypothesis "Agent Skill $=$ Document Quality $\times$ Scoring Accuracy" is **falsified** for the \texttt{defend\_the\_line} scenario.
 
 Figure~\ref{fig:l2_forest} summarizes the three independent falsification tests as a forest plot of Cohen's $d$ with 95\% confidence intervals, confirming that all effect sizes are indistinguishable from zero. Table~\ref{tab:falsification} provides the complete statistical evidence.
 
@@ -250,7 +250,7 @@ DOE-022 & 3-action & 120 & L2 vs.\ L0: $t$-test & 0.929 & --- & 0.189 \\
 DOE-024 & 3-action & 360 & $F(3,348)=1.001$ & 0.393 & $\eta_p^2=0.009$ & 0.079 \\
 DOE-026 & 5-action & 150 & $F(4,145)=0.206$ & 0.935 & $\eta_p^2=0.006$ & $-0.090$ \\
 \midrule
-\textbf{Combined} & --- & \textbf{450} & --- & all $>0.39$ & all $<0.01$ & $|d|<0.19$ \\
+\textbf{Combined} & --- & \textbf{630} & --- & all $>0.39$ & all $<0.01$ & $|d|<0.19$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -274,7 +274,7 @@ At 20\% attack: $\text{kr} = 36.5/\text{min} \times 26.2\text{s} / 60 = 15.9$ ki
 
 This **rate-time compensation** represents a conservation law of the scenario: total kills are an environment-determined quantity that tactical allocation between offense and defense merely redistributes between kill rate and survival time.
 
-**DOE-028: Temporal structure.** A five-condition OFAT design held attack ratio constant at 50\% and varied temporal grouping: random frame-by-frame interleaving, and deterministic burst cycles of length 2, 3, 5, and 10 ticks. Kills were invariant to temporal structure: $F(4,145) = 1.017$, $p = 0.401$, $\eta^2 = 0.027$ (F-076). All four planned contrasts were non-significant ($p = 0.636$ to $p = 0.893$). Rate-time compensation held with remarkable precision: the $\text{kr} \times \text{survival} / 60$ ratio ranged from 0.980 to 1.003 across all five patterns (F-078).
+**DOE-028: Temporal structure.** A five-condition OFAT design held attack ratio constant at 50\% and varied temporal grouping: random frame-by-frame interleaving, and deterministic burst cycles of length 2, 3, 5, and 10 ticks. Kills were invariant to temporal structure: $F(4,145) = 1.017$, $p = 0.401$, $\eta^2 = 0.027$ (F-076). All four planned contrasts were non-significant ($p = 0.149$ to $p = 0.893$). Rate-time compensation held with remarkable precision: the $\text{kr} \times \text{survival} / 60$ ratio ranged from 0.980 to 1.003 across all five patterns (F-078).
 
 **Full tactical invariance (F-077).** The combined evidence from DOE-027 ($N = 210$) and DOE-028 ($N = 150$) establishes that **neither the proportion of attacks nor their temporal distribution affects total kills** in the 5-action \texttt{defend\_the\_line} environment. This invariance is a direct consequence of the rate-time compensation constraint: any tactical reallocation between offense and defense is perfectly offset, preserving a fixed kill budget per episode.
 
@@ -293,7 +293,7 @@ The final experiment tests whether movement---the one factor that varies *betwee
 
 **Design.** A $2^2$ full factorial design crossed action pattern (random\_50: 50\% attack with strafing vs.\ pure\_attack: 100\% attack without strafing) with health override (emergency dodge when health $< 20$: enabled vs.\ disabled). Each cell contained 30 episodes ($N = 120$ total).
 
-**Movement effect (F-079).** Action pattern produced the largest effect in the entire 29-DOE program: $F(1,116) = 58.402$, $p < 0.001$, $\eta^2 = 0.332$, $d = 1.408$. Agents with movement achieved 17.00 $\pm$ 6.57 kills and 24.4s survival; agents without movement achieved 9.95 $\pm$ 2.82 kills and 15.3s survival. Kruskal-Wallis confirmed ($H(3) = 50.802$, $p < 0.001$).
+**Movement effect (F-079).** Action pattern produced the largest effect in the entire 29-DOE program: $F(1,116) = 58.402$, $p < 0.001$, $\eta^2 = 0.332$, $d = 1.408$. Agents with movement achieved 17.00 $\pm$ 6.55 kills and 24.4s survival; agents without movement achieved 9.95 $\pm$ 2.80 kills and 15.3s survival. Kruskal-Wallis confirmed ($H(3) = 50.802$, $p < 0.001$).
 
 **Health override null (F-080).** The emergency dodge mechanism had no effect: $F(1,116) = 0.784$, $p = 0.378$, $\eta^2 = 0.004$, $d = -0.134$. This confound was present in all DOE-025 through DOE-028 experiments; DOE-029 demonstrates it was irrelevant throughout.
 
@@ -401,7 +401,7 @@ To quantify the relative importance of each factor in the experimental program, 
 | doom_skill (game difficulty) | 0.720 | DOE-023 ($n=360$) | 72% of variance |
 | Movement presence | 0.332 | DOE-029 ($n=120$) | 33% of variance |
 | Strategy type (within class) | $<0.03$ | DOE-027/028 ($n=360$) | $<3$% of variance |
-| L2 RAG configuration | 0.001--0.006 | DOE-022/024/026 ($n=450$) | $<1$% of variance |
+| L2 RAG configuration | 0.001--0.009 | DOE-022/024/026 ($n=630$) | $<1$% of variance |
 | Agent parameters (memory, strength) | 0.002 | DOE-009 ($n=270$) | $<1$% of variance |
 
 Environment settings (doom_skill) and the binary movement choice together explain over 80% of all performance variance. The entire agent architecture stack above L0 heuristics --- including RAG retrieval, parameterized decision weights, and tactical action selection --- contributes less than 5% of total variance. This finding fundamentally challenges the premise that architectural complexity is the primary lever for performance improvement in this domain.
@@ -429,7 +429,7 @@ We recommend using DOE as a preliminary investigation tool before committing to 
 
 ### 6.3 The Value of Negative Results
 
-The most important findings of this work are negative. The RAG thesis falsification (F-070), established through three independent null results across different action spaces and retrieval granularities ($N=450$, all $p>0.39$), saves the research community from pursuing RAG-based strategy retrieval in simple FPS scenarios where the environment ceiling prevents meaningful strategy differentiation. The tactical invariance finding (F-077), confirmed across 12 distinct action configurations ($N=360$), demonstrates that within a movement class, all tactical optimization effort is wasted. The agent parameter irrelevance findings (F-013 through F-015) show that memory weight ($p=0.736$), strength weight ($p=0.109$), and their interaction ($p=0.834$) have no measurable effect on performance.
+The most important findings of this work are negative. The RAG thesis falsification (F-070), established through three independent null results across different action spaces and retrieval granularities ($N=630$, all $p>0.39$), saves the research community from pursuing RAG-based strategy retrieval in simple FPS scenarios where the environment ceiling prevents meaningful strategy differentiation. The tactical invariance finding (F-077), confirmed across 12 distinct action configurations ($N=360$), demonstrates that within a movement class, all tactical optimization effort is wasted. The agent parameter irrelevance findings (F-013 through F-015) show that memory weight ($p=0.736$), strength weight ($p=0.109$), and their interaction ($p=0.834$) have no measurable effect on performance.
 
 These negatives redirect research effort toward three productive directions: (i) scenarios where tactical depth genuinely differentiates agents, such as multi-hit enemies or navigation tasks; (ii) the binary movement decision as the true optimization target, which suggests that the first priority for any agent design is ensuring adequate movement behavior; and (iii) understanding environment constraints before investing in complex architectures, rather than assuming that added complexity yields added performance.
 
@@ -448,7 +448,7 @@ Our principal findings are:
 
 1. **Movement is the sole performance determinant** ($d=1.408$, $p<0.001$), producing a 65% kill advantage over non-moving agents through a survival bonus with negligible kill rate cost.
 2. **Rate-time compensation** constrains all tactical optimization within movement classes: kill rate and survival time trade off exactly, holding total kills constant ($r \times s \approx C_{\mathcal{M}}$).
-3. **The core RAG thesis is falsified** through three independent null results (DOE-022, DOE-024, DOE-026; $N=450$, all $p>0.39$), demonstrating that knowledge retrieval provides zero benefit in this domain.
+3. **The core RAG thesis is falsified** through three independent null results (DOE-022, DOE-024, DOE-026; $N=630$, all $p>0.39$), demonstrating that knowledge retrieval provides zero benefit in this domain.
 4. **Environment difficulty dominates** ($\eta^2=0.720$), explaining nearly three-quarters of all performance variance and dwarfing all agent architecture parameters combined.
 
 Our work demonstrates that DOE methodology reveals fundamental performance constraints that gradient-based optimization cannot discover. The rate-time compensation mechanism explains why tactical variations are irrelevant in simple FPS scenarios --- a structural insight that would be nearly impossible to derive from reinforcement learning alone. We recommend that game AI researchers apply DOE as a preliminary investigation tool before investing in complex architectures: in many scenarios, the architecture complexity budget is better spent on the single factor that matters most --- which, in VizDoom's defend_the_line, is simply whether the agent moves.

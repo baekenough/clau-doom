@@ -1949,7 +1949,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 - DOE-022 (3-action, tactic-level RAG): kills p=0.878
 - DOE-024 (3-action, meta-strategy RAG): kills p=0.393
 - DOE-026 (5-action, meta-strategy RAG): kills p=0.935
-- Cumulative N=450 across three independent tests
+- Cumulative N=630 across three independent tests
 - All used same scenario (defend_the_line) with different action spaces and RAG approaches
 
 **Trust Level**: HIGH (3 independent replications)
