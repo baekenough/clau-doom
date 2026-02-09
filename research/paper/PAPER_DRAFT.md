@@ -198,6 +198,15 @@ We tested the central hypothesis---that L2 RAG strategy retrieval improves agent
 
 **Synthesis (F-070): Thesis falsification.** Across three independent tests with cumulative $N = 450$ episodes, using different action spaces (3-action and 5-action), different retrieval granularities (tactic-level, meta-strategy, cached/live), and different document pools (curated vs.\ random), L2 RAG retrieval produces no measurable performance benefit. The hypothesis "Agent Skill $=$ Document Quality $\times$ Scoring Accuracy" is **falsified** for the \texttt{defend\_the\_line} scenario.
 
+Figure~\ref{fig:l2_forest} summarizes the three independent falsification tests as a forest plot of Cohen's $d$ with 95\% confidence intervals, confirming that all effect sizes are indistinguishable from zero.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/figure5_l2_rag_forest_plot.pdf}
+\caption{Forest plot of L2 RAG retrieval effect sizes (Cohen's $d$) with 95\% confidence intervals across three independent experiments. All confidence intervals overlap zero, providing convergent evidence that L2 retrieval offers no performance benefit over L0 baselines in either the 3-action or 5-action space.}
+\label{fig:l2_forest}
+\end{figure}
+
 ### 4.3 Rate-Time Compensation Discovery (DOE-027, DOE-028)
 
 Having falsified the RAG hypothesis, we investigated *why* tactical variation produces null results. Two experiments reveal a fundamental environment constraint.
@@ -232,6 +241,15 @@ The final experiment tests whether movement---the one factor that varies *betwee
 
 **Synthesis.** Movement is the sole performance determinant in \texttt{defend\_the\_line}. Across 29 experiments testing attack ratio (DOE-027), temporal structure (DOE-028), RAG selection (DOE-022, 024, 026), health override (DOE-029), memory and strength weights (DOE-009), compound actions (DOE-012), scenario difficulty (DOE-023), and evolutionary optimization (DOE-021), only one factor produces a significant, large, and replicated effect on total kills: whether the agent's action space includes lateral movement. The simplest effective agent---random action selection over the 5-action space---is statistically indistinguishable from the most sophisticated RAG-augmented, state-dependent, evolutionarily optimized architecture.
 
+Figure~\ref{fig:movement} presents the $2^2$ factorial results, showing that movement produces a large kill advantage (Panel A) while kill rate remains equivalent (Panel B), confirming that movement provides "free" survival with negligible offensive cost.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure4_movement_effect.pdf}
+\caption{Movement effect in DOE-029 ($2^2$ factorial, $N=120$). (A)~Total kills by condition: movers (teal) achieve significantly more kills than non-movers (red) regardless of health override ($F(1,116)=58.4$, $p<0.001$, $d=1.408$). (B)~Kill rate by condition: no significant difference between movement classes ($p=0.180$), confirming that movement extends survival without reducing offensive efficiency. Error bars show $\pm 1$ SEM.}
+\label{fig:movement}
+\end{figure}
+
 ---
 
 ## 5. Analysis
@@ -264,6 +282,15 @@ $$C_{\text{non-movers}} = 40.8 \times \frac{15.3}{60} \approx 10.38$$
 The gap between these constants is approximately 65%, driven entirely by the survival advantage of movement. Crucially, compensation breaks at the movement class boundary because movement provides "free" survival --- dodging projectiles extends survival without meaningful kill rate cost ($p=0.180$ for kill rate difference between movers and non-movers, $d=0.248$). Within each class, the kill-rate-to-survival tradeoff is zero-sum; between classes, movers receive a survival bonus that non-movers cannot access through any tactical reallocation.
 
 The tightness of the compensation is remarkable. DOE-028 found that the ratio $\frac{r \times s / 60}{k}$ ranges from 0.980 to 1.003 across five distinct burst structures (cycle lengths 2, 3, 5, 10, and random), indicating near-perfect conservation across both compositional and structural variations in action selection.
+
+Figure~\ref{fig:rate_time} visualizes the rate-time compensation mechanism, showing that kill rate increases and survival time decreases with attack ratio while total kills remain invariant.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure3_rate_time_compensation.pdf}
+\caption{Rate-time compensation in DOE-027. (A)~Kill rate increases significantly with attack ratio ($F=3.736$, $p=0.0015$). (B)~Survival time decreases correspondingly ($p=0.016$). (C)~Total kills remain invariant ($F=0.617$, $p=0.717$), demonstrating that offensive and defensive gains cancel exactly. Error bars show $\pm 1$ SEM ($n=30$ per level).}
+\label{fig:rate_time}
+\end{figure}
 
 ### 5.2 Information-Theoretic Perspective
 
