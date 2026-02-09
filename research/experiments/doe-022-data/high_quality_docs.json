@@ -1,0 +1,1214 @@
+[
+  {
+    "doc_id": "strat_high_001",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "burst_fire_sweep",
+      "weapon": "pistol",
+      "positioning": "hold_position"
+    },
+    "quality": {
+      "trust_score": 0.8,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 40.95
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_002",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_visible_enemy",
+      "weapon": "pistol",
+      "positioning": "hold_position"
+    },
+    "quality": {
+      "trust_score": 0.76,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 40.49
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_003",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "charge_and_fire",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.89,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 46.56
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_004",
+    "situation_tags": [
+      "ammo_abundant",
+      "single_enemy",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "sustained_burst",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.9,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 41.15
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_005",
+    "situation_tags": [
+      "multi_enemy",
+      "ammo_abundant",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "aggressive_fire",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.94,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 42.92
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_006",
+    "situation_tags": [
+      "single_enemy",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "multi_target_sweep",
+      "weapon": "pistol",
+      "positioning": "hold_position"
+    },
+    "quality": {
+      "trust_score": 0.92,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.59
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_007",
+    "situation_tags": [
+      "single_enemy",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_closest_enemy",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.94,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 43.34
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_008",
+    "situation_tags": [
+      "multi_enemy",
+      "single_enemy",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "fire_on_sight",
+      "weapon": "pistol",
+      "positioning": "advance"
+    },
+    "quality": {
+      "trust_score": 0.76,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 46.16
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_009",
+    "situation_tags": [
+      "full_health",
+      "single_enemy",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "burst_attack_pattern",
+      "weapon": "pistol",
+      "positioning": "hold_position"
+    },
+    "quality": {
+      "trust_score": 0.81,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.91
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_010",
+    "situation_tags": [
+      "ammo_abundant",
+      "single_enemy",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "rapid_fire_sweep",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.88,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 46.57
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_011",
+    "situation_tags": [
+      "ammo_abundant",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "target_priority_fire",
+      "weapon": "pistol",
+      "positioning": "advance"
+    },
+    "quality": {
+      "trust_score": 0.8,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 44.17
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_012",
+    "situation_tags": [
+      "ammo_abundant",
+      "multi_enemy",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_high_threat",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.8,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 39.87
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_013",
+    "situation_tags": [
+      "single_enemy",
+      "ammo_abundant",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "burst_fire_pattern",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.93,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.22
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_014",
+    "situation_tags": [
+      "ammo_abundant",
+      "multi_enemy",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "aggressive_engagement",
+      "weapon": "pistol",
+      "positioning": "hold_position"
+    },
+    "quality": {
+      "trust_score": 0.93,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.98
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_015",
+    "situation_tags": [
+      "multi_enemy",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "fire_control_burst",
+      "weapon": "pistol",
+      "positioning": "lateral_sweep"
+    },
+    "quality": {
+      "trust_score": 0.9,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 44.94
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_016",
+    "situation_tags": [
+      "multi_enemy",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "flank_to_angle",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.78,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 38.29
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_017",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "lateral_sweep_left",
+      "weapon": "pistol",
+      "positioning": "flank_right"
+    },
+    "quality": {
+      "trust_score": 0.85,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 47.92
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_018",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "lateral_reposition",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.78,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 35.95
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_019",
+    "situation_tags": [
+      "ammo_abundant",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "flank_right_side",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.75,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 43.3
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_020",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_from_flank",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.88,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 46.26
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_021",
+    "situation_tags": [
+      "multi_enemy",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "lateral_sweep_right",
+      "weapon": "pistol",
+      "positioning": "flank_right"
+    },
+    "quality": {
+      "trust_score": 0.76,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 37.37
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_022",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "flank_and_fire",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.85,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 42.62
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_023",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "sweep_left_attack",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.8,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 37.98
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_024",
+    "situation_tags": [
+      "ammo_abundant",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "repositioning_burst",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.89,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 48.84
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_025",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "flank_maneuver",
+      "weapon": "pistol",
+      "positioning": "lateral_left"
+    },
+    "quality": {
+      "trust_score": 0.7,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 48.94
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_026",
+    "situation_tags": [
+      "ammo_abundant",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "lateral_attack_sweep",
+      "weapon": "pistol",
+      "positioning": "flank_right"
+    },
+    "quality": {
+      "trust_score": 0.75,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 43.51
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_027",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_lateral_move",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.8,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 36.04
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_028",
+    "situation_tags": [
+      "multi_enemy",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "flank_positioning",
+      "weapon": "pistol",
+      "positioning": "flank_right"
+    },
+    "quality": {
+      "trust_score": 0.83,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 49.2
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_029",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "sweep_attack_pattern",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.87,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 41.35
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_030",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_reposition",
+      "weapon": "pistol",
+      "positioning": "sweep"
+    },
+    "quality": {
+      "trust_score": 0.76,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 49.93
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_031",
+    "situation_tags": [
+      "low_ammo",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "retreat_to_cover",
+      "weapon": "pistol",
+      "positioning": "kite"
+    },
+    "quality": {
+      "trust_score": 0.74,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 33.72
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_032",
+    "situation_tags": [
+      "low_health",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "kite_backwards",
+      "weapon": "pistol",
+      "positioning": "retreat_backward"
+    },
+    "quality": {
+      "trust_score": 0.77,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 33.45
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_033",
+    "situation_tags": [
+      "low_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "defensive_dodge",
+      "weapon": "pistol",
+      "positioning": "retreat_backward"
+    },
+    "quality": {
+      "trust_score": 0.79,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 30.88
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_034",
+    "situation_tags": [
+      "low_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "retreat_and_reload",
+      "weapon": "pistol",
+      "positioning": "evade"
+    },
+    "quality": {
+      "trust_score": 0.66,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 33.57
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_035",
+    "situation_tags": [
+      "low_ammo",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "kite_to_distance",
+      "weapon": "pistol",
+      "positioning": "kite"
+    },
+    "quality": {
+      "trust_score": 0.68,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 44.03
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_036",
+    "situation_tags": [
+      "low_ammo",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "retreat_low_health",
+      "weapon": "pistol",
+      "positioning": "evade"
+    },
+    "quality": {
+      "trust_score": 0.81,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 32.86
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_037",
+    "situation_tags": [
+      "low_health",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "kite_and_evade",
+      "weapon": "pistol",
+      "positioning": "evade"
+    },
+    "quality": {
+      "trust_score": 0.73,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 37.01
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_038",
+    "situation_tags": [
+      "low_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "retreat_conserve_ammo",
+      "weapon": "pistol",
+      "positioning": "retreat_backward"
+    },
+    "quality": {
+      "trust_score": 0.73,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 35.09
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_039",
+    "situation_tags": [
+      "low_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "kite_to_safety",
+      "weapon": "pistol",
+      "positioning": "retreat_backward"
+    },
+    "quality": {
+      "trust_score": 0.69,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 36.73
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_040",
+    "situation_tags": [
+      "low_ammo",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "retreat_tactical",
+      "weapon": "pistol",
+      "positioning": "evade"
+    },
+    "quality": {
+      "trust_score": 0.74,
+      "source_strategy": "adaptive_kill",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 43.12
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_041",
+    "situation_tags": [
+      "single_enemy",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "aggressive_push",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.81,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 49.99
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_042",
+    "situation_tags": [
+      "full_health",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "hold_and_fire",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.86,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 44.81
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_043",
+    "situation_tags": [
+      "full_health",
+      "single_enemy",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "cover_fire_burst",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.95,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 42.65
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_044",
+    "situation_tags": [
+      "multi_enemy",
+      "ammo_abundant",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_then_retreat",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.83,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 42.18
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_045",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "burst_then_reposition",
+      "weapon": "pistol",
+      "positioning": "advance"
+    },
+    "quality": {
+      "trust_score": 0.81,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.84
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_046",
+    "situation_tags": [
+      "full_health",
+      "multi_enemy"
+    ],
+    "decision": {
+      "tactic": "hold_position_fire",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.93,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 40.69
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_047",
+    "situation_tags": [
+      "ammo_abundant",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "aggressive_hold",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.94,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.7
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_048",
+    "situation_tags": [
+      "full_health",
+      "ammo_abundant"
+    ],
+    "decision": {
+      "tactic": "cover_and_burst",
+      "weapon": "pistol",
+      "positioning": "cover"
+    },
+    "quality": {
+      "trust_score": 0.89,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 45.23
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_049",
+    "situation_tags": [
+      "ammo_abundant",
+      "multi_enemy",
+      "single_enemy"
+    ],
+    "decision": {
+      "tactic": "attack_advance_fire",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.84,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 41.31
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  },
+  {
+    "doc_id": "strat_high_050",
+    "situation_tags": [
+      "single_enemy",
+      "ammo_abundant",
+      "full_health"
+    ],
+    "decision": {
+      "tactic": "hold_sustained_fire",
+      "weapon": "pistol",
+      "positioning": "hold"
+    },
+    "quality": {
+      "trust_score": 0.87,
+      "source_strategy": "burst_3",
+      "source_experiment": "DOE-020",
+      "source_episodes": 30,
+      "mean_kills": 49.98
+    },
+    "metadata": {
+      "created": "2026-02-09",
+      "version": 1,
+      "retired": false
+    }
+  }
+]

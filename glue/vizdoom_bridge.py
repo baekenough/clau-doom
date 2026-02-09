@@ -61,7 +61,7 @@ NUM_ACTIONS = 3
 class VizDoomBridge:
     """Wraps VizDoom for controlled experiment execution."""
 
-    def __init__(self, scenario: str = "defend_the_center.cfg", episode_timeout: int = 2100, num_actions: int = 3):
+    def __init__(self, scenario: str = "defend_the_center.cfg", episode_timeout: int = 2100, num_actions: int = 3, doom_skill: int = 3):
         try:
             import vizdoom
         except ImportError:
@@ -73,6 +73,7 @@ class VizDoomBridge:
         self._game = vizdoom.DoomGame()
         self._episode_timeout = episode_timeout
         self._num_actions = num_actions
+        self._doom_skill = doom_skill
 
         # Find scenario path
         scenario_path = Path(vizdoom.scenarios_path) / scenario
@@ -123,6 +124,9 @@ class VizDoomBridge:
         self._game.add_available_game_variable(self._vizdoom.GameVariable.KILLCOUNT)  # index 0
         self._game.add_available_game_variable(self._vizdoom.GameVariable.HEALTH)     # index 1
         self._game.add_available_game_variable(self._vizdoom.GameVariable.AMMO2)      # index 2
+
+        # Set difficulty level (doom_skill: 1=Easy, 2=Normal, 3=Hard, 4=Very Hard, 5=Nightmare)
+        self._game.set_doom_skill(self._doom_skill)
 
         self._game.set_episode_timeout(self._episode_timeout)
         self._game.init()

@@ -426,7 +426,7 @@ How many factors are you testing?
 | DOE-020 | One-way CRD | defend_the_line | 5 (best-of-breed) | 150 | burst_3 highest kills (15.40), compound ≈ attack_only (no advantage) | COMPLETE |
 | DOE-021 | One-way CRD | defend_the_line | 10 (evolution genomes) | 300 | Generational evolution Gen 1 with TOPSIS fitness | DESIGNED |
 | DOE-022 | One-way CRD | defend_the_line | 4 (L0/L1/L2 layers) | 120 | L2 RAG pipeline activation: L0_only, L0_L1, L0_L1_L2_good, L0_L1_L2_random | DESIGNED |
-| DOE-023 | 3x4 Split-Plot | defend_the_line variants | 12 (3 scenarios x 4 strategies) | 360 | Cross-scenario strategy robustness: hard, close, slow variants | DESIGNED |
+| DOE-023 | 3x4 Factorial | defend_the_line (doom_skill) | 12 (3 skills x 4 strategies) | 360 | Cross-difficulty strategy robustness: doom_skill {1,3,5} x strategy {burst_3, random, adaptive_kill, L0_only} | COMPLETE |
 
 ---
 
@@ -440,6 +440,6 @@ How many factors are you testing?
 - Shared seed sets enable cross-experiment comparisons.
 - DOE-021 tests H-025 (evolution discovers superior strategies) using 8-parameter genome with TOPSIS-based fitness. Seeds: 23001 + i*91.
 - DOE-022 tests H-005 (strategy document quality) via L2 RAG pipeline. First empirical test of OpenSearch kNN retrieval. Seeds: 24001 + i*97.
-- DOE-023 tests H-026 (strategy generalization) across 3 scenario variants. Split-plot design with scenario as whole-plot factor. Seeds: 25001 + i*101.
+- DOE-023 tests H-026 (strategy generalization) across 3 doom_skill levels {1=Easy, 3=Normal, 5=Nightmare}. Full factorial design (revised from original split-plot WAD variant plan — WAD editing infeasible). Seeds: 25001 + i*101. Result: doom_skill dominant (η²=0.720), significant interaction (p=6e-4), H-026 PARTIALLY SUPPORTED.
 - Total Phase 2 planned budget: **780 episodes** across 3 experiments (DOE-021 through DOE-023).
 - Cumulative budget (all phases): **4200 episodes** (3420 completed + 780 planned).

@@ -1467,3 +1467,186 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 **Interpretation**: The adaptive switching mechanism (health-dependent mode changes, stagnation detection) adds complexity without measurable benefit when burst_length and turn_direction are already optimized. In the 3-action space, the simple burst_3 cycle is sufficient — no state-dependent decision-making improves upon it.
 
 **Next Steps**: Re-evaluate adaptive mechanisms in expanded action spaces (5+ actions) where state-dependent switching may have more room to add value.
+
+---
+
+## F-049: L2 RAG with Coarse Action Mapping Causes Performance Regression
+
+**Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
+**Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
+**Experiment Report**: RPT-022 (EXPERIMENT_REPORT_022.md)
+
+**Evidence**:
+- Condition significant [STAT:f=F(3,116)=28.05] [STAT:p<0.00000001] [STAT:eta2=η²=0.42]
+- L0_L1 (burst_3) kills=14.73 vs L0_L1_L2_good kills=9.57
+- Effect size huge [STAT:effect_size=d=1.641]
+- L2 RAG replaces burst_3's periodic turning with constant ATTACK
+- Normality PASS (Shapiro-Wilk p=0.24), Levene marginal (p=0.039, balanced n=30)
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: Adding L2 RAG strategy retrieval to the L0+L1 (burst_3) architecture significantly degrades performance. The tactic-to-action mapping is too coarse (3 actions), causing L2 queries to replace burst_3's beneficial periodic turning with constant ATTACK actions. Performance regresses from burst_3 level to L0_only level.
+
+---
+
+## F-050: Document Quality Irrelevant Under Coarse Tactic-to-Action Mapping
+
+**Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
+**Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
+**Experiment Report**: RPT-022 (EXPERIMENT_REPORT_022.md)
+
+**Evidence**:
+- L0_L1_L2_good vs L0_L1_L2_random: 30/30 episodes perfectly identical
+- [STAT:p=1.000] [STAT:effect_size=d=0.000]
+- HIGH docs (trust 0.75-0.95) and LOW docs (trust 0.30-0.34) produce identical behavior
+- Tactic-to-action mapping collapses quality differences into same action distribution
+
+**Trust Level**: HIGH (deterministic identity, 30/30 episodes)
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: When tactic-to-action mapping is limited to 3 action categories, strategy document quality has zero effect on game behavior. Both HIGH and LOW quality indices produce identical action sequences because most tactics map to ATTACK regardless of quality. This renders the entire RAG quality dimension meaningless until action granularity is increased.
+
+---
+
+## F-051: L1 Periodic Patterns Must Be Preserved When Adding Higher Levels
+
+**Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
+**Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
+**Experiment Report**: RPT-022 (EXPERIMENT_REPORT_022.md)
+
+**Evidence**:
+- L2 conditions (9.57 kills) ≈ L0_only (9.13 kills), p=0.929
+- L0_L1 burst_3 (14.73 kills) significantly better than all L2 conditions, p<0.001
+- burst_3's 3-attack+1-turn cycle is the key mechanism (confirmed by DOE-008 F-010)
+- L2 RAG query success rate unknown but action effect identical to L0_only
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: When L2 RAG queries return results, they completely replace the L1 burst_3 pattern rather than augmenting it. Since burst_3's periodic turning is the primary performance driver (F-010, F-039), replacing it with RAG-selected actions eliminates the lateral movement advantage. Future L2 implementations must preserve L1 periodic patterns — L2 should modulate parameters, not replace actions.
+
+---
+
+## F-052: doom_skill Is the Dominant Factor in Cross-Difficulty Analysis
+
+**Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
+
+**Experiment Order**: DOE-023 (3×4 factorial: doom_skill × strategy, n=360)
+
+**Experiment Report**: RPT-023
+
+**Evidence**:
+- doom_skill explains 72% of variance in kills [STAT:f=F(2,348)=446.73] [STAT:p=7.77e-97] [STAT:eta2=partial η²=0.720]
+- doom_skill explains 68% of kill_rate variance [STAT:f=F(2,348)=362.04] [STAT:p=9.45e-86]
+- doom_skill explains 78% of survival_time variance [STAT:f=F(2,348)=621.53] [STAT:p=1.38e-115]
+- Marginal means: Easy 19.69 kills, Normal 12.23 kills, Nightmare 4.29 kills
+- All pairwise comparisons significant (Tukey HSD all p<0.001)
+- [STAT:n=360] [STAT:power=very high]
+
+**Trust Level**: MEDIUM-HIGH (residual violations mitigated by large balanced design)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**:
+Game difficulty overwhelms all strategy differences. The environmental constraint (enemy speed, damage, respawning) is the primary determinant of agent performance, with strategy providing a secondary modulation. This establishes doom_skill as the dominant axis for understanding agent capability.
+
+---
+
+## F-053: Significant Strategy × Difficulty Interaction Changes Rankings
+
+**Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
+
+**Experiment Order**: DOE-023 (3×4 factorial, n=360)
+
+**Experiment Report**: RPT-023
+
+**Evidence**:
+- Interaction significant [STAT:f=F(6,348)=4.06] [STAT:p=6.02e-04] [STAT:eta2=partial η²=0.065]
+- Strategy ranking at Easy: adaptive_kill > random > burst_3 > L0_only
+- Strategy ranking at Normal: random > adaptive_kill > burst_3 > L0_only
+- Strategy ranking at Nightmare: random > burst_3 > adaptive_kill > L0_only
+- adaptive_kill drops from rank 1 (Easy) to rank 3 (Nightmare)
+- Confirmed by non-parametric Kruskal-Wallis
+
+**Trust Level**: MEDIUM-HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**:
+Strategy rankings are not universal — they are modulated by game difficulty. The interaction is driven primarily by adaptive_kill's environment sensitivity: it excels when survival time allows its kill-triggered switching mechanism to activate, but degrades at Nightmare where survival is too brief (~3.9s).
+
+---
+
+## F-054: Effect Compression — Strategy Differentiation Shrinks Under Difficulty
+
+**Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
+
+**Experiment Order**: DOE-023 (3×4 factorial, n=360)
+
+**Experiment Report**: RPT-023
+
+**Evidence**:
+- Easy: strategy spread = 7.30 kills (best−worst)
+- Normal: strategy spread = 4.17 kills
+- Nightmare: strategy spread = 1.40 kills
+- Compression ratio: 5.2× (Easy/Nightmare)
+- Strategy simple effects significant at ALL levels (all p<0.001)
+- Effect sizes: Easy η²=0.187, Normal η²=0.156, Nightmare η²=0.173
+
+**Trust Level**: MEDIUM-HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**:
+Higher difficulty compresses all agents toward a performance floor, reducing the absolute difference between strategies from 7.3 kills to 1.4 kills. Notably, the RELATIVE effect size (η²) remains similar (~16-19%) across all difficulty levels, suggesting strategy still matters proportionally even when absolute differences shrink. The floor effect at Nightmare (~3.6-5.0 kills) limits strategic differentiation.
+
+---
+
+## F-055: adaptive_kill Is Environment-Sensitive — Degrades at High Difficulty
+
+**Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
+
+**Experiment Order**: DOE-023 (3×4 factorial, n=360)
+
+**Experiment Report**: RPT-023
+
+**Evidence**:
+- Easy: adaptive_kill rank 1 (22.93 kills), significantly better than L0_only (p<0.001, +7.30 kills)
+- Normal: adaptive_kill rank 2 (13.43 kills), significantly better than L0_only (p=0.001, +3.87 kills)
+- Nightmare: adaptive_kill rank 3 (3.87 kills), NOT significantly different from L0_only (p=0.812, +0.30 kills)
+- Nightmare: adaptive_kill significantly WORSE than burst_3 (p=0.044) and random (p=0.008)
+
+**Trust Level**: MEDIUM-HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**:
+adaptive_kill's mechanism requires kills to trigger strategy switching. At Nightmare difficulty, survival time (~3.9s) provides insufficient time for the observation → adaptation cycle. The agent dies before adaptation can occur, causing adaptive_kill to degrade to effective L0_only behavior. This reveals a fundamental design flaw: adaptive strategies must be fast enough to activate within the expected survival window.
+
+---
+
+## F-056: L0_only Universally Worst Across All Difficulty Levels
+
+**Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
+
+**Experiment Order**: DOE-023 (3×4 factorial, n=360)
+
+**Experiment Report**: RPT-023
+
+**Evidence**:
+- Easy: L0_only last (15.63 kills vs 19.73-22.93 for others), all comparisons significant
+- Normal: L0_only last (9.57 kills vs 12.17-13.73 for others), 2/3 comparisons significant
+- Nightmare: L0_only last (3.57 kills vs 3.87-4.97 for others), 2/3 comparisons significant
+- Simple effects significant at all levels: Easy F(3,116)=8.90 p<0.001, Normal F(3,116)=7.16 p<0.001, Nightmare F(3,116)=8.08 p<0.001
+- Extends DOE-008 F-010 to broader range of game environments
+
+**Trust Level**: MEDIUM-HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**:
+The L0_only deficit established in DOE-008 (F-010) generalizes across all tested difficulty levels. Pure rule-based play without any action-level strategy is universally suboptimal. Any strategy — even random action selection — outperforms pure rule-following, confirming that action-level diversity provides fundamental value regardless of environmental difficulty.

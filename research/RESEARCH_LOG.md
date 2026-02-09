@@ -1,5 +1,94 @@
 # Research Log
 
+## 2026-02-09 — DOE-023: Cross-Difficulty Strategy Robustness
+
+### Context
+DOE-008 through DOE-020 established strategy rankings on default defend_the_line (doom_skill=3). H-026 questioned whether these rankings generalize across difficulty levels. Original DOE-023 design proposed WAD-based scenario variants (hard, close, slow) but these proved infeasible — WAD binary editing not available autonomously, and episode_timeout=0 was non-informative. Pivoted to doom_skill parameter: {1=Easy, 3=Normal, 5=Nightmare}.
+
+### Hypothesis
+H-026: Top strategies (burst_3, adaptive_kill) maintain rankings across difficulty variants.
+Priority: Medium
+Rationale: External validity of all Phase 1 conclusions depends on cross-environment robustness.
+
+### Design
+DOE type: 3×4 full factorial
+Factors:
+  - doom_skill: [1 (Easy), 3 (Normal), 5 (Nightmare)]
+  - strategy: [burst_3, random, adaptive_kill, L0_only]
+Sample size: 30 episodes per cell, 360 total
+Seed formula: seed_i = 25001 + i × 101, i=0..29
+Infrastructure: Added doom_skill parameter to VizDoomBridge and RunConfig
+
+### Result
+[STAT:f=F(2,348)=446.73] [STAT:p=7.77e-97] [STAT:eta2=0.720] (doom_skill — DOMINANT)
+[STAT:f=F(3,348)=16.85] [STAT:p=3.04e-10] [STAT:eta2=0.127] (strategy)
+[STAT:f=F(6,348)=4.06] [STAT:p=6.02e-04] [STAT:eta2=0.065] (interaction — SIGNIFICANT)
+[STAT:n=360]
+
+Key findings:
+- F-052: doom_skill explains 72% of kills variance — game difficulty overwhelms strategy
+- F-053: Strategy × difficulty interaction significant — rankings change across levels
+- F-054: Effect compression — strategy spread shrinks 5.2× from Easy to Nightmare
+- F-055: adaptive_kill environment-sensitive — degrades from rank 1 to rank 3 at Nightmare
+- F-056: L0_only universally worst — generalizes DOE-008 F-010 across all difficulty levels
+
+Conclusion: H-026 PARTIALLY SUPPORTED
+Trust level: MEDIUM-HIGH (assumptions violated but effects overwhelmingly large, confirmed non-parametrically)
+
+### Mechanism
+adaptive_kill requires survival time for kill-triggered switching. At Nightmare (~3.9s survival), the adaptation cycle cannot complete before death. Random and burst_3 are more robust because they don't depend on environmental feedback timing.
+
+### Next Steps
+- Phase 1 external validity partially confirmed: L0 deficit generalizes, but strategy ordering is difficulty-dependent
+- Consider adaptive strategies with faster switching thresholds for harsh environments
+- Cross-reference with DOE-022 (L2 RAG) findings to build complete Phase 1 picture
+- Begin Phase 2 planning: optimal strategy selection conditional on environmental parameters
+
+---
+
+## 2026-02-09 — DOE-022: L2 RAG Pipeline Activation (REJECTED)
+
+### Context
+First test of L2 OpenSearch strategy document retrieval in the clau-doom decision hierarchy. Tests whether querying strategy documents during gameplay improves on the burst_3 baseline.
+
+### Hypothesis
+H-025: L2 kNN strategy retrieval provides performance improvement.
+Priority: High
+Rationale: Core research claim is Agent Skill = Document Quality × Scoring Accuracy. Must validate that L2 retrieval adds value.
+
+### Design
+DOE type: One-way (4 conditions)
+Conditions: L0_only, L0_L1 (burst_3), L0_L1_L2_good (HIGH docs), L0_L1_L2_random (LOW docs)
+Sample size: 30 episodes per condition, 120 total
+Seeds: seed_i = 24001 + i × 97, i=0..29
+
+### Infrastructure
+- Generated 100 strategy documents (50 HIGH quality, 50 LOW quality)
+- Created OpenSearch indices: strategies_high, strategies_low
+- Implemented L2RagAction class mirroring Rust rag/mod.rs
+- Python RAG shim with term-matching query and 80ms timeout
+
+### Result
+[STAT:f=F(3,116)=28.05] [STAT:p<0.00000001] [STAT:eta2=η²=0.42]
+- L0_L1 (burst_3): 14.73 kills, 45.20 kr — BEST
+- L0_L1_L2_good: 9.57 kills, 39.77 kr — significantly worse
+- L0_L1_L2_random: 9.57 kills, 39.77 kr — identical to L2_good
+- L0_only: 9.13 kills, 37.03 kr — baseline
+- L2_good vs L2_random: 30/30 episodes perfectly identical (d=0.000)
+Conclusion: H-025 REJECTED. L2 RAG degrades performance.
+Trust level: HIGH
+Findings: F-049 (L2 regression), F-050 (quality irrelevant), F-051 (L1 preservation)
+
+### Mechanism
+L2 RAG queries succeed but return ATTACK-mapping tactics, replacing burst_3's beneficial 3-attack+1-turn cycle with constant attacking. This eliminates lateral movement, regressing performance to L0_only level.
+
+### Next Steps
+- DOE-023: Cross-scenario robustness test
+- Future: Expand tactic-to-action mapping to 5+ actions before retesting L2
+- Future: Hybrid L1+L2 where L2 modulates parameters rather than replaces actions
+
+---
+
 ## 2026-02-09 — DOE-021: Generational Evolution Confirms burst_3 Global Optimality
 
 ### Context

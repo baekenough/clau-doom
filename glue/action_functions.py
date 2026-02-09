@@ -23,6 +23,7 @@ Provides action strategies for DOE-007 through DOE-021 ablation levels:
 20. AdaptiveKillAction -- state-dependent adaptive strategy (DOE-018)
 21. AggressiveAdaptiveAction -- aggressive adaptive, dodge only at critical health (DOE-018)
 22. GenomeAction -- parameterized genome action for evolutionary experiments (DOE-021)
+23. L2RagAction -- L2 RAG strategy retrieval with OpenSearch kNN (DOE-022)
 """
 
 from __future__ import annotations
@@ -938,3 +939,162 @@ class GenomeAction:
         else:
             # Fallback: random
             return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+
+class L2RagAction:
+    """L2 strategy document retrieval action function for DOE-022.
+
+    Mirrors agent-core/src/rag/mod.rs logic in Python.
+    Queries OpenSearch for matching strategy documents via term matching
+    on situation_tags, scores them, and selects the best action.
+
+    Fallback: burst_3 pattern (best known L0+L1 strategy from DOE-020).
+    """
+
+    def __init__(self, opensearch_url="http://opensearch:9200", index_name="strategies_high", k=5):
+        self.opensearch_url = opensearch_url
+        self.index_name = index_name
+        self.k = k
+        self.weights = {"similarity": 0.4, "confidence": 0.4, "recency": 0.2}
+
+        # Burst3 fallback state
+        self._rng = random.Random(0)
+        self._tick = 0
+
+        # L2 metrics tracking
+        self.l2_decisions = 0
+        self.l2_total_decisions = 0
+        self.l2_latencies = []
+
+        # HTTP session for connection pooling
+        import urllib.request
+        self._session = None
+
+    def reset(self, seed=0):
+        """Reset state between episodes."""
+        self._rng = random.Random(hash(seed))
+        self._tick = 0
+        self.l2_decisions = 0
+        self.l2_total_decisions = 0
+        self.l2_latencies = []
+
+    def derive_situation_tags(self, state):
+        """Mirror derive_situation_tags() from rag/mod.rs lines 54-79."""
+        tags = []
+        if state.health < 30:
+            tags.append("low_health")
+        elif state.health >= 80:
+            tags.append("full_health")
+        if state.ammo < 10:
+            tags.append("low_ammo")
+        elif state.ammo >= 50:
+            tags.append("ammo_abundant")
+        if state.enemies_visible >= 3:
+            tags.append("multi_enemy")
+        elif state.enemies_visible == 1:
+            tags.append("single_enemy")
+        return tags
+
+    def query_opensearch(self, tags):
+        """Execute OpenSearch term-match query. Returns list of docs or empty list."""
+        import json
+        import time
+        import urllib.request
+        import urllib.error
+
+        query_body = {
+            "size": self.k,
+            "query": {
+                "bool": {
+                    "should": [{"term": {"situation_tags": tag}} for tag in tags],
+                    "minimum_should_match": 1,
+                    "filter": [
+                        {"term": {"metadata.retired": False}},
+                        {"range": {"quality.trust_score": {"gte": 0.3}}}
+                    ]
+                }
+            }
+        }
+
+        url = f"{self.opensearch_url}/{self.index_name}/_search"
+        data = json.dumps(query_body).encode("utf-8")
+
+        start = time.monotonic()
+        try:
+            req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=0.08) as resp:
+                result = json.loads(resp.read())
+        except Exception:
+            return []
+        finally:
+            elapsed_ms = (time.monotonic() - start) * 1000
+            self.l2_latencies.append(elapsed_ms)
+
+        hits = result.get("hits", {}).get("hits", [])
+        docs = []
+        for hit in hits:
+            source = hit.get("_source", {})
+            score = hit.get("_score", 0.0)
+            docs.append({
+                "doc_id": source.get("doc_id", ""),
+                "situation_tags": source.get("situation_tags", []),
+                "decision": source.get("decision", {}),
+                "quality": source.get("quality", {}),
+                "similarity": min(score / self.k, 1.0),
+                "confidence": source.get("quality", {}).get("trust_score", 0.5),
+                "recency": 0.8,
+            })
+        return docs
+
+    def score_document(self, doc):
+        """Score document: similarity*0.4 + confidence*0.4 + recency*0.2"""
+        return (
+            self.weights["similarity"] * doc.get("similarity", 0)
+            + self.weights["confidence"] * doc.get("confidence", 0)
+            + self.weights["recency"] * doc.get("recency", 0)
+        )
+
+    def tactic_to_action(self, tactic):
+        """Map tactic string to action index (mirrors rag/mod.rs lines 82-91)."""
+        if tactic.startswith("retreat") or tactic.startswith("kite"):
+            return ACTION_MOVE_LEFT
+        elif tactic.startswith("flank"):
+            return ACTION_MOVE_RIGHT
+        else:
+            return ACTION_ATTACK
+
+    def _burst3_fallback(self, state):
+        """Burst3 pattern as L1 fallback."""
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+        cycle_pos = self._tick % 4
+        self._tick += 1
+        if cycle_pos < 3:
+            return ACTION_ATTACK
+        else:
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+
+    def __call__(self, state):
+        """Full L0 + L2 + L1-fallback cascade in Python."""
+        self.l2_total_decisions += 1
+
+        # L0: Emergency rules (highest priority)
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        # L2: Query OpenSearch for strategy document
+        tags = self.derive_situation_tags(state)
+        if tags:
+            docs = self.query_opensearch(tags)
+            if docs:
+                best = max(docs, key=self.score_document)
+                tactic = best.get("decision", {}).get("tactic", "attack")
+                self.l2_decisions += 1
+                return self.tactic_to_action(tactic)
+
+        # L1 Fallback: burst_3 pattern (best known L0+L1 strategy)
+        return self._burst3_fallback(state)

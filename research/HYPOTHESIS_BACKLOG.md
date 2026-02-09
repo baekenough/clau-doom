@@ -62,15 +62,22 @@
 **Linked Experiment**: DOE-021
 **Key Findings**: F-046 (convergence, global optimality), F-047 (turn_direction penalty d=1.17), F-048 (adaptive switching null)
 
-### H-026: Top Strategies Generalize Across Scenario Variants [MEDIUM PRIORITY]
-**Statement**: burst_3 and adaptive_kill maintain their relative performance rankings when tested across scenario perturbations (increased difficulty, closer engagement, longer episodes) on defend_the_line.
-**Rationale**: All 13 experiments (DOE-008 through DOE-020) used the default defend_the_line configuration. Strategy rankings may be overfit to this specific setup. Testing robustness across scenario variants addresses a fundamental external validity concern for the Phase 1 conclusions.
-**Status**: Experiment ordered (DOE-023: Cross-Scenario Strategy Robustness)
-**Date Added**: 2026-02-09
 
 ## Queued Hypotheses
 
 ## Completed Hypotheses
+
+### H-026: Top Strategies Generalize Across Scenario Variants [PARTIALLY SUPPORTED]
+**Statement**: burst_3 and adaptive_kill maintain their relative performance rankings when tested across scenario perturbations (increased difficulty, closer engagement, longer episodes) on defend_the_line.
+**Evidence**: RPT-023, F-052, F-053, F-054, F-055, F-056
+- doom_skill is dominant factor [STAT:f=F(2,348)=446.73] [STAT:p=7.77e-97] [STAT:eta2=0.720]
+- Significant interaction [STAT:f=F(6,348)=4.06] [STAT:p=6.02e-04]
+- L0_only consistently worst: CONFIRMED across all difficulty levels
+- Strategy rankings change with difficulty: adaptive_kill drops from rank 1 (Easy) to rank 3 (Nightmare)
+- burst_3 ranking unstable: rank 3 on Easy, rank 3 on Normal, rank 2 on Nightmare
+- Effect compression: strategy spread shrinks 5.2× from Easy to Nightmare
+**Trust**: MEDIUM-HIGH (residual violations mitigated by n=30/cell balanced design)
+**Date Completed**: 2026-02-09
 
 ### H-012: defend_the_line Scenario Reveals Architectural Differences [ADOPTED - HIGH TRUST]
 **Statement**: The defend_the_line scenario, with its higher kill ceiling (4-26 kills/episode vs 0-3) and more varied gameplay, will reveal statistically significant performance differences between action architecture levels that the simpler defend_the_center scenario (DOE-007) could not detect.
@@ -243,6 +250,14 @@
 **Linked Experiment**: DOE-020
 
 ## Rejected Hypotheses
+
+### H-025: L2 kNN Strategy Retrieval Provides Performance Improvement [REJECTED]
+**Statement**: Adding L2 OpenSearch strategy document retrieval to the L0+L1 architecture will improve kill performance.
+**Evidence**: DOE-022, EXPERIMENT_REPORT_022.md, F-049, F-050, F-051
+**Result**: L2 RAG significantly DEGRADES performance (kills: 14.73→9.57, p<0.001, d=1.641). Document quality has zero effect (d=0.000). Tactic-to-action mapping too coarse.
+**Trust**: HIGH
+**Date Rejected**: 2026-02-09
+**Linked Experiment**: DOE-022
 
 ### H-013: Memory and Strength Weights Have Significant Effects on defend_the_line [REJECTED]
 **Statement**: memory_weight and strength_weight have significant main effects and/or interaction on kill_rate when tested with real VizDoom gameplay on defend_the_line scenario.

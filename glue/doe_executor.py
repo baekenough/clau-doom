@@ -48,6 +48,7 @@ class RunConfig:
     scenario: str = "defend_the_line.cfg"  # Per-run scenario override (used by DOE-011)
     num_actions: int = 3  # Number of available actions (3 or 5)
     genome_params: dict | None = None  # For genome-based action functions (DOE-021+)
+    doom_skill: int = 3  # Difficulty level (1=Easy, 2=Normal, 3=Hard, 4=Very Hard, 5=Nightmare)
 
 
 @dataclass
@@ -1008,6 +1009,63 @@ def build_doe021_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe022_config(db_path=None):
+    """DOE-022: L2 RAG Pipeline Activation.
+
+    H-025: L2 kNN strategy retrieval provides performance improvement.
+    4 conditions x 30 episodes = 120 episodes.
+    Seeds: seed_i = 24001 + i * 97, i=0..29
+    Execution order: R3 (L2_good), R1 (L0_only), R4 (L2_random), R2 (L0_L1)
+    """
+    seeds = [24001 + i * 97 for i in range(30)]
+    exp_id = "DOE-022"
+
+    runs = [
+        # Execution order: R3, R1, R4, R2
+        RunConfig(
+            run_id=f"{exp_id}-R3", run_label="R3",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_L1_L2_good",
+            run_type="factorial",
+            action_type="l2_rag_good",
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1", run_label="R1",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_only",
+            run_type="factorial",
+            action_type="rule_only",
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4", run_label="R4",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_L1_L2_random",
+            run_type="factorial",
+            action_type="l2_rag_random",
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2", run_label="R2",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_L1",
+            run_type="factorial",
+            action_type="burst_3",
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 24001 + i * 97, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -1039,6 +1097,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         GenomeAction,
         L0MemoryAction,
         L0StrengthAction,
+        L2RagAction,
         Random5Action,
         Random7Action,
         Smart5Action,
@@ -1064,8 +1123,9 @@ def execute_experiment(config: ExperimentConfig) -> None:
     # Initialize VizDoom with default scenario
     current_scenario = config.scenario
     current_num_actions = 3  # default
+    current_doom_skill = 3  # default
     try:
-        bridge = VizDoomBridge(scenario=current_scenario, num_actions=current_num_actions)
+        bridge = VizDoomBridge(scenario=current_scenario, num_actions=current_num_actions, doom_skill=current_doom_skill)
     except Exception as exc:
         logger.error(
             "Failed to initialize VizDoom: %s. "
@@ -1147,19 +1207,23 @@ def execute_experiment(config: ExperimentConfig) -> None:
             # Switch scenario if this run requires a different one
             run_scenario = getattr(run, "scenario", config.scenario)
             run_num_actions = getattr(run, "num_actions", 3)
-            if run_scenario != current_scenario or run_num_actions != current_num_actions:
+            run_doom_skill = getattr(run, "doom_skill", 3)
+            if run_scenario != current_scenario or run_num_actions != current_num_actions or run_doom_skill != current_doom_skill:
                 logger.info(
-                    "  Switching scenario: %s -> %s (num_actions: %d -> %d)",
+                    "  Switching scenario: %s -> %s (num_actions: %d -> %d, doom_skill: %d -> %d)",
                     current_scenario,
                     run_scenario,
                     current_num_actions,
                     run_num_actions,
+                    current_doom_skill,
+                    run_doom_skill,
                 )
                 bridge.close()
-                bridge = VizDoomBridge(scenario=run_scenario, num_actions=run_num_actions)
+                bridge = VizDoomBridge(scenario=run_scenario, num_actions=run_num_actions, doom_skill=run_doom_skill)
                 runner = EpisodeRunner(bridge)
                 current_scenario = run_scenario
                 current_num_actions = run_num_actions
+                current_doom_skill = run_doom_skill
 
             # Create action function based on run's action_type
             if run.action_type == "random":
@@ -1205,6 +1269,18 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = AggressiveAdaptiveAction()
             elif run.action_type == "genome":
                 action_fn = GenomeAction(**run.genome_params)
+            elif run.action_type == "l2_rag_good":
+                action_fn = L2RagAction(
+                    opensearch_url="http://opensearch:9200",
+                    index_name="strategies_high",
+                    k=5,
+                )
+            elif run.action_type == "l2_rag_random":
+                action_fn = L2RagAction(
+                    opensearch_url="http://opensearch:9200",
+                    index_name="strategies_low",
+                    k=5,
+                )
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1370,6 +1446,70 @@ def _count_run_episodes(
     return result[0] if result else 0
 
 
+def build_doe023_config(db_path=None):
+    """Build config for DOE-023: Difficulty-Level Strategy Robustness.
+
+    Revised design using doom_skill as scenario factor (original WAD-based
+    variants not feasible without binary editing).
+
+    Factors:
+        doom_skill: [1 (Easy), 3 (Normal), 5 (Nightmare)]
+        Strategy:   [burst_3, random, adaptive_kill, L0_only]
+
+    Design: 3x4 full factorial, 30 episodes/cell, 360 total
+    Seeds: seed_i = 25001 + i * 101, i=0..29
+    """
+    seeds = [25001 + i * 101 for i in range(30)]
+    exp_id = "DOE-023"
+
+    strategies = [
+        ("burst_3", "burst_3"),
+        ("random", "random"),
+        ("adaptive_kill", "adaptive_kill"),
+        ("L0_only", "rule_only"),
+    ]
+    skill_levels = [
+        (1, "easy"),
+        (3, "normal"),
+        (5, "nightmare"),
+    ]
+
+    runs = []
+    run_num = 1
+    for skill, skill_label in skill_levels:
+        for strat_name, action_type in strategies:
+            condition = f"skill_{skill_label}_{strat_name}"
+            runs.append(
+                RunConfig(
+                    run_id=f"{exp_id}-R{run_num:02d}",
+                    run_label=f"R{run_num:02d}",
+                    memory_weight=0.0,
+                    strength_weight=0.0,
+                    seeds=list(seeds),
+                    condition=condition,
+                    run_type="factorial",
+                    action_type=action_type,
+                    scenario="defend_the_line.cfg",
+                    doom_skill=skill,
+                )
+            )
+            run_num += 1
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20230223)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 25001 + i * 101, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1392,6 +1532,8 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-019": build_doe019_config,
     "DOE-020": build_doe020_config,
     "DOE-021": build_doe021_config,
+    "DOE-022": build_doe022_config,
+    "DOE-023": build_doe023_config,
 }
 
 
