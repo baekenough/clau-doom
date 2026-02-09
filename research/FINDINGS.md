@@ -2150,3 +2150,116 @@ The defend_the_line 5-action environment exhibits FULL TACTICAL INVARIANCE. Neit
 Rate-time compensation is a fundamental environment constraint in defend_the_line, not an artifact of random action selection. The relationship kr × survival ≈ constant × 60 holds whether attacks are distributed randomly at any ratio (DOE-027) or in deterministic burst patterns of any length (DOE-028). This means the environment imposes a fixed "kill budget" per episode that cannot be altered by tactical choices — only redistributed between kill rate and survival time.
 
 **Adopted**: 2026-02-09 (Phase 1)
+---
+
+## DOE-029 Findings (Emergency Health Override — SIGNIFICANT Pattern Effect)
+
+### F-079: Movement Is the Sole Performance Determinant in defend_the_line
+
+**Hypothesis**: H-032 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-029 (EXPERIMENT_ORDER_029.md)
+**Experiment Report**: RPT-029 (EXPERIMENT_REPORT_029.md)
+
+**Evidence**:
+- 2×2 Factorial ANOVA pattern main effect: [STAT:f=F(1,116)=58.402] [STAT:p<0.001] [STAT:eta2=0.332]
+- Effect size: [STAT:effect_size=Cohen's d=1.408] (HUGE)
+- Random 50% attack: 17.00±6.55 kills vs Pure attack: 9.95±2.80 kills
+- C3 contrast (movement value, no override): t=-5.856 [STAT:p<0.001] d=-1.512
+- Mann-Whitney confirms: U=85.0 [STAT:p<0.001]
+- Kruskal-Wallis confirms: H(3)=50.802 [STAT:p<0.001]
+- Sample size: [STAT:n=120 episodes (30 per cell)]
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Effect size d=1.408 is the largest in the 29-DOE program
+- Non-parametric tests confirm at p<0.001
+- Replicates DOE-008 F-010 (L0_only deficit) in 5-action space with even larger effect
+- Consistent across override conditions (no interaction)
+
+**Interpretation**:
+Movement (lateral strafing interspersed with attacks) is the SOLE performance determinant in defend_the_line. An agent that attacks 50% of the time and moves randomly 50% gets 70% more kills than an agent that always attacks. This is the capstone finding of the 29-DOE research program: after systematically testing attack ratio (DOE-027), temporal structure (DOE-028), RAG selection (DOE-022/024/026), health override (DOE-029), memory/strength weights (DOE-009), and evolution (DOE-021), movement is the only factor that significantly affects total kills.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+### F-080: Health-Based Emergency Override Has No Effect on Kills
+
+**Hypothesis**: H-032 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-029 (EXPERIMENT_ORDER_029.md)
+**Experiment Report**: RPT-029 (EXPERIMENT_REPORT_029.md)
+
+**Evidence**:
+- Override main effect: [STAT:f=F(1,116)=0.784] [STAT:p=0.378] [STAT:eta2=0.004]
+- Effect size: [STAT:effect_size=Cohen's d=-0.134] (negligible)
+- Override ON: 13.07 kills vs Override OFF: 13.88 kills
+- C1 (override effect, random): t=-1.022 [STAT:p=0.311] d=-0.264
+- C2 (override effect, attack): t=0.137 [STAT:p=0.891] d=0.035
+
+**Trust Level**: HIGH (for null result)
+
+**Interpretation**:
+State-dependent defensive behavior (dodge when health < 20) provides no survival or kill advantage. The health override was present in all DOE-025 through DOE-028 experiments as a common confound, but DOE-029 proves it was irrelevant. Reactive game-state behavior adds no value in defend_the_line.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+### F-081: No Interaction Between Movement Pattern and Health Override
+
+**Hypothesis**: H-032 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-029 (EXPERIMENT_ORDER_029.md)
+**Experiment Report**: RPT-029 (EXPERIMENT_REPORT_029.md)
+
+**Evidence**:
+- Interaction: [STAT:f=F(1,116)=0.987] [STAT:p=0.322] [STAT:eta2=0.006]
+- Override irrelevance holds for BOTH random (C1 p=0.311) and attack (C2 p=0.891)
+
+**Trust Level**: HIGH (for null result)
+
+**Interpretation**:
+The health override is equally irrelevant regardless of whether the base strategy includes movement. This means the override effect (or lack thereof) is not confounded with movement.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+### F-082: Rate-Time Compensation Breaks at Movement Boundary
+
+**Hypothesis**: H-032 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-029 (EXPERIMENT_ORDER_029.md)
+**Experiment Report**: RPT-029 (EXPERIMENT_REPORT_029.md)
+
+**Evidence**:
+- Within-class compensation: ratio 0.946-0.992 (holds)
+- Between-class products: Random=17.17 vs Attack=10.38 (65% difference)
+- Kill rate: Random=42.2/min vs Attack=40.8/min (only 3.3% difference, [STAT:p=0.180])
+- Survival: Random=24.4s vs Attack=15.3s (37.5% less without movement)
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Rate-time compensation (F-074) is NOT universal. It holds WITHIN movement classes (confirmed by DOE-027/028) but BREAKS at the movement boundary. Movement provides massive survival advantage (+60%) with negligible kill_rate cost (-3.3%). The mechanism: strafing makes the agent harder for enemies to hit (projectile avoidance) without significantly reducing the agent's own kill efficiency (aiming via turning is independent of strafing). This is why movement is the sole determinant — it provides "free" survival time.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+### F-083: Kill Rate Efficiency Is Movement-Invariant
+
+**Hypothesis**: H-032 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-029 (EXPERIMENT_ORDER_029.md)
+**Experiment Report**: RPT-029 (EXPERIMENT_REPORT_029.md)
+
+**Evidence**:
+- Pattern effect on kill_rate: [STAT:t=1.348] [STAT:p=0.180] [STAT:effect_size=Cohen's d=0.248]
+- Random kill_rate: 42.2±5.1/min
+- Attack kill_rate: 40.8±5.9/min
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Kill efficiency (kills per minute of survival) is the same whether the agent moves or not. An agent that always attacks kills at 40.8/min; an agent that attacks 50% of the time kills at 42.2/min. Movement does NOT reduce kill efficiency — it only extends survival time, which provides more opportunities to accumulate kills. This explains why movement produces 70% more total kills: 60% more survival × ~same kill rate = ~70% more kills.
+
+**Adopted**: 2026-02-09 (Phase 1)

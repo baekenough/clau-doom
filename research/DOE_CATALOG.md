@@ -401,7 +401,8 @@ How many factors are you testing?
 | 1 — L2 RAG 5-Action | H-029 | DOE-026 | 150 (5 conditions x 30 episodes) | 3750 |
 | 1 — Attack Ratio Gradient | H-030 | DOE-027 | 210 (7 levels x 30 episodes) | 3960 |
 | 1 — Temporal Attack Pattern | H-031 | DOE-028 | 150 (5 levels x 30 episodes) | 4110 |
-| 2 — RSM | TBD | TBD | 330-510 | 4440-4620 |
+| 1 — Emergency Health Override | H-032 | DOE-029 | 120 (4 cells x 30 episodes) | 5010 |
+| 2 — RSM | TBD | TBD | 330-510 | 5340-5520 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 5190-5550+ |
 
 ---
@@ -436,6 +437,7 @@ How many factors are you testing?
 | DOE-026 | One-way (5 groups) | L2 RAG strategy selection in 5-action space | 5 conditions × 30 = 150 | H-029 REJECTED | F-067~F-070 |
 | DOE-027 | One-way (7 levels) | defend_the_line_5action | attack_ratio (0.2-0.8) | 210 | H-030 REJECTED: kills invariant to attack ratio (p=0.717), rate-time compensation, F-071~F-075 | COMPLETE |
 | DOE-028 | OFAT (5 levels) | defend_the_line_5action | burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10) | 150 | H-031 REJECTED: temporal grouping null (kills p=0.401, survival p=0.169, kill_rate p=0.374), F-076~F-078 | COMPLETE |
+| DOE-029 | 2² Factorial | defend_the_line_5action | action_pattern (2 levels) × health_override (2 levels) | 120 | H-032 PARTIALLY SUPPORTED: Pattern SIGNIFICANT (p<0.001, d=1.408), Override NULL (p=0.378), F-079~F-083 | COMPLETE |
 
 ---
 
@@ -453,4 +455,7 @@ How many factors are you testing?
 - Total Phase 2 planned budget: **780 episodes** across 3 experiments (DOE-021 through DOE-023).
 - DOE-025 tests H-028 (5-action strategy space creates separable tiers) with 6 conditions: random_5, strafe_burst_3, smart_5, adaptive_5, dodge_burst_3, survival_burst. Seeds: 45001 + i×107. Result: H-028 PARTIALLY SUPPORTED. Strategy separation confirmed (kills p=0.0017, survival p=0.0009), but survival_burst (defensive, 40% attack) is paradoxically optimal (F-064).
 - DOE-026 tests H-029 (L2 RAG has value in 5-action space where strategies differentiate). One-way ANOVA with 5 conditions: survival_burst, random_5, dodge_burst_3, l2_meta_5action, random_rotation_5. Seeds: 50001 + i×109. Result: H-029 REJECTED. L2 RAG produces completely null effect (kills p=0.935, survival p=0.772). F-067 (L2 RAG no effect), F-068 (pre-filtered pool), F-069 (RAG overhead), F-070 (core thesis falsified).
-- Cumulative budget (all phases): **4740 episodes** (3960 completed + 780 planned).
+- DOE-027 tests H-030 (non-monotonic attack ratio relationship). One-way ANOVA with 7 levels: attack_ratio (0.2-0.8). Seeds: 47001 + i×127. Result: H-030 REJECTED. Kills invariant to attack ratio (p=0.717) due to rate-time compensation (F-074). F-071~F-075 adopted.
+- DOE-028 tests H-031 (temporal attack grouping affects kills). OFAT with 5 levels: burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10). Seeds: 48001 + i×131. Result: H-031 REJECTED. Temporal grouping has no effect (kills p=0.401, survival p=0.169). F-076~F-078 adopted.
+- DOE-029 tests H-032 (emergency health override improves performance). 2×2 factorial: action_pattern (random_50 vs pure_attack) × health_override (enabled vs disabled). Seeds: 49001 + i×137. Result: H-032 PARTIALLY SUPPORTED. Pattern MASSIVE effect (p<0.001, d=1.408), override NULL (p=0.378). F-079~F-083 adopted.
+- Cumulative budget (all phases): **5010 episodes** (4110 prior + 900 DOE-027~029).

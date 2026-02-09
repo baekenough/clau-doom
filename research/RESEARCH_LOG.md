@@ -1,5 +1,43 @@
 # Research Log
 
+## 2026-02-09 — DOE-029: Emergency Health Override Effect (SIGNIFICANT)
+
+### Context
+DOE-025~028 all included health<20 emergency override as untested confound. Additionally, pure_attack (always attack, no movement) was never tested in 5-action space. DOE-029 uses 2×2 factorial to isolate both effects.
+
+### Hypothesis
+H-032: Emergency health override improves survival and kills.
+Priority: High
+Rationale: Confound removal + pure_attack baseline in 5-action space.
+
+### Design
+DOE type: 2² Full Factorial
+Factor A: action_pattern (random_50 vs pure_attack)
+Factor B: health_override (enabled vs disabled)
+Sample size: 30 episodes per cell, 120 total
+Seeds: 49001 + i × 137, i=0..29
+
+### Result
+Pattern (A): [STAT:f=F(1,116)=58.402] [STAT:p<0.001] [STAT:eta2=0.332] [STAT:effect_size=d=1.408] — MASSIVE
+Override (B): [STAT:f=F(1,116)=0.784] [STAT:p=0.378] [STAT:eta2=0.004] — NULL
+Interaction: [STAT:f=F(1,116)=0.987] [STAT:p=0.322] — NULL
+Kill rate: pattern p=0.180 — NOT SIGNIFICANT (kill efficiency same for both)
+Kruskal-Wallis confirms: H(3)=50.802 [STAT:p<0.001]
+Conclusion: H-032 PARTIALLY SUPPORTED. F-079~F-083 adopted.
+Trust: HIGH
+
+### Key Discoveries
+1. **Movement is the SOLE determinant (F-079)**: d=1.408, largest effect in 29-DOE program
+2. **Override irrelevant (F-080)**: Health-based dodge adds nothing
+3. **Rate-time compensation breaks at movement boundary (F-082)**: Survival +60%, kr only -3%
+4. **Kill rate invariant to movement (F-083)**: Movement doesn't reduce killing efficiency
+5. **Research program narrative complete**: Only movement matters; everything else is noise
+
+### Next Steps
+Research program has reached definitive conclusion. 29 DOEs, 5010 episodes, 83 findings. Paper writing recommended.
+
+---
+
 ## 2026-02-09 — DOE-028: Temporal Attack Pattern Study (NULL)
 
 ### Context

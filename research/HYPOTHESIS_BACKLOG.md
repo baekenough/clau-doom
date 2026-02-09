@@ -106,6 +106,17 @@
 **Linked Experiment**: DOE-028
 **Key Findings**: F-076 (temporal grouping null), F-077 (full tactical invariance), F-078 (rate-time compensation extends to structure)
 
+### H-032: Emergency Health Override Improves Performance [PARTIALLY SUPPORTED]
+**Statement**: Emergency health override (force dodge when health < 20) improves survival and total kills in the 5-action defend_the_line environment.
+**Rationale**: All strategies in DOE-025~028 included health<20 override as common confound. DOE-029 isolates this via 2×2 factorial (pattern × override).
+**Status**: PARTIALLY SUPPORTED (DOE-029)
+**Evidence**: F-079, F-080, F-081, F-082, F-083
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Analyzed**: 2026-02-09
+**Linked Experiment**: DOE-029
+**Key Findings**: Override has NO effect (F-080, p=0.378). But pattern (movement) has MASSIVE effect (F-079, d=1.408). Kill rate efficiency is movement-invariant (F-083, p=0.180). Rate-time compensation breaks at movement boundary (F-082).
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

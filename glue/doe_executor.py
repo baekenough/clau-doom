@@ -1087,6 +1087,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         AggressiveAdaptiveAction,
         AttackOnlyAction,
         AttackRatioAction,
+        AttackRatioActionRaw,
         Burst1Action,
         Burst3Action,
         Burst3ThresholdAction,
@@ -1104,6 +1105,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         L2MetaStrategyAction,
         L2MetaStrategy5Action,
         L2RagAction,
+        PureAttackAction,
         Random5Action,
         Random7Action,
         RandomRotation5Action,
@@ -1318,6 +1320,12 @@ def execute_experiment(config: ExperimentConfig) -> None:
             elif run.action_type.startswith("cycle_"):
                 burst_len = int(run.action_type.split("_")[1])
                 action_fn = BurstCycleAction(burst_length=burst_len)
+            elif run.action_type == "rand50_raw":
+                action_fn = AttackRatioActionRaw(attack_ratio=0.5)
+            elif run.action_type == "attack_ovr":
+                action_fn = PureAttackAction(health_override=True)
+            elif run.action_type == "attack_raw":
+                action_fn = PureAttackAction(health_override=False)
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1933,6 +1941,78 @@ def build_doe028_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe029_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-029: Emergency Health Override Effect (2x2 Factorial)
+
+    Tests whether health<20 emergency dodge override matters.
+    Factor A: action_pattern (random_50 vs pure_attack)
+    Factor B: health_override (enabled vs disabled)
+    """
+    seeds = [49001 + i * 137 for i in range(30)]
+    exp_id = "DOE-029"
+
+    runs = [
+        # Randomized order: R3, R1, R4, R2
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_ovr",
+            run_type="factorial",
+            action_type="attack_ovr",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="rand50_ovr",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_raw",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="rand50_raw",
+            run_type="factorial",
+            action_type="rand50_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 49001 + i * 137, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1962,6 +2042,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-026": build_doe026_config,
     "DOE-027": build_doe027_config,
     "DOE-028": build_doe028_config,
+    "DOE-029": build_doe029_config,
 }
 
 

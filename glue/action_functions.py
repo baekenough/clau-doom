@@ -33,6 +33,8 @@ Provides action strategies for DOE-007 through DOE-028 ablation levels:
 30. RandomRotation5Action -- random rotation among 5-action strategies (DOE-026)
 31. AttackRatioAction -- parametric attack ratio for gradient sweep (DOE-027)
 32. BurstCycleAction -- deterministic burst cycle action for DOE-028
+33. AttackRatioActionRaw -- attack ratio WITHOUT health override for DOE-029
+34. PureAttackAction -- always attack with optional health override for DOE-029
 """
 
 from __future__ import annotations
@@ -1715,3 +1717,55 @@ class BurstCycleAction:
         else:
             # Move phase: random movement
             return self._rng.choice([0, 1, 2, 3])
+
+
+class AttackRatioActionRaw:
+    """Attack ratio action WITHOUT health/ammo override (DOE-029).
+
+    Same as AttackRatioAction but ignores health and ammo state.
+    Pure probabilistic action selection regardless of game state.
+    """
+
+    def __init__(self, attack_ratio: float = 0.5):
+        self.attack_ratio = attack_ratio
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if self._rng.random() < self.attack_ratio:
+            return 4  # ATTACK
+        else:
+            return self._rng.choice([0, 1, 2, 3])
+
+
+class PureAttackAction:
+    """Pure attack action for DOE-029.
+
+    Always selects ATTACK(4). With health_override=True, switches to
+    random movement when health < 20 or ammo == 0.
+    """
+
+    def __init__(self, health_override: bool = True):
+        self.health_override = health_override
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        if self.health_override:
+            if state.health < 20:
+                return self._rng.choice([2, 3])
+            if state.ammo == 0:
+                return self._rng.choice([2, 3])
+        return 4  # ATTACK
