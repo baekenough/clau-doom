@@ -726,4 +726,279 @@ All code, data, and analysis scripts will be released upon publication:
 \item Documentation: Full research log (RESEARCH\_LOG.md) with 5 months of decisions
 \end{itemize}
 
+
+%% =====================================================================
+%% SECTIONS I--O: Content moved from main body during page compression
+%% Cross-references point back to corresponding main paper sections.
+%% =====================================================================
+
+\section{Detailed Phase 0--1 Results (DOE-001--020)}
+\label{app:phase01}
+
+This section expands the compressed Phase 0--1 narrative in Section~4.1 of the main paper, providing full experimental detail for the 20 experiments that preceded hypothesis falsification.
+
+\subsection{Infrastructure Validation (DOE-001--004)}
+
+Initial experiments revealed a critical data pipeline error: the AMMO2 game variable was incorrectly mapped as KILLCOUNT in the DuckDB schema, invalidating the first four experiments. After correction with real VizDoom execution, we discovered that the full agent (L0+L1+L2) produces \textit{identical} outcomes to the rule-only agent (L0 only) at default parameters---both achieve 26.0 kills with zero variance in \texttt{defend\_the\_center}. This early null result (F-002, INVALIDATED) provided the first indication that the L1 and L2 layers contribute no behavioral differentiation at default settings.
+
+DOE-001-R (the corrected replication) established the baseline architectural comparison: Full architecture vs.\ Rule-only vs.\ Random. The full and rule-only agents were statistically indistinguishable ($p = 0.891$, $d = 0.06$), while both significantly outperformed random ($p < 0.001$, $d = 6.84$). This confirmed that L0 heuristics alone provide all the behavioral advantage attributed to the multi-level architecture.
+
+DOE-002 through DOE-004 were designed as factorial studies of memory and strength parameters but were invalidated by the AMMO2 bug. DOE-003 and DOE-004 were superseded before execution.
+
+\subsection{Scenario Selection (DOE-007--008)}
+
+A paired comparison using identical five-level designs on two scenarios established \texttt{defend\_the\_line} as the standard evaluation environment:
+
+\begin{itemize}
+\item \textbf{defend\_the\_center}: Architecture had no significant effect ($F(4,145) = 1.579$, $p = 0.183$, $\eta^2 = 0.042$; power = 0.49). Kills ranged 0--3 with near-zero variance. Residual diagnostics all failed.
+\item \textbf{defend\_the\_line}: Architecture was significant ($F(4,145) = 5.256$, $p < 0.001$, $\eta^2 = 0.127$; power = 0.97). Kills ranged 4--26 with adequate variance. Residual diagnostics all passed.
+\end{itemize}
+
+The discriminability ratio improved $1.7\times$, effect size increased $3\times$, and residual diagnostics shifted from all-fail to all-pass (F-012). All subsequent experiments used \texttt{defend\_the\_line}.
+
+\subsection{Agent Parameter Null Results (DOE-009)}
+
+A $3^2$ factorial design testing memory weight $\times$ strength weight on \texttt{defend\_the\_line} produced uniformly null results:
+
+\begin{itemize}
+\item Memory weight: $F(2,261) = 0.306$, $p = 0.736$, $\eta^2 = 0.002$
+\item Strength weight: $F(2,261) = 2.235$, $p = 0.109$, $\eta^2 = 0.017$
+\item Interaction: $F(4,261) = 0.365$, $p = 0.834$, $\eta^2 = 0.006$
+\end{itemize}
+
+These results invalidated earlier mock-data findings that had attributed 41.5\% of variance to memory ($p < 0.0001$ in mock data). Agent-level parameters have no detectable effect in real gameplay (F-013, F-014, F-015).
+
+\subsection{Strategy Landscape (DOE-010--020)}
+
+Eleven experiments systematically mapped the behavioral strategy landscape. Key findings by experiment:
+
+\textbf{DOE-010} (architecture replication, $n=90$): Replicated DOE-008 with new seeds. Strategy matters ($p < 0.001$, $\eta^2 = 0.267$). L0\_only confirmed as worst performer ($d = 0.654$).
+
+\textbf{DOE-011} (5-action strategies, $n=150$): Expanding from 3 to 5 actions introduces rate-total tradeoff. Strafing reduces kill rate by 3.18 kr/min ($d = 0.523$, $p = 0.003$) but increases survival by 63\% ($\eta^2 = 0.225$), producing more total kills (F-020, F-023, F-024).
+
+\textbf{DOE-012/013} (structured vs.\ random in 3-action, $n=120$ each): Random action selection is statistically indistinguishable from all structured strategies (planned contrast: $t = -0.332$, $p = 0.741$, $d = 0.073$; F-018). Replicated in DOE-013 ($p = 0.581$, $\eta^2 = 0.016$). The 3-action space is too constrained for intelligent strategies to outperform uniform randomness.
+
+\textbf{DOE-014} (intelligent 5-action, $n=150$): Even in the expanded 5-action space, random selection remains competitive with intelligent sequencing ($p = 0.039$, $\eta^2 = 0.067$, small effect). Partial rejection of H-015 (F-021).
+
+\textbf{DOE-015} (attack ratio sweep, $n=120$): No effect of attack frequency in the 50--100\% range ($p = 0.812$, $\eta^2 = 0.008$). Attack ratio irrelevant (F-026).
+
+\textbf{DOE-016} (L0 health threshold, $n=90$): Counter-intuitively, health threshold 0 (never dodge) is optimal ($p = 0.003$, $\eta^2 = 0.124$). Dodge disrupts attack flow (F-028).
+
+\textbf{DOE-017} (scenario exploration, $n=360$): $4 \times 3$ factorial confirmed defend\_the\_line as the most discriminating scenario. Basic and corridor scenarios unusable due to zero variance (F-013).
+
+\textbf{DOE-018} (compound actions, $n=120$): Simultaneous multi-action commands (STRAFE+ATTACK) produce identical results to sequential commands ($d = 0.000$, $p = 0.547$; F-025). VizDoom's weapon cooldown absorbs all timing differences.
+
+\textbf{DOE-019} (compound+attack\_only, $n=150$): attack\_only consistently worst ($p = 0.012$, $\eta^2 = 0.087$). L0\_only deficit replicated for third time (F-034).
+
+\textbf{DOE-020} (best-of-breed tournament, $n=150$): Multi-objective TOPSIS analysis identifies \texttt{burst\_3} as globally optimal strategy ($p < 0.001$, $\eta^2 = 0.199$). \texttt{burst\_3} and \texttt{adaptive\_kill} form a two-member Pareto front; all other strategies dominated (F-039, F-041).
+
+
+\section{Strategy Performance Ranking}
+\label{app:strategy-ranking}
+
+This table was referenced in Section~4.1 of the main paper as part of the Phase 0--1 results. It presents the complete performance ranking from the best-of-breed tournament (DOE-020).
+
+\begin{table}[h]
+\centering
+\caption{Strategy performance ranking from best-of-breed tournament (DOE-020, $n=30$ per condition). \texttt{burst\_3} and \texttt{adaptive\_kill} form a two-member Pareto front; all other strategies are dominated on at least one metric.}
+\label{tab:app-performance}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Strategy & Kills (mean $\pm$ SD) & Survival (s) & Kill Rate (/min) & Pareto Status \\
+\midrule
+\texttt{burst\_3} & $15.40 \pm 5.93$ & $20.53 \pm 8.03$ & $45.44 \pm 5.78$ & Optimal \\
+\texttt{adaptive\_kill} & $13.03 \pm 4.87$ & $17.16 \pm 6.22$ & $45.97 \pm 5.40$ & Optimal \\
+\texttt{random} & $13.27 \pm 5.30$ & $18.80 \pm 5.55$ & $42.40 \pm 8.70$ & Dominated \\
+\texttt{attack\_only} & $10.70 \pm 2.47$ & $14.73 \pm 4.51$ & $43.95 \pm 2.60$ & Dominated \\
+\texttt{compound} & $10.73 \pm 3.22$ & $15.37 \pm 3.87$ & $41.35 \pm 7.99$ & Dominated \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interpretation.} The \texttt{burst\_3} strategy (3 attacks followed by 1 reposition tick) achieves the highest total kills (15.40) while maintaining competitive kill rate. The burst pattern allows the weapon to pre-cool during reposition ticks, providing a decisive advantage when enemies appear (F-043: cooldown bottleneck discovery). \texttt{adaptive\_kill} achieves marginally higher kill rate (45.97 vs.\ 45.44 kr/min) but lower total kills due to shorter survival. Random selection performs respectably (13.27 kills), consistent with the tactical invariance finding (F-018) that structured strategies provide minimal advantage over uniform randomness when movement is present.
+
+
+\section{Full Rate-Time Compensation Derivation}
+\label{app:rtc-derivation}
+
+This section provides the complete mathematical derivation of the rate-time compensation model summarized in Section~5 of the main paper. It extends the formulation in Appendix~D.4 with the full empirical evidence.
+
+\subsection{Formal Statement}
+
+Let $k$ denote total kills per episode, $r$ the kill rate (kills per minute of survival), and $s$ the survival time (in minutes). By definition:
+
+$$k = r \times s$$
+
+Our key empirical observation, established through DOE-027 (attack ratio sweep, $n=210$) and DOE-028 (burst structure sweep, $n=150$), is that for any action policy $\pi$ within a movement class $\mathcal{M}$:
+
+$$k(\pi) \approx C_{\mathcal{M}}, \quad \forall \pi \in \mathcal{M}$$
+
+where $C_{\mathcal{M}}$ is a constant depending only on the movement class. More precisely, for any two policies $\pi_1, \pi_2 \in \mathcal{M}$:
+
+$$r(\pi_1) \times s(\pi_1) \approx r(\pi_2) \times s(\pi_2)$$
+
+\subsection{Compensation Mechanism}
+
+When a policy increases its attack ratio (the proportion of ticks allocated to the ATTACK action), two countervailing effects occur simultaneously: (i) more shots are fired per unit time, increasing $r$; and (ii) fewer ticks are available for strafing, increasing damage intake and decreasing $s$. We observe empirically that the marginal gain in $r$ is exactly offset by the marginal loss in $s$.
+
+DOE-027 showed that increasing attack ratio from 0.2 to 0.8:
+\begin{itemize}
+\item Raises kill rate from 36.5/min to 42.0/min ($F(6,203)=3.736$, $p=0.0015$, $\eta_p^2=0.099$)
+\item Reduces survival from 26.2s to 21.3s (linear trend: $-7.77$ s per unit ratio, $p=0.016$)
+\item Total kills remain statistically invariant ($F(6,203)=0.617$, $p=0.717$, $\eta_p^2=0.018$)
+\end{itemize}
+
+\subsection{Movement Class Constants}
+
+The constant $C_{\mathcal{M}}$ differs between movement classes. From DOE-029 ($n=120$):
+
+$$C_{\text{movers}} = 42.2 \times \frac{24.4}{60} \approx 17.17$$
+
+$$C_{\text{non-movers}} = 40.8 \times \frac{15.3}{60} \approx 10.38$$
+
+The gap between these constants is approximately 65\%, driven entirely by the survival advantage of movement. Compensation breaks at the movement class boundary because movement provides ``free'' survival---dodging projectiles extends survival without meaningful kill rate cost ($p=0.180$ for kill rate difference between movers and non-movers, $d=0.248$). Within each class, the kill-rate-to-survival tradeoff is zero-sum; between classes, movers receive a survival bonus that non-movers cannot access through any tactical reallocation.
+
+\subsection{Conservation Tightness}
+
+The tightness of the compensation is remarkable. DOE-028 found that the ratio $\frac{r \times s / 60}{k}$ ranges from 0.980 to 1.003 across five distinct burst structures (cycle lengths 2, 3, 5, 10, and random), indicating near-perfect conservation across both compositional and structural variations in action selection.
+
+
+\section{Rate-Time Compensation Numerical Evidence}
+\label{app:rtc-tables}
+
+This section presents the full numerical tables referenced in Section~4.3 of the main paper.
+
+\begin{table}[h]
+\centering
+\caption{Rate-time compensation across attack ratios (DOE-027, $n=30$ per condition). Kill rate increases and survival decreases with attack ratio, but total kills remain invariant ($F(6,203)=0.617$, $p=0.717$). The compensation ratio $rs/60k$ stays within 3\% of unity.}
+\label{tab:app-compensation}
+\small
+\begin{tabular}{ccccc}
+\toprule
+Attack Ratio & Kills & Survival (s) & Kill Rate (/min) & $rs/60k$ \\
+\midrule
+0.2 & 16.00 & 26.22 & 36.47 & 0.996 \\
+0.3 & 17.40 & 25.66 & 41.51 & 1.021 \\
+0.4 & 15.43 & 24.70 & 38.18 & 1.019 \\
+0.5 & 16.13 & 24.49 & 40.03 & 1.013 \\
+0.6 & 15.40 & 23.08 & 40.49 & 1.012 \\
+0.7 & 15.43 & 22.99 & 41.12 & 1.021 \\
+0.8 & 14.70 & 21.29 & 41.99 & 1.014 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observation.} As attack ratio increases from 0.2 to 0.8 ($4\times$ range), kill rate increases 15\% (36.47 to 41.99 kr/min) while survival decreases 19\% (26.22 to 21.29s). The resulting total kills vary by only 16\% (14.70 to 17.40), and the compensation ratio $rs/60k$ remains within [0.996, 1.021], confirming near-perfect rate-time compensation.
+
+
+\section{Information-Theoretic Analysis}
+\label{app:info-theory}
+
+This section presents the information-theoretic perspective on rate-time compensation, referenced in Section~5 of the main paper.
+
+\subsection{Channel Capacity Bound}
+
+Rate-time compensation has an information-theoretic interpretation that explains why strategies cannot differentiate. In a 3-action space $\{$TURN\_LEFT, TURN\_RIGHT, ATTACK$\}$, the maximum entropy per action is:
+
+$$H_{\max} = \log_2(3) = 1.585 \text{ bits}$$
+
+However, the weapon cooldown mechanism (${\sim}0.5$s between effective shots) acts as a low-pass filter on the action-to-outcome channel. Regardless of when ATTACK is pressed, the actual fire rate is bounded by the cooldown ceiling. This bottleneck constrains the mutual information between strategy and kill rate to approximately:
+
+$$I(\text{strategy}; \text{kill\_rate}) \approx 0.082 \text{ bits}, \quad 95\% \text{ CI } [0.05, 0.11]$$
+
+estimated across five independent experiments (DOE-010 through DOE-020). This represents only 0.15\% of the theoretical maximum information per episode (54.1 bits), confirming that knowing which strategy an agent employs provides essentially no predictive information about its kill rate.
+
+\subsection{Equalization Forces}
+
+Three equalization forces create the performance convergence zone:
+
+\begin{enumerate}
+\item \textbf{Weapon cooldown ceiling.} The cooldown imposes a hard ceiling on effective fire rate, rendering rapid action switching informationally equivalent to slower patterns. Regardless of ATTACK frequency, the actual damage-per-second is bounded by the cooldown period (${\sim}8$ ticks, ${\sim}229$ms). This is the primary equalization force.
+
+\item \textbf{Spatial distribution convergence.} Stochastic and deterministic action sequences produce equivalent spatial distributions over sufficiently many episodes---random movement covers the same angular range as systematic scanning. Over 30 episodes (${\sim}1800$ seconds of gameplay), the law of large numbers ensures that spatial coverage converges regardless of action policy.
+
+\item \textbf{Uniform enemy distribution.} Enemies spawn from all directions with equal probability in \texttt{defend\_the\_line}, eliminating aiming advantages. No strategy can exploit spatial non-uniformity because none exists.
+\end{enumerate}
+
+\subsection{5-Action Space Extension}
+
+In the expanded 5-action space $\{$TURN\_LEFT, TURN\_RIGHT, MOVE\_LEFT, MOVE\_RIGHT, ATTACK$\}$, the maximum entropy increases to:
+
+$$H_{\max} = \log_2(5) = 2.322 \text{ bits}$$
+
+However, the additional 0.737 bits are allocated entirely to movement (survival) rather than aim (kill rate). This explains why the 5-action space unlocks a new performance tier---the additional actions encode movement information that breaks the non-mover compensation ceiling---while kill rate within a movement class remains invariant.
+
+\subsection{Implications}
+
+The information-theoretic perspective provides a precise explanation for the tactical invariance finding (F-077): the action-to-outcome channel has near-zero capacity for strategic information within a movement class. All strategy selection effort operates on a channel that transmits only 0.082 bits of strategically relevant information. Optimizing strategy selection is informationally equivalent to optimizing a nearly constant function.
+
+
+\section{Extended Variance Decomposition}
+\label{app:ext-variance}
+
+This section expands the variance decomposition summary in Section~5 of the main paper and Appendix~C, providing the full narrative analysis.
+
+To quantify the relative importance of each factor in the experimental program, we report the proportion of total variance ($\eta^2$) explained by each source across the relevant experiments:
+
+\begin{table}[h]
+\centering
+\small
+\caption{Complete variance decomposition across all 29 experiments. Values represent proportion of total variance explained ($\eta^2$) from the primary source experiment.}
+\label{tab:app-ext-variance}
+\begin{tabular}{@{}lcccl@{}}
+\toprule
+Factor & $\eta^2$ & Source DOE & $n$ & Interpretation \\
+\midrule
+doom\_skill (difficulty) & 0.720 & DOE-023 & 360 & 72\% of variance; dominant \\
+Movement presence & 0.332 & DOE-029 & 120 & 33\% of variance; sole agent lever \\
+Architecture (L0/L1/L2) & 0.127--0.267 & DOE-008/010 & 150/90 & Driven by L0-only deficit \\
+Strategy type (within movers) & $<$0.03 & DOE-027/028 & 360 & $<$3\% of variance \\
+L2 RAG configuration & 0.001--0.009 & DOE-022/024/026 & 630 & $<$1\% of variance \\
+Agent parameters & 0.002--0.017 & DOE-009 & 270 & $<$1\% of variance \\
+Action composition & 0.008--0.027 & DOE-018/028 & 270 & $<$3\% of variance \\
+Attack ratio & 0.008--0.018 & DOE-015/027 & 330 & $<$2\% of variance \\
+Residual & $\sim$0.20 & All & 5,010 & Irreducible stochasticity \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key conclusions.} Environment settings (doom\_skill) and the binary movement choice together explain over 80\% of all performance variance. The entire agent architecture stack above L0 heuristics---including RAG retrieval, parameterized decision weights, and tactical action selection---contributes less than 5\% of total variance. This finding fundamentally challenges the premise that architectural complexity is the primary lever for performance improvement in this domain.
+
+The hierarchy of importance is: \textbf{Environment} ($\eta^2 = 0.720$) $\gg$ \textbf{Movement} ($\eta^2 = 0.332$) $\gg$ \textbf{Architecture} ($\eta^2 \approx 0.15$, driven by L0-only) $\gg$ \textbf{Strategy} ($\eta^2 < 0.03$) $\gg$ \textbf{Parameters/RAG} ($\eta^2 < 0.01$).
+
+Traditional RL approaches focus on policy optimization (equivalent to our ``strategy'' and ``parameters'' factors), which explain only $\sim$4\% of variance. Our systematic DOE reveals that environmental factors (72\%) and basic architectural decisions (33\%) dominate, suggesting prior work optimized negligible factors while ignoring dominant sources of variance.
+
+
+\section{Extended Discussion: The Value of Negative Results}
+\label{app:negative-results}
+
+This section expands the discussion of negative results referenced in Section~6 of the main paper.
+
+The most important findings of this work are negative. The RAG thesis falsification (F-070), established through three independent null results across different action spaces and retrieval granularities ($N=630$, all $p>0.39$), saves the research community from pursuing RAG-based strategy retrieval in simple FPS scenarios where the environment ceiling prevents meaningful strategy differentiation. The tactical invariance finding (F-077), confirmed across 12 distinct action configurations ($N=360$), demonstrates that within a movement class, all tactical optimization effort is wasted. The agent parameter irrelevance findings (F-013 through F-015) show that memory weight ($p=0.736$), strength weight ($p=0.109$), and their interaction ($p=0.834$) have no measurable effect on performance.
+
+\subsection{Redirecting Research Effort}
+
+These negatives redirect research effort toward three productive directions:
+
+\begin{enumerate}
+\item \textbf{Scenarios where tactical depth genuinely differentiates agents.} Multi-hit enemies introduce meaningful variation in target selection and damage accumulation, creating a space where strategic depth translates to performance differences. Navigation-intensive scenarios (e.g., \texttt{my\_way\_home} or \texttt{deadly\_corridor}) reward spatial reasoning and memory. Dynamic environments with non-stationary enemy behavior require adaptive strategies that simple heuristics cannot match.
+
+\item \textbf{The binary movement decision as the true optimization target.} Our findings suggest that the first priority for any agent design is ensuring adequate movement behavior. The $d = 1.408$ effect of movement dwarfs all other factors; any research effort spent on strategy optimization before securing movement is misallocated.
+
+\item \textbf{Understanding environment constraints before investing in complex architectures.} Rather than assuming that added complexity yields added performance, researchers should first characterize whether the target environment permits meaningful differentiation. Our DOE methodology provides a systematic framework for this preliminary investigation.
+\end{enumerate}
+
+\subsection{Publication Bias and Null Result Quality}
+
+The ML research community exhibits strong publication bias toward positive results \cite{henderson2018deep}. Our work demonstrates that rigorously established null results carry substantial scientific value:
+
+\begin{itemize}
+\item \textbf{F-070 (RAG falsification)}: Three independent null results with cumulative $N=630$, spanning two action spaces and three retrieval implementations. This is not a single underpowered non-replication but a convergent pattern of evidence.
+\item \textbf{F-077 (tactical invariance)}: Confirmed across 12 conditions spanning attack ratios and temporal patterns, with near-perfect rate-time compensation ratios (0.980--1.003).
+\item \textbf{F-015 (parameter irrelevance)}: $3^2$ factorial with $N=270$ episodes, all factors non-significant with adequate power.
+\end{itemize}
+
+Each of these null results is established with statistical rigor equivalent to or exceeding the typical positive result in game AI research: large sample sizes, proper ANOVA with diagnostics, effect size reporting, and independent replication. The 38\% null rate across our 29 experiments (11 of 29) provides a natural check against publication bias---we report failures as rigorously as successes.
+
 \end{document}
