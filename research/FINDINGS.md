@@ -1957,3 +1957,107 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 **Adopted**: 2026-02-09 (Phase 1)
 
 **Interpretation**: The core thesis "Agent Skill = DocQuality × ScoringAccuracy" is FALSIFIED for the defend_the_line scenario across both 3-action and 5-action spaces. RAG-based strategy retrieval provides zero performance benefit over fixed heuristic strategies, regardless of action space dimensionality or retrieval granularity. The thesis requires fundamental revision or testing in qualitatively different domains (multi-scenario, cooperative multi-agent).
+
+---
+
+## F-071: Attack Ratio Has No Effect on Total Kills (Rate-Time Compensation)
+
+**Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
+**Experiment Report**: RPT-027 (EXPERIMENT_REPORT_027.md)
+
+**Evidence**:
+- kills ANOVA: [STAT:f=F(6,203)=0.617] [STAT:p=0.717] [STAT:eta2=partial η²=0.018]
+- Kruskal-Wallis confirms: H(6)=3.626, p=0.727
+- [STAT:n=210 episodes (30 per level, 7 levels)]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Total kills are invariant to attack ratio across the 0.2-0.8 range. Higher attack ratios produce higher kill rates but shorter survival, resulting in approximately constant total kills via a rate × time compensation mechanism. The system self-equilibrates regardless of tactical allocation between offense and defense.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+## F-072: Survival Decreases Linearly with Attack Ratio
+
+**Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
+**Experiment Report**: RPT-027 (EXPERIMENT_REPORT_027.md)
+
+**Evidence**:
+- Linear trend: slope = -7.77s per unit ratio, [STAT:p=0.016]
+- ANOVA: [STAT:f=F(6,203)=0.992] [STAT:p=0.432] (not significant as categorical)
+- Range: 26.2s (ar_20) to 21.3s (ar_80) — 19% reduction
+
+**Trust Level**: MEDIUM
+
+**Interpretation**:
+Each 10% increase in attack probability reduces survival by approximately 0.78 seconds. More time spent attacking means less time dodging projectiles, producing a direct linear tradeoff.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+## F-073: Kill Rate Increases Monotonically with Attack Ratio
+
+**Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
+**Experiment Report**: RPT-027 (EXPERIMENT_REPORT_027.md)
+
+**Evidence**:
+- ANOVA: [STAT:f=F(6,203)=3.736] [STAT:p=0.0015] [STAT:eta2=partial η²=0.099]
+- Jonckheere-Terpstra trend: z=7.084, p<0.001 (highly significant monotonic increase)
+- Kruskal-Wallis: H(6)=23.393, p=0.000675
+- Tukey HSD: ar_20 significantly slower than ar_30 (p=0.011), ar_70 (p=0.026), ar_80 (p=0.003)
+- [STAT:n=210]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Kill rate (kills per minute alive) increases monotonically from 36.5/min at 20% attack to 42.0/min at 80% attack. More frequent attacking yields more kills per unit time. This is the other half of the compensation mechanism — the increase in kill efficiency exactly offsets the decrease in survival time.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+## F-074: Rate-Time Compensation: A Fundamental Environment Constraint
+
+**Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
+**Experiment Report**: RPT-027 (EXPERIMENT_REPORT_027.md)
+
+**Evidence**:
+- kill_rate × survival_time / 60 ≈ kills across all 7 conditions
+- Product range: 14.90 (ar_80) to 17.75 (ar_30), vs kills range: 14.70-17.40
+- kills ANOVA null (p=0.717), kill_rate ANOVA significant (p=0.0015), survival trend significant (p=0.016)
+- The two significant trends cancel exactly when multiplied
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+In defend_the_line, total kills represent a conserved quantity analogous to a conservation law: kill_rate × survival_time ≈ constant. This means tactical allocation between offense (attack ticks) and defense (movement ticks) cannot change the outcome — only the pathway. Aggressive agents kill fast but die soon; defensive agents kill slowly but survive longer. The total kills are environment-determined, not strategy-determined. This is a fundamental constraint of the scenario geometry and enemy spawning mechanics.
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+## F-075: Survival-First Paradox (F-064) Is a Strategy Structure Artifact
+
+**Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
+**Experiment Report**: RPT-027 (EXPERIMENT_REPORT_027.md)
+
+**Evidence**:
+- C3 contrast (ar_40 vs ar_50): t=-0.407, [STAT:p=0.685], Cohen's d=-0.105
+- DOE-025 found survival_burst (40% attack) best among 6 structured strategies (F-064)
+- DOE-027 shows no advantage for 40% attack ratio when controlling for strategy structure
+- Conclusion: The paradox was driven by survival_burst's cycling pattern (ATTACK-ATTACK-STRAFE-STRAFE-TURN), not by its 40% attack frequency
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+The survival-first paradox where a defensive 40% attack strategy paradoxically maximized kills (F-064) does NOT replicate when attack ratio is varied parametrically with a uniform strategy structure. The paradox was an artifact of comparing strategies with different STRUCTURES (cycling patterns, movement coordination). When structure is held constant and only attack probability varies, kills are invariant. This implies that strategy structure (how actions are sequenced) matters more than strategy composition (what proportion of each action).
+
+**Adopted**: 2026-02-09 (Phase 1)

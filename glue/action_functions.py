@@ -31,6 +31,7 @@ Provides action strategies for DOE-007 through DOE-024 ablation levels:
 28. SurvivalBurstAction -- 2 attacks + 2 strafes + 1 turn cycle for 5-action space (DOE-025)
 29. L2MetaStrategy5Action -- L2 meta-strategy selector for 5-action space (DOE-026)
 30. RandomRotation5Action -- random rotation among 5-action strategies (DOE-026)
+31. AttackRatioAction -- parametric attack ratio for gradient sweep (DOE-027)
 """
 
 from __future__ import annotations
@@ -1633,3 +1634,40 @@ class RandomRotation5Action:
                 self.current_strategy = new_choice
 
         return self.strategies[self.current_strategy](state)
+
+
+class AttackRatioAction:
+    """Parametric attack ratio action for 5-action space (DOE-027).
+
+    On each tick, with probability attack_ratio, choose ATTACK (action 4).
+    Otherwise, choose uniformly from TURN_LEFT(0), TURN_RIGHT(1),
+    MOVE_LEFT(2), MOVE_RIGHT(3).
+
+    Provides a clean parametric gradient to map the relationship between
+    attack frequency and kills, testing the survival-first paradox (F-064).
+    """
+
+    def __init__(self, attack_ratio: float = 0.5):
+        self.attack_ratio = attack_ratio
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # L0 emergency: dodge at critical health or no ammo
+        if state.health < 20:
+            return self._rng.choice([2, 3])  # strafe
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])  # strafe
+
+        # Parametric attack decision
+        if self._rng.random() < self.attack_ratio:
+            return 4  # ATTACK
+        else:
+            return self._rng.choice([0, 1, 2, 3])  # random movement

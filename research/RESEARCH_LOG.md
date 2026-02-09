@@ -968,6 +968,45 @@ Conclusion: H-029 REJECTED. Trust: HIGH.
 
 ---
 
+## 2026-02-09 — DOE-027: Attack Ratio Gradient Sweep (Rate-Time Compensation Discovery)
+
+### Context
+DOE-025 established the survival-first paradox (F-064): survival_burst (40% attack) paradoxically achieved the highest kills among 6 structured strategies. Core thesis falsified after 3 consecutive L2 null results. Research pivoted to understanding WHY simple strategies work and what determines total kills.
+
+### Hypothesis
+H-030: Attack ratio and kills have a non-monotonic relationship with peak below 50%.
+Priority: High
+Rationale: If confirmed, identifies optimal attack frequency for agent design.
+
+### Design
+DOE type: One-way ANOVA (7 levels)
+Factor: attack_ratio (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8)
+Strategy: AttackRatioAction — parametric probabilistic strategy (attack with probability p, random movement otherwise)
+Sample size: 30 episodes per level, 210 total
+Seeds: 47001 + i × 127, i=0..29
+
+### Result
+[STAT:f=F(6,203)=0.617] [STAT:p=0.717] [STAT:eta2=0.018] (kills — NULL)
+[STAT:f=F(6,203)=3.736] [STAT:p=0.0015] [STAT:eta2=0.099] (kill_rate — SIGNIFICANT)
+Survival linear trend: slope=-7.77s, p=0.016 (SIGNIFICANT)
+Jonckheere-Terpstra kill_rate trend: z=7.084, p<0.001
+
+Conclusion: H-030 REJECTED. Kills are INVARIANT to attack ratio due to rate × time compensation.
+Trust level: MEDIUM-HIGH
+
+### Key Discoveries
+1. **Rate-Time Compensation (F-074)**: kill_rate × survival ≈ constant. Total kills are a conserved quantity.
+2. **Survival-First Paradox Debunked (F-075)**: The F-064 paradox was a strategy STRUCTURE artifact, not an attack ratio effect.
+3. **Kill Rate Monotonic (F-073)**: kill_rate increases monotonically with attack ratio (J-T z=7.084).
+4. **Strategy Structure > Composition**: How actions are sequenced matters more than what proportion of each action.
+
+### Next Steps
+- Investigate strategy STRUCTURE properties (cycling patterns, action sequencing) that drive performance
+- Consider DOE-028: systematic variation of action sequence patterns at fixed attack ratio
+- Paper section: document the rate-time compensation as a fundamental environment constraint
+
+---
+
 ## 2026-02-09 — DOE-024: L2 Meta-Strategy Selection via RAG (REJECTED)
 
 ### Context

@@ -1086,6 +1086,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         AdaptiveKillAction,
         AggressiveAdaptiveAction,
         AttackOnlyAction,
+        AttackRatioAction,
         Burst1Action,
         Burst3Action,
         Burst3ThresholdAction,
@@ -1310,6 +1311,9 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 )
             elif run.action_type == "random_rotation_5":
                 action_fn = RandomRotation5Action()
+            elif run.action_type.startswith("ar_"):
+                ratio = int(run.action_type.split("_")[1]) / 100.0
+                action_fn = AttackRatioAction(attack_ratio=ratio)
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1794,6 +1798,54 @@ def build_doe026_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe027_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-027: Attack Ratio Gradient Sweep.
+
+    Factor: attack_ratio (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8)
+    Design: One-way ANOVA (7 levels × 30 episodes = 210 total)
+    Seed formula: seed_i = 47001 + i × 127, i=0..29
+    Randomized run order: R5, R2, R7, R1, R4, R6, R3
+    """
+    seeds = [47001 + i * 127 for i in range(30)]
+    exp_id = "DOE-027"
+
+    runs = [
+        RunConfig(run_id=f"{exp_id}-R1", run_label="R1", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_20", run_type="factorial",
+                  action_type="ar_20", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R2", run_label="R2", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_30", run_type="factorial",
+                  action_type="ar_30", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R3", run_label="R3", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_40", run_type="factorial",
+                  action_type="ar_40", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R4", run_label="R4", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_50", run_type="factorial",
+                  action_type="ar_50", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R5", run_label="R5", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_60", run_type="factorial",
+                  action_type="ar_60", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R6", run_label="R6", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_70", run_type="factorial",
+                  action_type="ar_70", scenario="defend_the_line_5action.cfg", num_actions=5),
+        RunConfig(run_id=f"{exp_id}-R7", run_label="R7", memory_weight=0.5, strength_weight=0.5,
+                  seeds=list(seeds), condition="ar_80", run_type="factorial",
+                  action_type="ar_80", scenario="defend_the_line_5action.cfg", num_actions=5),
+    ]
+
+    # Randomized order: R5, R2, R7, R1, R4, R6, R3
+    order = [runs[4], runs[1], runs[6], runs[0], runs[3], runs[5], runs[2]]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=order,
+        seed_set=seeds,
+        seed_formula="seed_i = 47001 + i × 127, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1821,6 +1873,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-024": build_doe024_config,
     "DOE-025": build_doe025_config,
     "DOE-026": build_doe026_config,
+    "DOE-027": build_doe027_config,
 }
 
 

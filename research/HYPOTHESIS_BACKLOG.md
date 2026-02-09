@@ -84,6 +84,17 @@
 **Date Added**: 2026-02-09
 **Date Rejected**: 2026-02-09
 
+### H-030: Non-Monotonic Attack Ratio Kills Relationship [REJECTED]
+**Statement**: The relationship between attack frequency and total kills is non-monotonic in the 5-action space, with an optimal attack ratio below 50% consistent with the survival-first paradox (F-064).
+**Rationale**: DOE-025 showed survival_burst (40% attack) paradoxically achieved the highest kills. DOE-027 maps the full gradient to determine if this is a robust phenomenon or an artifact.
+**Status**: REJECTED (DOE-027)
+**Evidence**: F-071, F-074, F-075
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Rejected**: 2026-02-09
+**Linked Experiment**: DOE-027
+**Key Findings**: F-071 (kills invariant to attack ratio), F-072 (survival decreases linearly), F-073 (kill rate increases monotonically), F-074 (rate-time compensation mechanism), F-075 (survival-first paradox is strategy structure artifact)
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses
