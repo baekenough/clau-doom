@@ -1184,7 +1184,7 @@ H-024 best-of-breed comparison confirms no single strategy dominates. burst_3 wi
 
 ---
 
-## F-039: burst_3 is the Multi-Objective Optimal Strategy
+### F-039: burst_3 is the Multi-Objective Optimal Strategy
 
 **Hypothesis**: Derived from DOE-020 multi-objective analysis (TOPSIS)
 
@@ -1213,7 +1213,7 @@ burst_3 achieves the best balance across all three performance dimensions. Its s
 
 ---
 
-## F-040: Performance-Robustness Trade-off Between burst_3 and adaptive_kill
+### F-040: Performance-Robustness Trade-off Between burst_3 and adaptive_kill
 
 **Hypothesis**: Derived from cross-experiment replication analysis
 
@@ -1242,7 +1242,7 @@ If operational consistency is prioritized (e.g., competitive deployment), adapti
 
 ---
 
-## F-041: Three Strategies are Pareto-Dominated
+### F-041: Three Strategies are Pareto-Dominated
 
 **Hypothesis**: Derived from Pareto front analysis of DOE-020
 
@@ -1270,7 +1270,7 @@ Future experiments should focus on the Pareto-optimal strategies (burst_3, adapt
 
 ---
 
-## F-042: Action Space Entropy Does Not Predict Performance
+### F-042: Action Space Entropy Does Not Predict Performance
 
 **Hypothesis**: Derived from information-theoretic analysis of strategy action distributions
 
@@ -1299,7 +1299,7 @@ Falsifies the naive hypothesis that "more randomness = better exploration = bett
 
 ---
 
-## F-043: Weapon Cooldown Creates Information Bottleneck That Equalizes Strategies
+### F-043: Weapon Cooldown Creates Information Bottleneck That Equalizes Strategies
 
 **Hypothesis**: Derived from temporal analysis of VizDoom weapon mechanics
 
@@ -1328,7 +1328,7 @@ The weapon cooldown acts as a physical equalizer: regardless of how frequently a
 
 ---
 
-## F-044: Mutual Information Between Strategy and Kill_Rate Is Bounded at ~0.1 Bits
+### F-044: Mutual Information Between Strategy and Kill_Rate Is Bounded at ~0.1 Bits
 
 **Hypothesis**: Derived from information-theoretic quantification of strategy effects
 
@@ -1360,7 +1360,7 @@ Knowing which strategy an agent uses provides essentially no information about i
 
 ---
 
-## F-045: Three Equalization Forces Create a Performance Convergence Zone
+### F-045: Three Equalization Forces Create a Performance Convergence Zone
 
 **Hypothesis**: Derived from synthesis of multiple findings into unified theoretical framework
 
@@ -1391,7 +1391,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-046: Generational Evolution Converges at Gen 2 — burst_3 is Globally Optimal in 3-Action Space
+### F-046: Generational Evolution Converges at Gen 2 — burst_3 is Globally Optimal in 3-Action Space
 
 **Hypothesis**: H-025 — Outcome D confirmed (Convergence in Gen 1-2)
 
@@ -1419,7 +1419,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-047: Non-Random turn_direction Is Universally Deleterious (d=1.17)
+### F-047: Non-Random turn_direction Is Universally Deleterious (d=1.17)
 
 **Hypothesis**: Strengthens F-010 (lateral movement breaks tunnel vision)
 
@@ -1446,7 +1446,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-048: Adaptive Switching Provides No Benefit When Co-Optimized
+### F-048: Adaptive Switching Provides No Benefit When Co-Optimized
 
 **Hypothesis**: H-025 Outcome C rejected
 
@@ -1470,7 +1470,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-049: L2 RAG with Coarse Action Mapping Causes Performance Regression
+### F-049: L2 RAG with Coarse Action Mapping Causes Performance Regression
 
 **Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
 **Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
@@ -1491,7 +1491,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-050: Document Quality Irrelevant Under Coarse Tactic-to-Action Mapping
+### F-050: Document Quality Irrelevant Under Coarse Tactic-to-Action Mapping
 
 **Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
 **Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
@@ -1511,7 +1511,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-051: L1 Periodic Patterns Must Be Preserved When Adding Higher Levels
+### F-051: L1 Periodic Patterns Must Be Preserved When Adding Higher Levels
 
 **Hypothesis**: H-025 — L2 kNN strategy retrieval provides performance improvement
 **Experiment Order**: DOE-022 (EXPERIMENT_ORDER_022.md)
@@ -1531,7 +1531,7 @@ Three independent physical mechanisms create a performance convergence zone: (1)
 
 ---
 
-## F-052: doom_skill Is the Dominant Factor in Cross-Difficulty Analysis
+### F-052: doom_skill Is the Dominant Factor in Cross-Difficulty Analysis
 
 **Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
 
@@ -1556,7 +1556,7 @@ Game difficulty overwhelms all strategy differences. The environmental constrain
 
 ---
 
-## F-053: Significant Strategy × Difficulty Interaction Changes Rankings
+### F-053: Significant Strategy × Difficulty Interaction Changes Rankings
 
 **Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
 
@@ -1581,7 +1581,7 @@ Strategy rankings are not universal — they are modulated by game difficulty. T
 
 ---
 
-## F-054: Effect Compression — Strategy Differentiation Shrinks Under Difficulty
+### F-054: Effect Compression — Strategy Differentiation Shrinks Under Difficulty
 
 **Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
 
@@ -1606,7 +1606,7 @@ Higher difficulty compresses all agents toward a performance floor, reducing the
 
 ---
 
-## F-055: adaptive_kill Is Environment-Sensitive — Degrades at High Difficulty
+### F-055: adaptive_kill Is Environment-Sensitive — Degrades at High Difficulty
 
 **Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
 
@@ -1629,7 +1629,7 @@ adaptive_kill's mechanism requires kills to trigger strategy switching. At Night
 
 ---
 
-## F-056: L0_only Universally Worst Across All Difficulty Levels
+### F-056: L0_only Universally Worst Across All Difficulty Levels
 
 **Hypothesis**: H-026 — Top Strategies Generalize Across Scenario Variants
 
@@ -1653,7 +1653,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-057: L2 Meta-Strategy Selection Shows No Main Effect on Kills
+### F-057: L2 Meta-Strategy Selection Shows No Main Effect on Kills
 
 **Hypothesis**: H-027 — REJECTED
 
@@ -1676,7 +1676,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-058: doom_skill Dominates All Metrics in L2 RAG Experiment
+### F-058: doom_skill Dominates All Metrics in L2 RAG Experiment
 
 **Hypothesis**: Confirms F-052 pattern
 
@@ -1700,7 +1700,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-059: Significant decision_mode × doom_skill Interaction for Kill Rate
+### F-059: Significant decision_mode × doom_skill Interaction for Kill Rate
 
 **Hypothesis**: Partially supports cross-difficulty strategy variation
 
@@ -1724,7 +1724,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-060: L2 Implementation Bottleneck — Insufficient Context at High Difficulty
+### F-060: L2 Implementation Bottleneck — Insufficient Context at High Difficulty
 
 **Hypothesis**: Explains H-027 rejection mechanism
 
@@ -1747,7 +1747,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-061: Core Thesis Remains Unvalidated — RAG Quality Has No Measurable Effect
+### F-061: Core Thesis Remains Unvalidated — RAG Quality Has No Measurable Effect
 
 **Hypothesis**: Extends DOE-022 F-050 finding
 
@@ -1770,7 +1770,7 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 
 ---
 
-## F-062: 5-Action Strategy Differentiates Kills (DOE-025)
+### F-062: 5-Action Strategy Differentiates Kills (DOE-025)
 
 **Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
@@ -1792,7 +1792,7 @@ In the 5-action space (turn+strafe+attack), strategy type creates separable kill
 
 ---
 
-## F-063: 5-Action Strategy Differentiates Survival (DOE-025)
+### F-063: 5-Action Strategy Differentiates Survival (DOE-025)
 
 **Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
@@ -1814,7 +1814,7 @@ Strategy type has highly significant effect on survival time in the 5-action spa
 
 ---
 
-## F-064: Survival-First Paradox in 5-Action Space (DOE-025)
+### F-064: Survival-First Paradox in 5-Action Space (DOE-025)
 
 **Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
@@ -1835,7 +1835,7 @@ Counterintuitively, the most defensive strategy (survival_burst, 40% attack) ach
 
 ---
 
-## F-065: State-Dependent Heuristics Degrade 5-Action Performance (DOE-025)
+### F-065: State-Dependent Heuristics Degrade 5-Action Performance (DOE-025)
 
 **Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
@@ -1856,7 +1856,7 @@ The "smart" state-dependent heuristic (if kill → dodge, if miss → scan) is t
 
 ---
 
-## F-066: Adaptive Health-Responsiveness Trades Survival for Kill Efficiency (DOE-025)
+### F-066: Adaptive Health-Responsiveness Trades Survival for Kill Efficiency (DOE-025)
 
 **Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
@@ -1876,7 +1876,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 
 ---
 
-## F-067: L2 RAG Strategy Selection Has No Effect in 5-Action Space (DOE-026)
+### F-067: L2 RAG Strategy Selection Has No Effect in 5-Action Space (DOE-026)
 
 **Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
@@ -1897,7 +1897,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 
 ---
 
-## F-068: Pre-Filtered Strategy Pool Eliminates Selection Value (DOE-026)
+### F-068: Pre-Filtered Strategy Pool Eliminates Selection Value (DOE-026)
 
 **Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
@@ -1918,7 +1918,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 
 ---
 
-## F-069: RAG Query Overhead Degrades Performance (DOE-026)
+### F-069: RAG Query Overhead Degrades Performance (DOE-026)
 
 **Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
@@ -1939,7 +1939,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 
 ---
 
-## F-070: Core Thesis Falsification — Triple L2 Null Result (DOE-022, DOE-024, DOE-026)
+### F-070: Core Thesis Falsification — Triple L2 Null Result (DOE-022, DOE-024, DOE-026)
 
 **Hypothesis**: H-029, H-025, H-027 (HYPOTHESIS_BACKLOG.md)
 **Experiment Orders**: DOE-022, DOE-024, DOE-026
@@ -1960,7 +1960,7 @@ Health-responsive adaptive behavior increases per-second lethality (highest kill
 
 ---
 
-## F-071: Attack Ratio Has No Effect on Total Kills (Rate-Time Compensation)
+### F-071: Attack Ratio Has No Effect on Total Kills (Rate-Time Compensation)
 
 **Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
@@ -1980,7 +1980,7 @@ Total kills are invariant to attack ratio across the 0.2-0.8 range. Higher attac
 
 ---
 
-## F-072: Survival Decreases Linearly with Attack Ratio
+### F-072: Survival Decreases Linearly with Attack Ratio
 
 **Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
@@ -2000,7 +2000,7 @@ Each 10% increase in attack probability reduces survival by approximately 0.78 s
 
 ---
 
-## F-073: Kill Rate Increases Monotonically with Attack Ratio
+### F-073: Kill Rate Increases Monotonically with Attack Ratio
 
 **Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
@@ -2022,7 +2022,7 @@ Kill rate (kills per minute alive) increases monotonically from 36.5/min at 20% 
 
 ---
 
-## F-074: Rate-Time Compensation: A Fundamental Environment Constraint
+### F-074: Rate-Time Compensation: A Fundamental Environment Constraint
 
 **Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
@@ -2043,7 +2043,7 @@ In defend_the_line, total kills represent a conserved quantity analogous to a co
 
 ---
 
-## F-075: Survival-First Paradox (F-064) Is a Strategy Structure Artifact
+### F-075: Survival-First Paradox (F-064) Is a Strategy Structure Artifact
 
 **Hypothesis**: H-030 (HYPOTHESIS_BACKLOG.md)
 **Experiment Order**: DOE-027 (EXPERIMENT_ORDER_027.md)
