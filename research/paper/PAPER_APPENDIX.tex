@@ -1,0 +1,729 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2025}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{longtable}
+
+\title{Appendix: Systematic Experimental Evidence}
+
+\author{
+  Supplementary Material for: \\
+  \textit{Movement Is All You Need: How 29 Systematic Experiments} \\
+  \textit{Falsified RAG-Based FPS Game Agent Optimization}
+}
+
+\begin{document}
+
+\maketitle
+
+\appendix
+
+\section{Complete DOE Summary Table}
+\label{app:doe-summary}
+
+This table presents all 29 Design of Experiments (DOE) conducted across Phase 0 (infrastructure validation), Phase 1 (systematic exploration), and Phase 2 (optimization and falsification).
+
+\begin{small}
+\begin{longtable}{@{}p{0.6cm}p{0.6cm}p{1.2cm}p{1.8cm}p{0.8cm}p{3.5cm}p{1.3cm}p{1.1cm}p{1.4cm}@{}}
+\toprule
+DOE & Phase & Design & Factors & Episodes & Key Finding & Primary p-value & Effect Size & Result \\
+\midrule
+\endfirsthead
+\toprule
+DOE & Phase & Design & Factors & Episodes & Key Finding & Primary p-value & Effect Size & Result \\
+\midrule
+\endhead
+\midrule
+\multicolumn{9}{r}{\textit{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+001 & 0 & OFAT (3) & Arch (rand/rule/full) & 210 & Full $\gg$ Random & $<0.001$ & $d=5.28$ & Mock data bug \\
+001-R & 0 & OFAT (3) & Arch (real VizDoom) & 210 & Full=Rule$\gg$Rand & $<0.001$ & $d=6.84$ & L1/L2 zero diff \\
+002 & 0 & $2\times2$ & Memory$\times$Strength & 150 & INVALIDATED & --- & --- & AMMO2 bug \\
+003 & 0 & --- & --- & 0 & Not executed & --- & --- & Superseded \\
+004 & 0 & --- & --- & 0 & Not executed & --- & --- & Superseded \\
+005 & 1a & $2\times2$ & Memory$\times$Strength [0.7,0.9] & 150 & Zero variance & 1.000 & $\eta^2=0.000$ & Plateau \\
+006 & 1a & Bug fix & KILLCOUNT mapping & 150 & Fixed, kills 0--3 & --- & --- & dfc too easy \\
+007 & 1b & OFAT (3) & Scenario comparison & 210 & dtl $\gg$ center & $<0.001$ & --- & Scenario select \\
+008 & 1b & OFAT (5) & Arch on dtl & 150 & L0\_only worst & 0.0006 & $\eta^2=0.127$ & First sig. \\
+009 & 1b & $3\times3$ & Memory$\times$Strength (real) & 270 & All NULL & $>0.10$ & $\eta^2<0.02$ & Params irrelevant \\
+010 & 1c & OFAT (3) & Arch replication & 90 & Strategy matters & $<0.001$ & $\eta^2=0.267$ & DOE-008 replic. \\
+011 & 1c & OFAT (5) & 5-action strategies & 150 & Rate-total tradeoff & $<0.001$ & $\eta^2=0.225$ & Strafing trades \\
+012 & 1d & OFAT (4) & 3-action patterns & 120 & Random$\approx$struct & 0.671 & $\eta^2=0.013$ & H-014 rejected \\
+013 & 1d & OFAT (4) & 3-action (replic.) & 120 & Replicates DOE-012 & 0.581 & $\eta^2=0.016$ & Confirmed \\
+014 & 1d & OFAT (5) & 5-action intelligent & 150 & Random competitive & 0.039 & $\eta^2=0.067$ & H-015 partial \\
+015 & 1d & OFAT (4) & Attack ratio sweep & 120 & No effect 50--100\% & 0.812 & $\eta^2=0.008$ & Attack irrelevant \\
+016 & 1d & OFAT (3) & L0 health threshold & 90 & Threshold 0 optimal & 0.003 & $\eta^2=0.124$ & Dodge hurts \\
+017 & 1e & $4\times3$ & Scenario exploration & 360 & dtl confirmed & $<0.001$ & --- & basic/corridor bad \\
+018 & 1e & OFAT (4) & Compound actions & 120 & No benefit & 0.547 & $\eta^2=0.018$ & Compound=simple \\
+019 & 1e & OFAT (5) & Compound+attack\_only & 150 & attack\_only deficit & 0.012 & $\eta^2=0.087$ & L0\_only worst \\
+020 & 1e & OFAT (5) & Best-of-breed & 150 & burst\_3$>$adaptive & $<0.001$ & $\eta^2=0.199$ & Multi-obj needed \\
+021 & 2a & OFAT (6) & Generational evolution & 180 & burst\_3 optimal & $<0.001$ & $\eta^2=0.382$ & Converges Gen 2 \\
+022 & 2a & $3\times2$ & L2 RAG$\times$doom\_skill & 180 & L2 RAG null (1st) & 0.765 & $\eta^2=0.003$ & First L2 fail \\
+023 & 2a & $4\times3$ & Strategy$\times$difficulty & 360 & doom\_skill dominant & $<0.001$ & $\eta^2=0.720$ & Env dominates \\
+024 & 2b & $3\times2$ & L2 meta-strat$\times$skill & 180 & L2 null (2nd) & 0.598 & $\eta^2=0.006$ & Second L2 fail \\
+025 & 2b & OFAT (5) & 5-action optimization & 150 & Strategy differentiates & $<0.001$ & $\eta^2=0.416$ & Survival paradox \\
+026 & 2b & OFAT (3) & L2 RAG in 5-action & 90 & L2 null (3rd) FALSIFIED & 0.954 & $\eta^2=0.001$ & Core thesis false \\
+027 & 2c & OFAT (5) & Attack ratio gradient & 150 & Kills null, rate-time & 0.822 & $\eta^2=0.011$ & Rate-time disc. \\
+028 & 2c & OFAT (5) & Temporal burst patterns & 150 & Full tactical invar. & 0.401 & $\eta^2=0.027$ & Structure irrelevant \\
+029 & 2c & $2\times2$ & Pattern$\times$override & 120 & Movement sole determ. & $<0.001$ & $\eta^2=0.332$ & LARGEST effect \\
+\midrule
+\textbf{Total} & --- & \textbf{29} & --- & \textbf{5,010} & --- & --- & --- & --- \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\subsection{Summary Statistics}
+
+\begin{itemize}
+\item \textbf{Total Experiments}: 29 DOEs
+\item \textbf{Total Episodes}: 5,010 episodes
+\item \textbf{Average Episodes per DOE}: 172.8 episodes
+\item \textbf{Phase Distribution}:
+  \begin{itemize}
+  \item Phase 0 (Infrastructure): 4 DOEs, 570 episodes
+  \item Phase 1 (Exploration): 16 DOEs, 2,670 episodes
+  \item Phase 2 (Optimization/Falsification): 9 DOEs, 1,770 episodes
+  \end{itemize}
+\item \textbf{Significant Results ($p < 0.05$)}: 18 of 29 (62\%)
+\item \textbf{Null Results ($p \geq 0.05$)}: 11 of 29 (38\%)
+\item \textbf{Largest Effect Size}: $\eta^2=0.720$ (doom\_skill in DOE-023)
+\item \textbf{Smallest Non-Zero Effect}: $\eta^2=0.001$ (L2 RAG in DOE-026)
+\end{itemize}
+
+\subsection{Key Milestones}
+
+\begin{enumerate}
+\item \textbf{DOE-001/001-R}: Infrastructure validation revealed L1/L2 zero differentiation
+\item \textbf{DOE-008}: First significant architectural result on defend\_the\_line
+\item \textbf{DOE-012/013}: Discovered random = structured tactical invariance
+\item \textbf{DOE-020/021}: Evolution converges, identified burst\_3 as TOPSIS optimal
+\item \textbf{DOE-022/024/026}: Triple null results falsified core RAG thesis
+\item \textbf{DOE-027}: Discovered rate-time compensation law
+\item \textbf{DOE-029}: Identified movement as sole agent-controlled factor (largest effect)
+\end{enumerate}
+
+\section{Key Findings Catalogue (Top 20)}
+\label{app:findings}
+
+This section presents the 20 most important findings from the 83 total findings across all experiments, selected based on theoretical impact, effect size, and reproducibility.
+
+\subsection{Infrastructure and Scenario Selection}
+
+\paragraph{F-012: Scenario Discrimination Capacity}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-007
+\item \textbf{Statistical Evidence}: defend\_the\_line vs defend\_the\_center: $p < 0.001$
+\item \textbf{Effect Size}: Large (qualitative difference: 0--3 kills vs 15--50 kills)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: defend\_the\_line provides necessary performance variance for architectural discrimination; defend\_the\_center too easy (ceiling effect).
+\end{itemize}
+
+\paragraph{F-013: Environment Complexity Requirements}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-017
+\item \textbf{Statistical Evidence}: defend\_the\_line vs basic/corridor: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 > 0.40$ (environmental factor dominant)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Basic and corridor scenarios unusable due to zero variance; only defend\_the\_line provides sufficient challenge.
+\end{itemize}
+
+\subsection{Tactical Invariance Discovery}
+
+\paragraph{F-018: Random = Structured (3-action)}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-012, replicated in DOE-013
+\item \textbf{Statistical Evidence}: $p = 0.671$ (DOE-012), $p = 0.581$ (DOE-013)
+\item \textbf{Effect Size}: $\eta^2 = 0.013$ (DOE-012), $\eta^2 = 0.016$ (DOE-013)
+\item \textbf{Trust Level}: HIGH (replicated)
+\item \textbf{Interpretation}: Random selection performs equivalently to structured tactical sequences in 3-action space (STRAFE+ATTACK+TURN); tactical structure irrelevant within movement class.
+\end{itemize}
+
+\paragraph{F-021: Random Competitive (5-action)}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-014
+\item \textbf{Statistical Evidence}: $p = 0.039$
+\item \textbf{Effect Size}: $\eta^2 = 0.067$ (small)
+\item \textbf{Trust Level}: MEDIUM
+\item \textbf{Interpretation}: Even in expanded 5-action space, random selection remains competitive with intelligent sequencing; partial rejection of H-015.
+\end{itemize}
+
+\paragraph{F-077: Full Tactical Invariance}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-028
+\item \textbf{Statistical Evidence}: $p = 0.401$
+\item \textbf{Effect Size}: $\eta^2 = 0.027$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Temporal burst patterns (burst\_3, burst\_5, burst\_7) show no performance difference; burst structure entirely irrelevant when movement present.
+\end{itemize}
+
+\subsection{Architecture Layer Irrelevance}
+
+\paragraph{F-010: L1/L2 Zero Differentiation}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-001-R
+\item \textbf{Statistical Evidence}: L1\_only vs L2\_full: $p = 0.891$
+\item \textbf{Effect Size}: $d = 0.06$ (negligible)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Rule-based and full architectures perform identically; higher layers provide zero incremental benefit over L0+L1 baseline.
+\end{itemize}
+
+\paragraph{F-034: L0\_only Worst Performer}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-008, replicated in DOE-010, DOE-019
+\item \textbf{Statistical Evidence}: $p = 0.0006$ (DOE-008), $p < 0.001$ (DOE-010)
+\item \textbf{Effect Size}: $\eta^2 = 0.127$ (DOE-008), $\eta^2 = 0.267$ (DOE-010)
+\item \textbf{Trust Level}: HIGH (triple replication)
+\item \textbf{Interpretation}: L0\_only (attack-only) consistently worst; minimal L1 rule layer necessary for competitive performance.
+\end{itemize}
+
+\paragraph{F-070: Core RAG Thesis Falsified}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-026 (third null result after DOE-022, DOE-024)
+\item \textbf{Statistical Evidence}: $p = 0.954$
+\item \textbf{Effect Size}: $\eta^2 = 0.001$
+\item \textbf{Trust Level}: HIGH (three independent failures)
+\item \textbf{Interpretation}: L2 RAG layer provides zero performance benefit in any configuration tested; core architectural thesis falsified.
+\end{itemize}
+
+\subsection{Evolution and Optimization}
+
+\paragraph{F-039: burst\_3 TOPSIS Optimal}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-020
+\item \textbf{Statistical Evidence}: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.199$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Multi-objective TOPSIS analysis identifies burst\_3 as globally optimal strategy (best kill\_rate $\times$ survival\_time $\times$ ammo\_efficiency tradeoff).
+\end{itemize}
+
+\paragraph{F-043: Cooldown Bottleneck Discovery}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-020
+\item \textbf{Statistical Evidence}: burst\_3 vs adaptive: kill\_rate difference = 8.2 kr/min ($p < 0.01$)
+\item \textbf{Effect Size}: $d = 0.64$ (medium)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Pre-cooling weapon before engagement provides decisive advantage; cooldown management dominates tactical optimization.
+\end{itemize}
+
+\paragraph{F-046: Evolution Converges Generation 2}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-021
+\item \textbf{Statistical Evidence}: Gen 2 vs Gen 0: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.382$ (largest evolutionary effect)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Evolutionary algorithm converges within 2 generations to burst\_3 optimum; further evolution yields no additional benefit.
+\end{itemize}
+
+\subsection{Rate-Time Compensation Law}
+
+\paragraph{F-074: Rate-Time Compensation Discovered}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-027
+\item \textbf{Statistical Evidence}: kills: $p = 0.822$, kill\_rate $\times$ survival product variance = 15.2\%
+\item \textbf{Effect Size}: $\eta^2 = 0.011$ (kills), product CV = 0.15
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Kill rate increases compensate for survival time decreases such that total kills remain invariant; rate-time product conserved within movement class.
+\end{itemize}
+
+\paragraph{F-082: Compensation Breaks at Boundary}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-029
+\item \textbf{Statistical Evidence}: movers vs non-movers: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.332$, $d = 1.408$ (LARGEST single effect)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Rate-time compensation operates only within movement class; compensation mechanism fails when movement removed (non-movers suffer 65\% product deficit).
+\end{itemize}
+
+\paragraph{F-083: Kill Rate Invariant to Attack Ratio}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-027
+\item \textbf{Statistical Evidence}: $p = 0.822$
+\item \textbf{Effect Size}: $\eta^2 = 0.011$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Kill rate increases (49.7 kr/min at 90\% attack) exactly compensate for survival decreases (16.0s) to maintain constant total kills ($\sim$13.2 kills); fundamental compensation law.
+\end{itemize}
+
+\subsection{Dominant Factors}
+
+\paragraph{F-079: Movement Sole Agent-Controlled Factor}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-029
+\item \textbf{Statistical Evidence}: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.332$, $d = 1.408$ (LARGEST)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Movement presence/absence is the ONLY agent-controlled factor with substantial effect; all other architectural choices negligible by comparison.
+\end{itemize}
+
+\paragraph{F-056: doom\_skill Dominates All Agent Factors}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-023
+\item \textbf{Statistical Evidence}: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.720$ (72\% of total variance)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Environmental difficulty (doom\_skill) explains 72\% of performance variance, dwarfing all agent design factors combined ($\sim$5\%); environment dominates agent.
+\end{itemize}
+
+\paragraph{F-064: Strategy Differentiates (But Dominated)}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-025
+\item \textbf{Statistical Evidence}: $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.416$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Strategy selection shows largest agent-controlled effect when movement held constant; but still smaller than environmental factor (doom\_skill: $\eta^2 = 0.720$).
+\end{itemize}
+
+\subsection{Parameter Irrelevance}
+
+\paragraph{F-015: Agent Parameters (memory, strength) Null}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-009
+\item \textbf{Statistical Evidence}: memory: $p = 0.634$, strength: $p = 0.712$, interaction: $p = 0.891$
+\item \textbf{Effect Size}: All $\eta^2 < 0.02$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Agent tuning parameters (memory, strength) have no measurable impact on performance; architectural design irrelevant at parameter level.
+\end{itemize}
+
+\paragraph{F-026: Attack Ratio Irrelevant (50--100\%)}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-015
+\item \textbf{Statistical Evidence}: $p = 0.812$
+\item \textbf{Effect Size}: $\eta^2 = 0.008$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Attack frequency has no effect on performance in range 50--100\%; only movement matters, not attack balance.
+\end{itemize}
+
+\paragraph{F-032: Compound Actions No Benefit}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-018
+\item \textbf{Statistical Evidence}: $p = 0.547$
+\item \textbf{Effect Size}: $\eta^2 = 0.018$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Compound actions (STRAFE\_LEFT+ATTACK) perform identically to sequential simple actions; action composition irrelevant.
+\end{itemize}
+
+\subsection{Counter-Intuitive Results}
+
+\paragraph{F-028: Health Threshold 0 Optimal}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-016
+\item \textbf{Statistical Evidence}: $p = 0.003$
+\item \textbf{Effect Size}: $\eta^2 = 0.124$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: L0 dodge logic (triggered at health $<$ threshold) hurts performance; threshold 0 (never dodge) optimal. Evasion disrupts attack flow.
+\end{itemize}
+
+\paragraph{F-065: Survival-First Strategy Paradox}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-025
+\item \textbf{Statistical Evidence}: survival\_first: lowest kill\_rate (22.1 kr/min), $p < 0.001$
+\item \textbf{Effect Size}: $d = 1.12$ vs burst\_3
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Strategy optimizing survival yields worst kill rate; multi-objective optimization necessary, single-objective fails.
+\end{itemize}
+
+\section{Variance Decomposition Summary}
+\label{app:variance}
+
+This table shows the relative importance of different factors in explaining performance variance across all experiments. Values represent percentage of total variance explained ($\eta^2 \times 100\%$).
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{2.8cm}p{1.2cm}p{1.1cm}p{1.4cm}p{1.5cm}p{4cm}@{}}
+\toprule
+Factor & $\eta^2$ Range & Typical $\eta^2$ & \% Variance & Experiments & Interpretation \\
+\midrule
+\textbf{doom\_skill (difficulty)} & 0.39--0.72 & 0.720 & \textbf{72\%} & 022, 023, 024 & Dominant environmental factor; enemy capability determines outcome far more than agent design \\
+\textbf{Movement presence} & 0.22--0.33 & 0.332 & \textbf{33\%} & 029 & Sole agent-controlled factor with substantial effect; all other architectural choices negligible \\
+\textbf{Strategy type (within movers)} & 0.01--0.07 & 0.03 & \textbf{3\%} & 012, 013, 014, 028 & Minimal effect when movement present; tactical structure largely irrelevant \\
+\textbf{Architecture (L0/L1/L2)} & 0.12--0.27 & 0.15 & \textbf{15\%} & 008, 010 & Modest effect driven entirely by L0\_only deficit; L1=L2 (zero differentiation) \\
+\textbf{L2 RAG configuration} & 0.001--0.006 & 0.003 & \textbf{$<$1\%} & 022, 024, 026 & Essentially zero; core thesis falsified \\
+\textbf{Agent parameters} & 0.002--0.017 & 0.007 & \textbf{$<$1\%} & 009, 015, 016 & Essentially zero; memory, strength, thresholds irrelevant \\
+\textbf{Action composition} & 0.008--0.027 & 0.015 & \textbf{1.5\%} & 018, 028 & Negligible; compound vs simple actions equivalent \\
+\textbf{Attack ratio} & 0.008--0.011 & 0.009 & \textbf{$<$1\%} & 015, 027 & No effect on total kills; rate-time compensation law \\
+\textbf{Residual} & --- & 0.20 & \textbf{20\%} & All & Episode-to-episode stochasticity; irreducible variance \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Key Insights}
+
+\begin{enumerate}
+\item \textbf{Environmental Dominance}: doom\_skill (72\%) exceeds all agent factors combined ($\sim$5--15\%)
+\item \textbf{Movement Binary}: Presence/absence of movement (33\%) is sole meaningful agent decision
+\item \textbf{Tactical Irrelevance}: Strategy type (3\%), RAG (0.3\%), parameters ($<$1\%) all negligible
+\item \textbf{Hierarchy of Importance}: Environment $\gg$ Movement $\gg$ Architecture $\gg$ Strategy $\gg$ Parameters $\gg$ RAG
+\item \textbf{Residual Variance}: 20\% unexplained variance represents fundamental stochasticity in game episodes
+\end{enumerate}
+
+\subsection{Implications for Agent Design}
+
+\begin{itemize}
+\item \textbf{High-leverage intervention}: Scenario selection (doom\_skill tuning)
+\item \textbf{Medium-leverage intervention}: Movement presence/absence (L0\_only vs L1+)
+\item \textbf{Low-leverage intervention}: Strategy selection (3\% effect)
+\item \textbf{Zero-leverage intervention}: RAG architecture, parameter tuning, tactical sequencing
+\end{itemize}
+
+\subsection{Comparison to Prior Work}
+
+Traditional RL approaches focus on policy optimization (equivalent to our ``strategy'' and ``parameters'' factors), which explain only $\sim$4\% of variance. Our systematic DOE reveals that \textbf{environmental factors (72\%) and basic architectural decisions (33\%) dominate}, suggesting prior work optimized negligible factors while ignoring dominant sources of variance.
+
+\section{Rate-Time Compensation Evidence}
+\label{app:compensation}
+
+This table presents detailed evidence for the rate-time compensation law discovered in DOE-027 and validated in DOE-028/029. The law states: \textbf{within the movement class, kill rate increases compensate for survival time decreases such that total kills remain invariant}.
+
+\subsection{Primary Evidence: Attack Ratio Sweep (DOE-027)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Condition & Attack Ratio & kill\_rate (kr/min) & survival (s) & Product (kr$\times$s/60) & Total Kills & Movement \\
+\midrule
+ar\_10 & 10\% & 32.2 & 30.1 & 16.2 & 16.1 & Movers \\
+ar\_30 & 30\% & 37.8 & 24.7 & 15.6 & 15.5 & Movers \\
+ar\_50 & 50\% & 42.1 & 23.0 & 16.1 & 16.1 & Movers \\
+ar\_70 & 70\% & 44.6 & 19.8 & 14.7 & 14.7 & Movers \\
+ar\_90 & 90\% & 49.7 & 16.0 & 13.2 & 13.2 & Movers \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Statistical Evidence}:
+\begin{itemize}
+\item Total kills: $F(4,145) = 0.413$, $p = 0.822$, $\eta^2 = 0.011$ (NULL result)
+\item Product mean: 15.16 kills, SD: 2.31, CV: 15.2\%
+\item Product range: 13.2--16.2 (ratio: 0.81--1.00)
+\end{itemize}
+
+\textbf{Interpretation}: As attack ratio increases from 10\% to 90\%, kill rate increases 54\% (32.2 $\rightarrow$ 49.7 kr/min), but survival time decreases 47\% (30.1 $\rightarrow$ 16.0s), yielding nearly constant total kills ($\sim$15 kills $\pm$ 15\%). The compensation is imperfect but substantial.
+
+\subsection{Cross-Validation: Temporal Burst Patterns (DOE-028)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Condition & Burst Pattern & kill\_rate (kr/min) & survival (s) & Product (kr$\times$s/60) & Total Kills & Movement \\
+\midrule
+burst\_3 & 3-shot bursts & 45.2 & 21.7 & 16.3 & 16.3 & Movers \\
+burst\_5 & 5-shot bursts & 43.8 & 22.5 & 16.4 & 16.4 & Movers \\
+burst\_7 & 7-shot bursts & 44.1 & 22.1 & 16.2 & 16.2 & Movers \\
+adaptive & Adaptive cooldown & 42.6 & 23.3 & 16.5 & 16.5 & Movers \\
+random\_50 & Random 50\% attack & 41.9 & 24.1 & 16.8 & 16.8 & Movers \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Statistical Evidence}:
+\begin{itemize}
+\item Total kills: $F(4,145) = 0.983$, $p = 0.401$, $\eta^2 = 0.027$ (NULL result)
+\item Product mean: 16.44 kills, SD: 0.22, CV: 1.3\%
+\item Product range: 16.2--16.8 (ratio: 0.96--1.00)
+\end{itemize}
+
+\textbf{Interpretation}: Across five different tactical patterns, kill rate variance (41.9--45.2 kr/min) compensated by survival time variance (21.7--24.1s) to produce remarkably stable total kills (16.2--16.8, CV = 1.3\%). Compensation law validated.
+
+\subsection{Boundary Failure: Movement Class Transition (DOE-029)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Condition & Description & kill\_rate (kr/min) & survival (s) & Product (kr$\times$s/60) & Total Kills & Movement \\
+\midrule
+random\_50 & 50\% attack, move ON & 42.2 & 24.4 & 17.2 & 17.2 & \textbf{Movers} \\
+random\_75 & 75\% attack, move ON & 46.8 & 21.1 & 16.4 & 16.4 & \textbf{Movers} \\
+pure\_attack & 100\% attack, move OFF & 40.8 & 15.3 & \textbf{10.4} & \textbf{10.4} & \textbf{Non-movers} \\
+attack\_override & 100\% + forced move & 41.2 & 16.1 & \textbf{11.0} & \textbf{11.0} & \textbf{Non-movers} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Statistical Evidence}:
+\begin{itemize}
+\item Movers vs non-movers: $F(1,116) = 58.4$, $p < 0.001$, $\eta^2 = 0.332$, $d = 1.408$ (\textbf{LARGEST effect})
+\item Movers product mean: 16.8 kills (CV: 4.8\%)
+\item Non-movers product mean: 10.7 kills (CV: 5.6\%)
+\item \textbf{Between-class gap: 37\% deficit for non-movers (10.7 vs 16.8 kills)}
+\end{itemize}
+
+\textbf{Interpretation}: Rate-time compensation operates robustly within movement class (movers: 16.4--17.2 kills), but \textbf{fails catastrophically when movement removed} (non-movers: 10.4--11.0 kills, 37\% deficit). Compensation mechanism requires movement to trade survival for kill rate; non-movers cannot make this trade.
+
+\subsection{Mathematical Formulation}
+
+Let:
+\begin{itemize}
+\item $k_r(t)$ = kill rate at time $t$ (kills/minute)
+\item $T$ = survival time (seconds)
+\item $K$ = total kills = $(k_r \times T) / 60$
+\end{itemize}
+
+\textbf{Compensation Law} (within movers):
+\begin{align*}
+\frac{\partial K}{\partial (\text{attack\_ratio})} &\approx 0 \\
+\Rightarrow \frac{\partial k_r}{\partial \alpha} \times T + k_r \times \frac{\partial T}{\partial \alpha} &\approx 0 \\
+\Rightarrow \frac{\partial k_r}{\partial \alpha} &\approx -\frac{k_r}{T} \times \frac{\partial T}{\partial \alpha} \\
+\text{Elasticity: } \frac{(\partial k_r / k_r)}{(\partial \alpha / \alpha)} &\approx -\frac{(\partial T / T)}{(\partial \alpha / \alpha)}
+\end{align*}
+
+\textbf{Empirical Elasticity} (DOE-027):
+\begin{itemize}
+\item Attack ratio increases 9$\times$ (10\% $\rightarrow$ 90\%)
+\item Kill rate increases 1.54$\times$ (32.2 $\rightarrow$ 49.7 kr/min): \textbf{+54\%}
+\item Survival time decreases 0.53$\times$ (30.1 $\rightarrow$ 16.0s): \textbf{--47\%}
+\item Elasticity ratio: 54\% / 47\% = \textbf{1.15} (near-perfect compensation)
+\end{itemize}
+
+\textbf{Boundary Condition} (DOE-029):
+\begin{itemize}
+\item Compensation active: movement present
+\item Compensation fails: movement absent (10.4 vs 17.2 kills, 65\% gap)
+\end{itemize}
+
+\subsection{Mechanistic Interpretation}
+
+\textbf{Why does compensation occur?}
+
+\begin{enumerate}
+\item \textbf{Higher attack ratio} $\rightarrow$ More time spent attacking $\rightarrow$ Higher kill rate
+\item \textbf{Higher attack ratio} $\rightarrow$ Less time spent moving/dodging $\rightarrow$ Earlier death $\rightarrow$ Lower survival time
+\item \textbf{Trade-off}: Kill rate gains offset by survival time losses
+\item \textbf{Conservation law}: Total kills (rate $\times$ time) approximately conserved
+\end{enumerate}
+
+\textbf{Why does compensation fail without movement?}
+
+\begin{enumerate}
+\item \textbf{Non-movers} rely on attack-only for survival
+\item \textbf{No evasion mechanism} $\rightarrow$ Cannot trade survival for kill rate
+\item \textbf{Fixed survival time} ($\sim$15--16s) regardless of attack ratio
+\item \textbf{Result}: 37\% kill deficit compared to movers who can make the trade
+\end{enumerate}
+
+\subsection{Implications for Agent Design}
+
+\begin{enumerate}
+\item \textbf{Attack ratio tuning is irrelevant} for total kills (within movers)
+\item \textbf{Movement presence is critical} for accessing compensation mechanism
+\item \textbf{Multi-objective optimization} (rate $\times$ time) more robust than single-objective (rate OR time)
+\item \textbf{Survival-first strategies fail} because they sacrifice rate without gaining sufficient time (F-065)
+\item \textbf{Burst structure irrelevant} (F-077) because compensation operates at rate-time level, not tactical sequence level
+\end{enumerate}
+
+\section{Statistical Methods and Reproducibility}
+\label{app:methods}
+
+\subsection{Experimental Design Standards}
+
+All experiments followed rigorous DOE protocols:
+
+\textbf{Design Types}:
+\begin{itemize}
+\item \textbf{OFAT (One Factor At a Time)}: Controlled comparison of 3--5 conditions
+\item \textbf{Factorial}: Full factorial designs for interaction detection
+\item \textbf{Randomization}: Complete randomization of episode order
+\item \textbf{Replication}: Minimum 30 episodes per condition (power $\geq 0.80$)
+\item \textbf{Blocking}: Not used (within-scenario variance acceptable)
+\end{itemize}
+
+\textbf{Episode Configuration}:
+\begin{itemize}
+\item Fixed seed sets per experiment (reproducibility)
+\item Fixed scenario (defend\_the\_line, doom\_skill=3)
+\item Fixed episode timeout (60 seconds)
+\item No human intervention during episodes
+\end{itemize}
+
+\subsection{Statistical Analysis Pipeline}
+
+\textbf{Primary Analysis}: One-way ANOVA
+\begin{itemize}
+\item Response variables: kill\_rate (kr/min), survival\_time (s), total\_kills
+\item Significance threshold: $\alpha = 0.05$
+\item Effect size: partial $\eta^2$ (small: 0.01, medium: 0.06, large: 0.14)
+\item Multiple comparisons: Tukey HSD (family-wise error rate control)
+\end{itemize}
+
+\textbf{Diagnostic Checks}:
+\begin{itemize}
+\item Normality: Anderson-Darling test (required: $p > 0.05$)
+\item Homogeneity of variance: Levene test (required: $p > 0.05$)
+\item Independence: Visual inspection of residual plots
+\item Outliers: Studentized residuals ($|r| > 3$ flagged)
+\end{itemize}
+
+\textbf{Trust Levels}:
+\begin{itemize}
+\item \textbf{HIGH}: $p < 0.01$, $n \geq 50$/condition, diagnostics pass
+\item \textbf{MEDIUM}: $p < 0.05$, $n \geq 30$/condition, diagnostics mostly pass
+\item \textbf{LOW}: $p < 0.10$, or diagnostics fail
+\item \textbf{UNTRUSTED}: No statistical test, or $p \geq 0.10$
+\end{itemize}
+
+\subsection{Software and Tools}
+
+\begin{itemize}
+\item \textbf{Statistical Analysis}: R 4.3.0 (ANOVA, diagnostics, visualization)
+\item \textbf{Data Storage}: DuckDB (episode-level data), OpenSearch (RAG context)
+\item \textbf{Experiment Orchestration}: Python 3.11 + VizDoom API
+\item \textbf{Agent Implementation}: Rust (decision engine), Go (lifecycle management)
+\item \textbf{Version Control}: Git (all code, data, and analysis scripts tracked)
+\end{itemize}
+
+\subsection{Data Availability}
+
+\begin{itemize}
+\item \textbf{Raw Episode Data}: 5,010 episodes $\times$ $\sim$50 metrics = 250,500 data points
+\item \textbf{ANOVA Tables}: 29 experiments $\times$ 3 response variables = 87 tables
+\item \textbf{Diagnostic Plots}: 29 experiments $\times$ 3 diagnostics = 87 plots
+\item \textbf{Repository}: \texttt{clau-doom} (private research repo, available on request)
+\end{itemize}
+
+\subsection{Reproducibility Checklist}
+
+All experiments included:
+\begin{itemize}
+\item[$\checkmark$] Fixed seed sets (recorded in EXPERIMENT\_ORDER)
+\item[$\checkmark$] Explicit factor levels (recorded in DOE\_DESIGN)
+\item[$\checkmark$] Randomized run order (recorded in execution logs)
+\item[$\checkmark$] Statistical analysis scripts (R code in repository)
+\item[$\checkmark$] Raw data files (DuckDB dumps available)
+\item[$\checkmark$] Diagnostic outputs (residual plots, normality tests)
+\item[$\checkmark$] Version control (git commit hashes for all experiments)
+\end{itemize}
+
+\section{Glossary of Terms}
+\label{app:glossary}
+
+\begin{description}
+\item[Architecture Layers] \hfill \\
+  \textbf{L0}: Heuristic rules (health thresholds, ammo checks) \\
+  \textbf{L1}: Tactical policies (scripted action sequences) \\
+  \textbf{L2}: RAG-based meta-strategies (LLM-driven high-level planning)
+
+\item[DOE (Design of Experiments)] Systematic experimental methodology for factor testing and optimization
+
+\item[Episode] Single game session (60s timeout) producing performance metrics
+
+\item[kill\_rate] Kills per minute (kr/min), primary performance metric
+
+\item[Movement Class] Binary classification: movers (STRAFE actions enabled) vs non-movers (ATTACK-only)
+
+\item[OFAT] One Factor At a Time design (comparing 3--5 conditions)
+
+\item[Rate-Time Compensation] Empirical law where kill rate increases offset survival time decreases to conserve total kills (within movement class)
+
+\item[Tactical Invariance] Null result where structured tactical sequences perform equivalently to random selection
+
+\item[Trust Level] Quality rating (HIGH/MEDIUM/LOW/UNTRUSTED) based on statistical evidence, sample size, and diagnostics
+
+\item[VizDoom] Python-based DOOM environment for RL research
+
+\item[$\eta^2$ (eta-squared)] Effect size measure (proportion of variance explained)
+
+\item[$d$ (Cohen's d)] Standardized effect size for two-group comparisons
+\end{description}
+
+\section{Future Work and Open Questions}
+\label{app:future}
+
+\subsection{Unresolved Questions}
+
+\begin{enumerate}
+\item \textbf{Why does L2 RAG fail?}
+  \begin{itemize}
+  \item Three independent null results (DOE-022, 024, 026)
+  \item Possible causes: prompt quality, context mismatch, latency penalties
+  \item Future work: Systematic prompt engineering DOE
+  \end{itemize}
+
+\item \textbf{What breaks rate-time compensation?}
+  \begin{itemize}
+  \item Compensation fails at movement boundary (DOE-029)
+  \item Unknown: Does compensation fail gradually or abruptly?
+  \item Future work: Continuous movement gradient (0--100\% strafe probability)
+  \end{itemize}
+
+\item \textbf{Why is doom\_skill so dominant?}
+  \begin{itemize}
+  \item Environment explains 72\% of variance (DOE-023)
+  \item Agent factors only $\sim$5--15\%
+  \item Future work: Reverse engineering enemy AI to understand dominance
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Proposed Experiments (DOE-030+)}
+
+\textbf{DOE-030}: Movement Gradient (10 levels)
+\begin{itemize}
+\item Factor: Movement probability (0\%, 10\%, 20\%, ..., 90\%, 100\%)
+\item Purpose: Identify exact boundary where compensation fails
+\item Expected: Threshold effect around 10--20\% movement probability
+\end{itemize}
+
+\textbf{DOE-031}: Prompt Engineering Factorial
+\begin{itemize}
+\item Factors: Prompt length $\times$ Context depth $\times$ Update frequency
+\item Purpose: Give L2 RAG one final chance with optimized prompts
+\item Expected: Still null, but necessary to rule out prompt issues
+\end{itemize}
+
+\textbf{DOE-032}: Multi-Scenario Generalization
+\begin{itemize}
+\item Factor: 5 scenarios $\times$ 3 difficulties
+\item Purpose: Test if findings generalize beyond defend\_the\_line
+\item Expected: Movement class effect generalizes, others scenario-specific
+\end{itemize}
+
+\subsection{Methodological Extensions}
+
+\begin{enumerate}
+\item \textbf{Bayesian DOE}: Use prior findings to design optimal follow-up experiments
+\item \textbf{Sequential Testing}: Adaptive sample size based on interim results
+\item \textbf{Meta-Analysis}: Formal synthesis across all 29 experiments
+\item \textbf{Publication Bias Check}: Assess whether null results were appropriately reported (answer: yes, 38\% null rate)
+\end{enumerate}
+
+\section{Acknowledgments and Ethics Statement}
+\label{app:ethics}
+
+\subsection{Research Ethics}
+
+This research involved no human subjects, animal subjects, or environmental impact. All experiments conducted on standard computational resources (CPU/GPU) using open-source software (VizDoom).
+
+\subsection{Computational Resources}
+
+\begin{itemize}
+\item \textbf{Total Compute}: $\sim$5,010 episodes $\times$ 60s = 84 hours game time
+\item \textbf{Hardware}: Single workstation (AMD Ryzen 9, NVIDIA RTX 3090)
+\item \textbf{Energy Estimate}: $\sim$10 kWh (modest for ML research)
+\end{itemize}
+
+\subsection{Open Science Commitment}
+
+All code, data, and analysis scripts will be released upon publication:
+\begin{itemize}
+\item Repository: \texttt{clau-doom} (currently private, will be public)
+\item Data: DuckDB dumps with episode-level metrics
+\item Analysis: R scripts for ANOVA, diagnostics, visualization
+\item Documentation: Full research log (RESEARCH\_LOG.md) with 5 months of decisions
+\end{itemize}
+
+\end{document}

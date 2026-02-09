@@ -202,7 +202,25 @@ We present results across four phases spanning 29 DOEs and 5,010 total episodes 
 
 - *Compound actions confer no benefit.* Simultaneous multi-action commands (attack+turn on the same tick) produce identical results to sequential commands ($d = 0.000$; F-025). VizDoom's weapon cooldown (~8 ticks, ~229ms) absorbs all timing differences between strategies (F-043).
 
-- *Best-of-breed strategies.* \texttt{burst\_3} (3 attacks, 1 reposition) achieves the highest total kills (15.40; F-036). \texttt{adaptive\_kill} (state-dependent switching) achieves the highest kill rate (46.18 kr/min; F-032). Both form a two-member Pareto front; all other strategies are dominated (F-039, F-041).
+- *Best-of-breed strategies.* \texttt{burst\_3} (3 attacks, 1 reposition) achieves the highest total kills (15.40; F-036). \texttt{adaptive\_kill} (state-dependent switching) achieves the highest kill rate (46.18 kr/min; F-032). Both form a two-member Pareto front; all other strategies are dominated (F-039, F-041). Table~\ref{tab:performance} summarizes the complete performance ranking.
+
+\begin{table}[t]
+\centering
+\caption{Strategy performance ranking from best-of-breed tournament (DOE-020, $n=30$ per condition). \texttt{burst\_3} and \texttt{adaptive\_kill} form a two-member Pareto front; all other strategies are dominated on at least one metric.}
+\label{tab:performance}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Strategy & Kills (mean $\pm$ SD) & Survival (s) & Kill Rate (/min) & Pareto Status \\
+\midrule
+\texttt{burst\_3} & $15.40 \pm 5.93$ & $20.53 \pm 8.03$ & $45.44 \pm 5.78$ & Optimal \\
+\texttt{adaptive\_kill} & $13.03 \pm 4.87$ & $17.16 \pm 6.22$ & $45.97 \pm 5.40$ & Optimal \\
+\texttt{random} & $13.27 \pm 5.30$ & $18.80 \pm 5.55$ & $42.40 \pm 8.70$ & Dominated \\
+\texttt{attack\_only} & $10.70 \pm 2.47$ & $14.73 \pm 4.51$ & $43.95 \pm 2.60$ & Dominated \\
+\texttt{compound} & $10.73 \pm 3.22$ & $15.37 \pm 3.87$ & $41.35 \pm 7.99$ & Dominated \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 ### 4.2 Core Thesis Falsification (DOE-022, DOE-024, DOE-026)
 \label{sec:falsification}
