@@ -232,7 +232,7 @@ FINDINGS.md              채택된 발견사항
 
 ```bash
 # 저장소 클론
-git clone https://github.com/sangyi/clau-doom.git
+git clone https://github.com/baekenough/clau-doom.git
 cd clau-doom
 
 # Docker 이미지 빌드
@@ -504,7 +504,7 @@ Types:
   author    = {Yi, Sang},
   year      = {2026},
   publisher = {GitHub},
-  url       = {https://github.com/sangyi/clau-doom}
+  url       = {https://github.com/baekenough/clau-doom}
 }
 ```
 

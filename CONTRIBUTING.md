@@ -303,7 +303,7 @@ If your contribution to this project leads to a publication, please cite:
             through RAG, DOE, and Generational Evolution},
   author = {Yi, Sang},
   year   = {2026},
-  url    = {https://github.com/sangyi/clau-doom}
+  url    = {https://github.com/baekenough/clau-doom}
 }
 ```
 

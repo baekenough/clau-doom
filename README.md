@@ -191,7 +191,7 @@ Selected findings from 45 total (see `research/FINDINGS.md` for full details):
 
 ```bash
 # Clone the repository
-git clone https://github.com/sangyi/clau-doom.git
+git clone https://github.com/baekenough/clau-doom.git
 cd clau-doom
 
 # Build all components (Rust agent core, Go orchestrator)
@@ -346,7 +346,7 @@ If you use clau-doom in your research, please cite:
                through RAG, DOE, and Generational Evolution},
   author    = {Yi, Sang},
   year      = {2026},
-  url       = {https://github.com/sangyi/clau-doom},
+  url       = {https://github.com/baekenough/clau-doom},
   note      = {Work in progress. Target venues: NeurIPS, ICML.}
 }
 ```
