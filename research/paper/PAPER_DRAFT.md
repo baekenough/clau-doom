@@ -133,6 +133,15 @@ We adopt Design of Experiments (DOE) methodology from quality engineering, repla
 
 **Phase 3: Constraint Discovery.** DOE-027 through DOE-029 characterized the rate-time compensation mechanism and confirmed movement as the sole performance determinant.
 
+Figure~\ref{fig:timeline} presents the progression of all 29 experiments across research phases, showing the cumulative evidence that led from initial infrastructure validation to the final mechanistic understanding.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure2_doe_timeline.pdf}
+\caption{DOE progression timeline showing 29 experiments across four research phases (5,010 total episodes). Filled markers indicate significant results ($p < 0.05$); open markers indicate null results. Key milestones annotated: DOE-008 (first significant result), DOE-022/024/026 (L2 RAG falsification sequence), DOE-027 (rate-time compensation discovery), DOE-029 (movement identified as sole determinant, $d = 1.408$). The systematic null results in Phase 2 led to discovery of the rate-time compensation constraint.}
+\label{fig:timeline}
+\end{figure}
+
 **Statistical protocol.** Every experiment adheres to a rigorous statistical pipeline:
 
 1. *Fixed seeds.* Control and treatment conditions use identical seed sets, enabling paired comparisons and guaranteeing reproducibility. Minimum 30 seeds per condition provides statistical power $\geq 0.80$ for medium effect sizes ($f = 0.25$).
@@ -222,6 +231,15 @@ This **rate-time compensation** represents a conservation law of the scenario: t
 **DOE-028: Temporal structure.** A five-condition OFAT design held attack ratio constant at 50\% and varied temporal grouping: random frame-by-frame interleaving, and deterministic burst cycles of length 2, 3, 5, and 10 ticks. Kills were invariant to temporal structure: $F(4,145) = 1.017$, $p = 0.401$, $\eta^2 = 0.027$ (F-076). All four planned contrasts were non-significant ($p = 0.636$ to $p = 0.893$). Rate-time compensation held with remarkable precision: the $\text{kr} \times \text{survival} / 60$ ratio ranged from 0.980 to 1.003 across all five patterns (F-078).
 
 **Full tactical invariance (F-077).** The combined evidence from DOE-027 ($N = 210$) and DOE-028 ($N = 150$) establishes that **neither the proportion of attacks nor their temporal distribution affects total kills** in the 5-action \texttt{defend\_the\_line} environment. This invariance is a direct consequence of the rate-time compensation constraint: any tactical reallocation between offense and defense is perfectly offset, preserving a fixed kill budget per episode.
+
+Figure~\ref{fig:invariance} visualizes this tactical invariance, showing that all 12 tested conditions within the movement class produce statistically indistinguishable total kills, while the movement boundary produces a massive performance gap.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure6_tactical_invariance.pdf}
+\caption{Full tactical invariance within movement class. \textbf{(A)}~Total kills across 12 conditions spanning attack ratios (20--80\%, blue) and temporal patterns (random/cyclic, purple). All conditions cluster around 16.0 kills with coefficient of variation 3.7\%. Neither attack ratio ($F(6,203) = 0.617$, $p = 0.717$) nor temporal pattern ($F(4,145) = 1.017$, $p = 0.401$) affects performance. \textbf{(B)}~Movement boundary: movers achieve 70.9\% more kills than non-movers ($d = 1.408$, $p < 0.001$), the only significant factor in the program.}
+\label{fig:invariance}
+\end{figure}
 
 ### 4.4 Movement as Sole Determinant (DOE-029)
 
