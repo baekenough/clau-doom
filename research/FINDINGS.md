@@ -1650,3 +1650,120 @@ adaptive_kill's mechanism requires kills to trigger strategy switching. At Night
 
 **Interpretation**:
 The L0_only deficit established in DOE-008 (F-010) generalizes across all tested difficulty levels. Pure rule-based play without any action-level strategy is universally suboptimal. Any strategy — even random action selection — outperforms pure rule-following, confirming that action-level diversity provides fundamental value regardless of environmental difficulty.
+
+---
+
+## F-057: L2 Meta-Strategy Selection Shows No Main Effect on Kills
+
+**Hypothesis**: H-027 — REJECTED
+
+**Experiment Order**: DOE-024 (EXPERIMENT_ORDER_024.md)
+
+**Experiment Report**: RPT-024 (EXPERIMENT_REPORT_024.md)
+
+**Evidence**:
+- decision_mode NOT significant for kills [STAT:p=0.3925] [STAT:f=F(3,348)=1.001]
+- Negligible effect size [STAT:eta2=partial η²=0.009]
+- All planned contrasts NOT significant (all p>0.4, all Cohen's d<0.12)
+- Non-parametric Kruskal-Wallis confirms: H=0.480, p=0.923
+- Per-difficulty one-way ANOVAs also NOT significant (Easy p=0.334, Normal p=0.877)
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: L2 RAG meta-strategy selection, which queries OpenSearch to choose between burst_3 and adaptive_kill based on situation tags, performs identically to fixed single-strategy baselines. The meta-strategy layer adds no measurable benefit to kill count despite being architecturally more complex.
+
+---
+
+## F-058: doom_skill Dominates All Metrics in L2 RAG Experiment
+
+**Hypothesis**: Confirms F-052 pattern
+
+**Experiment Order**: DOE-024
+
+**Experiment Report**: RPT-024
+
+**Evidence**:
+- doom_skill highly significant for all metrics:
+  - kills: [STAT:f=F(2,348)=651.88] [STAT:p<0.0001] [STAT:eta2=partial η²=0.789]
+  - kill_rate: [STAT:f=F(2,348)=303.12] [STAT:p<0.0001] [STAT:eta2=partial η²=0.635]
+  - survival_time: [STAT:f=F(2,348)=830.62] [STAT:p<0.0001] [STAT:eta2=partial η²=0.827]
+- Difficulty explains 79-83% of total variance
+- [STAT:n=360 episodes across 12 conditions]
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: Reinforces F-052 finding that doom_skill is the overwhelming dominant factor. Even with a fundamentally different experimental question (L2 RAG vs fixed strategies), difficulty level dwarfs all strategy differences.
+
+---
+
+## F-059: Significant decision_mode × doom_skill Interaction for Kill Rate
+
+**Hypothesis**: Partially supports cross-difficulty strategy variation
+
+**Experiment Order**: DOE-024
+
+**Experiment Report**: RPT-024
+
+**Evidence**:
+- Interaction significant for kill_rate [STAT:p=0.0056] [STAT:f=F(6,348)=3.110] [STAT:eta2=partial η²=0.051]
+- Rankings change across difficulty:
+  - Easy/Normal: L2_meta_select (41.8/47.3) > burst_3 (39.3/44.5) kr/min
+  - Nightmare: burst_3 (64.2) > L2_meta_select (60.6) kr/min
+- Kruskal-Wallis confirms kill_rate differences at Normal (p=0.002)
+- [STAT:n=360] [STAT:power=adequate given n=30/cell]
+
+**Trust Level**: MEDIUM (interaction is significant but kills are NOT, limiting practical importance)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: Strategy kill efficiency varies by difficulty, confirming DOE-023's F-053 finding. At low difficulty, adaptive/meta strategies achieve higher kill rates. At Nightmare, simple burst strategies are more efficient. However, this kill_rate interaction does NOT translate to actual kill count or survival advantages.
+
+---
+
+## F-060: L2 Implementation Bottleneck — Insufficient Context at High Difficulty
+
+**Hypothesis**: Explains H-027 rejection mechanism
+
+**Experiment Order**: DOE-024
+
+**Experiment Report**: RPT-024
+
+**Evidence**:
+- Nightmare episodes last 4-5 seconds (avg_surv: 4.08-4.74s)
+- L2 re-evaluates strategy every 35 ticks (1 second)
+- At Nightmare: only 4-5 decision opportunities before death
+- Pilot showed L2 predominantly selects adaptive_kill (favorable-condition bias)
+- Situation tags (health, ammo, kills) update too slowly at Nightmare for meaningful switching
+
+**Trust Level**: MEDIUM (mechanistic explanation consistent with data but not directly tested)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: The L2 meta-strategy architecture faces a fundamental timing bottleneck: at high difficulty, episodes are too short for the system to accumulate meaningful game-state context and benefit from strategy switching. The 35-tick query interval means only 4-5 strategy evaluations per episode at Nightmare, insufficient for the context-dependent advantage theorized in H-027.
+
+---
+
+## F-061: Core Thesis Remains Unvalidated — RAG Quality Has No Measurable Effect
+
+**Hypothesis**: Extends DOE-022 F-050 finding
+
+**Experiment Order**: DOE-024
+
+**Experiment Report**: RPT-024
+
+**Evidence**:
+- DOE-022: L2 RAG with tactic→action mapping = no effect (F-050)
+- DOE-024: L2 RAG with strategy→delegation mapping = no effect [STAT:p=0.3925]
+- Two fundamentally different L2 architectures tested, both null
+- Agent Skill = Document Quality × Scoring Accuracy thesis: Document Quality factor shows ZERO measurable contribution
+- [STAT:n=480 total episodes across DOE-022 + DOE-024]
+
+**Trust Level**: HIGH (replicated null result across two different implementations)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: The project's core thesis that agent skill emerges from RAG document quality multiplied by Rust scoring accuracy remains unvalidated after two L2 RAG experiments. Both the coarse tactic-to-action approach (DOE-022) and the refined meta-strategy delegation approach (DOE-024) produce identical performance to fixed baselines. This suggests either (a) the 3-action space is too constrained for RAG to matter, (b) the tag-based retrieval is too coarse, or (c) the thesis itself needs revision.

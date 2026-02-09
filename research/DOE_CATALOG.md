@@ -427,6 +427,7 @@ How many factors are you testing?
 | DOE-021 | One-way CRD | defend_the_line | 10 (evolution genomes) | 300 | Generational evolution Gen 1 with TOPSIS fitness | DESIGNED |
 | DOE-022 | One-way CRD | defend_the_line | 4 (L0/L1/L2 layers) | 120 | L2 RAG pipeline activation: L0_only, L0_L1, L0_L1_L2_good, L0_L1_L2_random | DESIGNED |
 | DOE-023 | 3x4 Factorial | defend_the_line (doom_skill) | 12 (3 skills x 4 strategies) | 360 | Cross-difficulty strategy robustness: doom_skill {1,3,5} x strategy {burst_3, random, adaptive_kill, L0_only} | COMPLETE |
+| DOE-024 | 4×3 Full Factorial | defend_the_line (doom_skill) | 12 (4 modes x 3 skills) | 360 | H-027 REJECTED: L2 meta-strategy no main effect (p=0.39), F-057~F-061 | COMPLETE |
 
 ---
 

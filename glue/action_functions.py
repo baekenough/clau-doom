@@ -1,6 +1,6 @@
 """Action selection functions for VizDoom defend_the_center/defend_the_line scenarios.
 
-Provides action strategies for DOE-007 through DOE-021 ablation levels:
+Provides action strategies for DOE-007 through DOE-024 ablation levels:
 1.  random_action -- uniform random choice (3-action space)
 2.  rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
 3.  L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
@@ -24,6 +24,8 @@ Provides action strategies for DOE-007 through DOE-021 ablation levels:
 21. AggressiveAdaptiveAction -- aggressive adaptive, dodge only at critical health (DOE-018)
 22. GenomeAction -- parameterized genome action for evolutionary experiments (DOE-021)
 23. L2RagAction -- L2 RAG strategy retrieval with OpenSearch kNN (DOE-022)
+24. L2MetaStrategyAction -- L2 meta-strategy selector, delegates to L1 strategies (DOE-024)
+25. RandomSelectAction -- random strategy selector baseline (DOE-024)
 """
 
 from __future__ import annotations
@@ -1098,3 +1100,192 @@ class L2RagAction:
 
         # L1 Fallback: burst_3 pattern (best known L0+L1 strategy)
         return self._burst3_fallback(state)
+
+
+class L2MetaStrategyAction:
+    """L2 meta-strategy selector for DOE-024.
+
+    Queries OpenSearch for meta-strategy documents.
+    Top document's decision.strategy field specifies which L1 STRATEGY
+    to delegate to (burst_3 or adaptive_kill).
+
+    Key difference from L2RagAction (DOE-022):
+    - L2RagAction: query -> tactic name -> tactic_to_action() -> single action (REPLACES L1)
+    - L2MetaStrategyAction: query -> strategy name -> delegate to L1 function (PRESERVES L1)
+
+    Query caching: re-evaluates strategy every QUERY_INTERVAL ticks (default 35 = 1/sec).
+    Fallback: burst_3 when no documents match or OpenSearch unavailable.
+    """
+    QUERY_INTERVAL = 35  # Re-evaluate strategy once per second (35 fps)
+
+    def __init__(self, opensearch_url="http://opensearch:9200", index_name="strategies_meta", k=5):
+        self.opensearch_url = opensearch_url
+        self.index_name = index_name
+        self.k = k
+        self.weights = {"similarity": 0.4, "confidence": 0.4, "recency": 0.2}
+
+        # L1 strategy delegates
+        self.strategies = {
+            "burst_3": Burst3Action(),
+            "adaptive_kill": AdaptiveKillAction(),
+        }
+        self.current_strategy = "burst_3"  # default fallback
+        self._tick = 0
+
+        # Metrics tracking
+        self.l2_query_count = 0
+        self.l2_strategy_switches = 0
+        self.strategy_ticks = {"burst_3": 0, "adaptive_kill": 0}
+        self.l2_latencies = []
+
+    def reset(self, seed=0):
+        """Reset state between episodes."""
+        self._tick = 0
+        self.current_strategy = "burst_3"
+        self.l2_query_count = 0
+        self.l2_strategy_switches = 0
+        self.strategy_ticks = {"burst_3": 0, "adaptive_kill": 0}
+        self.l2_latencies = []
+        # Reset L1 strategies
+        for s in self.strategies.values():
+            s.reset(seed)
+
+    def derive_situation_tags(self, state):
+        """Derive situation tags from game state. Extended from DOE-022 with kill-based tags."""
+        tags = []
+        if state.health < 30:
+            tags.append("low_health")
+        elif state.health >= 80:
+            tags.append("full_health")
+        if state.ammo < 10:
+            tags.append("low_ammo")
+        elif state.ammo >= 50:
+            tags.append("ammo_abundant")
+        if state.enemies_visible >= 3:
+            tags.append("multi_enemy")
+        elif state.enemies_visible == 1:
+            tags.append("single_enemy")
+        # NEW for DOE-024: kill-based context
+        if state.kills >= 10:
+            tags.append("high_kills")
+        elif state.kills < 5:
+            tags.append("low_kills")
+        return tags
+
+    def query_opensearch(self, tags):
+        """Execute OpenSearch term-match query. Returns list of docs or empty list."""
+        import json
+        import time
+        import urllib.request
+        import urllib.error
+
+        query_body = {
+            "size": self.k,
+            "query": {
+                "bool": {
+                    "should": [{"term": {"situation_tags": tag}} for tag in tags],
+                    "minimum_should_match": 1,
+                    "filter": [
+                        {"term": {"metadata.retired": False}},
+                        {"range": {"quality.trust_score": {"gte": 0.3}}}
+                    ]
+                }
+            }
+        }
+
+        url = f"{self.opensearch_url}/{self.index_name}/_search"
+        data = json.dumps(query_body).encode("utf-8")
+
+        start = time.monotonic()
+        try:
+            req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=0.08) as resp:
+                result = json.loads(resp.read())
+        except Exception:
+            return []
+        finally:
+            elapsed_ms = (time.monotonic() - start) * 1000
+            self.l2_latencies.append(elapsed_ms)
+
+        hits = result.get("hits", {}).get("hits", [])
+        docs = []
+        for hit in hits:
+            source = hit.get("_source", {})
+            score = hit.get("_score", 0.0)
+            docs.append({
+                "doc_id": source.get("doc_id", ""),
+                "situation_tags": source.get("situation_tags", []),
+                "decision": source.get("decision", {}),
+                "quality": source.get("quality", {}),
+                "similarity": min(score / self.k, 1.0),
+                "confidence": source.get("quality", {}).get("trust_score", 0.5),
+                "recency": 0.8,
+            })
+        return docs
+
+    def score_document(self, doc):
+        """Score document: similarity*0.4 + confidence*0.4 + recency*0.2"""
+        return (
+            self.weights["similarity"] * doc.get("similarity", 0)
+            + self.weights["confidence"] * doc.get("confidence", 0)
+            + self.weights["recency"] * doc.get("recency", 0)
+        )
+
+    def _update_strategy(self, state):
+        """Query OpenSearch and update current strategy selection."""
+        tags = self.derive_situation_tags(state)
+        if not tags:
+            return
+
+        docs = self.query_opensearch(tags)
+        self.l2_query_count += 1
+
+        if docs:
+            best = max(docs, key=self.score_document)
+            strategy_name = best.get("decision", {}).get("strategy", "burst_3")
+            if strategy_name in self.strategies and strategy_name != self.current_strategy:
+                self.l2_strategy_switches += 1
+                self.current_strategy = strategy_name
+
+    def __call__(self, state):
+        """Full L0 + L2-meta + L1-delegate cascade."""
+        self._tick += 1
+
+        # Track strategy distribution
+        self.strategy_ticks[self.current_strategy] = self.strategy_ticks.get(self.current_strategy, 0) + 1
+
+        # L2: Re-evaluate strategy every QUERY_INTERVAL ticks
+        if self._tick % self.QUERY_INTERVAL == 0:
+            self._update_strategy(state)
+
+        # Delegate to selected L1 strategy (preserves full L1 pattern)
+        return self.strategies[self.current_strategy](state)
+
+
+class RandomSelectAction:
+    """Random strategy selector (noise baseline) for DOE-024.
+
+    Each tick, randomly selects burst_3 or adaptive_kill
+    with equal probability. No game-state awareness.
+    """
+
+    def __init__(self):
+        self._rng = None
+        self.strategies = {
+            "burst_3": Burst3Action(),
+            "adaptive_kill": AdaptiveKillAction(),
+        }
+        self.strategy_ticks = {"burst_3": 0, "adaptive_kill": 0}
+
+    def reset(self, seed=0):
+        self._rng = random.Random(hash(seed))
+        self.strategy_ticks = {"burst_3": 0, "adaptive_kill": 0}
+        for s in self.strategies.values():
+            s.reset(seed)
+
+    def __call__(self, state):
+        if self._rng is None:
+            self._rng = random.Random(42)
+        choice = self._rng.choice(["burst_3", "adaptive_kill"])
+        self.strategy_ticks[choice] = self.strategy_ticks.get(choice, 0) + 1
+        return self.strategies[choice](state)

@@ -892,3 +892,43 @@ DOE-001 through DOE-020 established the Phase 1 foundation: 13 experiments on de
 2. Execute DOE-022 (L2 RAG pipeline) — requires infrastructure: strategy doc generation, embedding, OpenSearch indexing
 3. Execute DOE-023 (cross-scenario) — requires VizDoom scenario variant configuration
 4. Test information-theoretic predictions P-001 through P-005 when action space expansion is implemented
+
+---
+
+## 2026-02-09 — DOE-024: L2 Meta-Strategy Selection via RAG (REJECTED)
+
+### Context
+DOE-022 showed L2 RAG failed due to coarse tactic→action mapping. DOE-024 redesigned L2 as meta-strategy selector: queries OpenSearch to choose which L1 strategy (burst_3 or adaptive_kill) to delegate to, based on situation tags. DOE-023 showed strategy rankings change with difficulty, creating a theoretical opportunity for context-dependent selection.
+
+### Hypothesis
+H-027: L2 RAG meta-strategy selection outperforms fixed strategies across difficulty levels.
+Priority: High
+Rationale: Core thesis validation — does RAG document quality affect agent performance?
+
+### Design
+DOE type: 4×3 full factorial
+Factors:
+  - decision_mode: [fixed_burst3, fixed_adaptive_kill, L2_meta_select, random_select]
+  - doom_skill: [1 (Easy), 3 (Normal), 5 (Nightmare)]
+Sample size: 30 episodes per cell, 360 total
+Seeds: seed_i = 40001 + i × 103, i=0..29
+
+### Result
+[STAT:p=0.3925] [STAT:f=F(3,348)=1.001] [STAT:eta2=partial η²=0.009]
+decision_mode NOT significant for kills, survival, or kill_rate main effect.
+Interaction significant for kill_rate only [STAT:p=0.0056] [STAT:eta2=partial η²=0.051]
+Conclusion: H-027 REJECTED. L2 meta-strategy adds no measurable benefit.
+Trust level: HIGH
+
+### Key Findings
+- F-057: L2 meta-strategy no main effect on kills (p=0.39)
+- F-058: doom_skill dominates (η²=0.789 kills, 0.827 survival)
+- F-059: Significant kill_rate interaction (p=0.006) — strategy rankings change by difficulty
+- F-060: Implementation bottleneck — Nightmare episodes too short for context accumulation
+- F-061: Core thesis (Agent Skill = DocQuality × ScoringAccuracy) remains unvalidated after 2 L2 experiments
+
+### Next Steps
+- Core thesis needs fundamental revision or different experimental approach
+- Consider embedding-based retrieval instead of tag matching
+- Consider longer episodes or scenarios with more strategic depth
+- 3-action space may be inherently too constrained for RAG differentiation

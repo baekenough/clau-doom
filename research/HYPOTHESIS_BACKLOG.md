@@ -19,6 +19,7 @@
 **Date Added**: 2026-02-07
 **Update 2026-02-09**: DOE-022 (L2 RAG Pipeline Activation) will directly test this hypothesis by comparing L0_L1_L2_good vs L0_L1_L2_random conditions.
 
+
 ### H-015: Expanded Action Space (Turn+Strafe) Enables Strategy Differentiation [PARTIALLY REJECTED]
 **Statement**: When both turning (aim) and strafing (dodge) actions are available in defend_the_line, structured strategies will outperform random selection, unlike with the turn-only 3-action space where random is near-optimal.
 **Rationale**: With only 3 actions (turn_left, turn_right, attack), random selection achieves ~43 kr because turning is inherently a scanning mechanism where random is near-optimal (F-018). With 5 actions (add move_left, move_right for strafing), random wastes ~40% of ticks on movement instead of attack/turn, while intelligent strategies can separate aiming (turn) from dodging (strafe) and attack timing. The extra degrees of freedom should create separable performance tiers.
@@ -250,6 +251,13 @@
 **Linked Experiment**: DOE-020
 
 ## Rejected Hypotheses
+
+### H-027: L2 RAG Meta-Strategy Selection Outperforms Fixed Strategies [REJECTED]
+**Statement**: L2 RAG meta-strategy selection, which queries OpenSearch to dynamically choose between L1 strategies based on game-state context, outperforms fixed single-strategy baselines across difficulty levels.
+**Evidence**: DOE-024, RPT-024, F-057
+**Reason**: decision_mode NOT significant for kills (p=0.3925, η²=0.009), survival (p=0.9314), or kill_rate main effect (p=0.4117). All planned contrasts ns. Cohen's d < 0.12 (negligible).
+**Trust**: HIGH (n=360, non-parametric confirms)
+**Date Rejected**: 2026-02-09
 
 ### H-025: L2 kNN Strategy Retrieval Provides Performance Improvement [REJECTED]
 **Statement**: Adding L2 OpenSearch strategy document retrieval to the L0+L1 architecture will improve kill performance.

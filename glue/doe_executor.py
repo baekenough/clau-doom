@@ -1097,9 +1097,11 @@ def execute_experiment(config: ExperimentConfig) -> None:
         GenomeAction,
         L0MemoryAction,
         L0StrengthAction,
+        L2MetaStrategyAction,
         L2RagAction,
         Random5Action,
         Random7Action,
+        RandomSelectAction,
         Smart5Action,
         StrafeBurst3Action,
         SweepLRAction,
@@ -1281,6 +1283,14 @@ def execute_experiment(config: ExperimentConfig) -> None:
                     index_name="strategies_low",
                     k=5,
                 )
+            elif run.action_type == "l2_meta_select":
+                action_fn = L2MetaStrategyAction(
+                    opensearch_url="http://opensearch:9200",
+                    index_name="strategies_meta",
+                    k=5,
+                )
+            elif run.action_type == "random_select":
+                action_fn = RandomSelectAction()
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1510,6 +1520,71 @@ def build_doe023_config(db_path=None):
     )
 
 
+def build_doe024_config(db_path=None):
+    """Build config for DOE-024: L2 Meta-Strategy Selection via RAG.
+
+    Tests whether L2 RAG as a meta-strategy selector (choosing which L1
+    strategy to delegate to based on game-state context) outperforms
+    fixed single-strategy performance across difficulty levels.
+
+    Factors:
+        decision_mode: [fixed_burst3, fixed_adaptive_kill, L2_meta_select, random_select]
+        doom_skill: [1 (Easy), 3 (Normal), 5 (Nightmare)]
+
+    Design: 4x3 full factorial, 30 episodes/cell, 360 total
+    Seeds: seed_i = 40001 + i * 103, i=0..29
+    """
+    seeds = [40001 + i * 103 for i in range(30)]
+    exp_id = "DOE-024"
+
+    decision_modes = [
+        ("fixed_burst3", "burst_3"),
+        ("fixed_adaptive_kill", "adaptive_kill"),
+        ("L2_meta_select", "l2_meta_select"),
+        ("random_select", "random_select"),
+    ]
+    skill_levels = [
+        (1, "easy"),
+        (3, "normal"),
+        (5, "nightmare"),
+    ]
+
+    runs = []
+    run_num = 1
+    for skill, skill_label in skill_levels:
+        for mode_name, action_type in decision_modes:
+            condition = f"skill_{skill_label}_{mode_name}"
+            runs.append(
+                RunConfig(
+                    run_id=f"{exp_id}-R{run_num:02d}",
+                    run_label=f"R{run_num:02d}",
+                    memory_weight=0.0,
+                    strength_weight=0.0,
+                    seeds=list(seeds),
+                    condition=condition,
+                    run_type="factorial",
+                    action_type=action_type,
+                    scenario="defend_the_line.cfg",
+                    doom_skill=skill,
+                )
+            )
+            run_num += 1
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20240224)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 40001 + i * 103, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1534,6 +1609,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-021": build_doe021_config,
     "DOE-022": build_doe022_config,
     "DOE-023": build_doe023_config,
+    "DOE-024": build_doe024_config,
 }
 
 
