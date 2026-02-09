@@ -4,7 +4,7 @@
 
 **¹Affiliation**: [To be added]
 
-**Abstract**: We apply Design of Experiments (DOE) methodology --- factorial designs, ANOVA with residual diagnostics, and effect size quantification --- to systematically optimize FPS game agents in VizDoom's \texttt{defend\_the\_line} scenario. Across 29 experiments totaling 5,010 episodes, we test the hypothesis that a multi-level RAG architecture improves agent performance through document quality and scoring accuracy. Three independent experiments falsify this hypothesis: $F(3,116)=28.05$ with L2 conditions indistinguishable from L0 baselines ($p=0.929$, DOE-022), decision mode producing no effect on kills ($p=0.393$, DOE-024), and RAG selection indistinguishable from fixed strategies ($p=0.935$, DOE-026). Instead, we discover that lateral movement is the sole performance determinant ($F(1,116)=58.40$, $p<0.001$, $\eta_p^2=0.332$, Cohen's $d=1.408$), with all tactical variations --- attack ratio, temporal structure, health override, and strategy selection --- producing null effects. We identify rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$, within movement class) as a fundamental environment constraint explaining why tactical optimization is futile. Our 83 statistically rigorous findings demonstrate that systematic DOE methodology reveals structural constraints that ad-hoc reinforcement learning tuning would likely miss, and that negative results carry substantial value for the game AI community.
+**Abstract**: We apply Design of Experiments (DOE) methodology --- factorial designs, ANOVA with residual diagnostics, and effect size quantification --- to systematically optimize FPS game agents in VizDoom's \texttt{defend\_the\_line} scenario. Across 29 experiments totaling 5,010 episodes, we test the hypothesis that a multi-level RAG architecture improves agent performance through document quality and scoring accuracy. Three independent experiments falsify this hypothesis: L2 retrieval conditions indistinguishable from L0 baselines ($p=0.929$, DOE-022), decision mode producing no effect on kills ($p=0.393$, DOE-024), and RAG selection indistinguishable from fixed strategies ($p=0.935$, DOE-026). Instead, we discover that lateral movement is the sole performance determinant ($F(1,116)=58.40$, $p<0.001$, $\eta_p^2=0.332$, Cohen's $d=1.408$), with all tactical variations --- attack ratio, temporal structure, health override, and strategy selection --- producing null effects. We identify rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$, within movement class) as a fundamental environment constraint explaining why tactical optimization is futile. Our 83 statistically rigorous findings demonstrate that systematic DOE methodology reveals structural constraints that ad-hoc reinforcement learning tuning would likely miss, and that negative results carry substantial value for the game AI community.
 
 ---
 
@@ -57,7 +57,7 @@ Through 29 systematic experiments spanning 5,010 episodes, we discovered that th
 
 3. **Rate-time compensation as a fundamental constraint.** We discover that within a movement class (movers or non-movers), total kills are governed by the relationship $\text{kills} \approx k_r \times t_{\text{surv}}$, where the kill rate $k_r$ remains approximately constant regardless of tactical decisions. Agents that attack less frequently survive longer but kill at the same rate per unit time, yielding the same total kills. This compensation mechanism explains why all tactical variations are futile.
 
-4. **Environment dominance over architecture.** Variance decomposition across all experiments reveals that environmental difficulty (\texttt{doom\_skill}) explains 49\% of kill variance, movement explains 33\%, and all agent architectural parameters collectively explain less than 5\%. The remaining variance is attributable to stochastic episode variation.
+4. **Environment dominance over architecture.** Variance decomposition across all experiments reveals that environmental difficulty (\texttt{doom\_skill}) explains 72\% of kill variance ($\eta_p^2 = 0.720$, DOE-023), movement explains 33\%, and all agent architectural parameters collectively explain less than 5\%.
 
 ### 1.5 Contributions
 
@@ -190,7 +190,7 @@ We present results across four phases spanning 29 DOEs and 5,010 total episodes.
 
 We tested the central hypothesis---that L2 RAG strategy retrieval improves agent performance---through three independent experiments spanning two action spaces and three retrieval implementations.
 
-**DOE-022: L2 with coarse action mapping.** A $3 \times 2$ factorial design (decision mode $\times$ doom\_skill) tested L2 retrieval with direct tactic-to-action mapping across four document quality levels. Decision mode had no effect on kills: $F(2,174) = 0.268$, $p = 0.765$, $\eta^2 = 0.003$. Furthermore, high-quality and low-quality strategy documents produced *perfectly identical* episode outcomes (30/30 episodes matched; $d = 0.000$; F-050). The coarse 3-action mapping collapses all tactical distinctions into the same action distribution: nearly all tactics map to ATTACK regardless of document content.
+**DOE-022: L2 with coarse action mapping.** A one-way four-condition design tested hierarchical architecture variants in the 3-action space: L0 only (pure reflex), L0+L1 (\texttt{burst\_3} periodic pattern), L0+L1+L2 with high-quality RAG documents, and L0+L1+L2 with low-quality documents ($n=30$ per condition, $N=120$). The overall ANOVA was highly significant ($F(3,116) = 28.05$, $p < 0.001$, $\eta^2 = 0.42$), driven entirely by the \texttt{burst\_3} strategy outperforming all others. Critically, L2 retrieval provided no benefit over the L0 baseline: L2\_good vs.\ L0\_only yielded $p = 0.929$, $d = 0.189$ (F-049). Furthermore, high-quality and low-quality strategy documents produced *perfectly identical* episode outcomes (30/30 episodes matched; $d = 0.000$; F-050). The coarse 3-action tactic mapping collapses all strategic distinctions into the same action distribution: nearly all tactics map to ATTACK regardless of document content.
 
 **DOE-024: L2 meta-strategy selection.** A $4 \times 3$ factorial design tested a refined L2 implementation that selects between pre-validated strategies (\texttt{burst\_3} vs.\ \texttt{adaptive\_kill}) based on situation tags (health, ammo, kill count). Decision mode showed no effect: $F(3,348) = 1.001$, $p = 0.393$, $\eta^2 = 0.009$. All planned contrasts were non-significant (all $p > 0.4$, all $d < 0.12$). The pre-filtered strategy pool eliminates selection value: when all candidate strategies perform equivalently (F-035), choosing between them provides no advantage (F-057).
 
@@ -220,7 +220,7 @@ The final experiment tests whether movement---the one factor that varies *betwee
 
 **Design.** A $2^2$ full factorial design crossed action pattern (random\_50: 50\% attack with strafing vs.\ pure\_attack: 100\% attack without strafing) with health override (emergency dodge when health $< 20$: enabled vs.\ disabled). Each cell contained 30 episodes ($N = 120$ total).
 
-**Movement effect (F-079).** Action pattern produced the largest effect in the entire 29-DOE program: $F(1,116) = 58.402$, $p < 0.001$, $\eta^2 = 0.332$, $d = 1.408$. Agents with movement achieved 15.25 $\pm$ 5.74 kills and 24.4s survival; agents without movement achieved 8.85 $\pm$ 2.99 kills and 15.3s survival. Kruskal-Wallis confirmed ($H(3) = 50.802$, $p < 0.001$).
+**Movement effect (F-079).** Action pattern produced the largest effect in the entire 29-DOE program: $F(1,116) = 58.402$, $p < 0.001$, $\eta^2 = 0.332$, $d = 1.408$. Agents with movement achieved 17.00 $\pm$ 6.57 kills and 24.4s survival; agents without movement achieved 9.95 $\pm$ 2.82 kills and 15.3s survival. Kruskal-Wallis confirmed ($H(3) = 50.802$, $p < 0.001$).
 
 **Health override null (F-080).** The emergency dodge mechanism had no effect: $F(1,116) = 0.784$, $p = 0.378$, $\eta^2 = 0.004$, $d = -0.134$. This confound was present in all DOE-025 through DOE-028 experiments; DOE-029 demonstrates it was irrelevant throughout.
 
@@ -287,7 +287,7 @@ To quantify the relative importance of each factor in the experimental program, 
 
 | Factor | $\eta^2$ | Source Experiment | Interpretation |
 |--------|----------|-------------------|----------------|
-| doom_skill (game difficulty) | 0.486 | DOE-023 ($n=360$) | 49% of variance |
+| doom_skill (game difficulty) | 0.720 | DOE-023 ($n=360$) | 72% of variance |
 | Movement presence | 0.332 | DOE-029 ($n=120$) | 33% of variance |
 | Strategy type (within class) | $<0.03$ | DOE-027/028 ($n=360$) | $<3$% of variance |
 | L2 RAG configuration | 0.001--0.006 | DOE-022/024/026 ($n=450$) | $<1$% of variance |
@@ -338,7 +338,7 @@ Our principal findings are:
 1. **Movement is the sole performance determinant** ($d=1.408$, $p<0.001$), producing a 65% kill advantage over non-moving agents through a survival bonus with negligible kill rate cost.
 2. **Rate-time compensation** constrains all tactical optimization within movement classes: kill rate and survival time trade off exactly, holding total kills constant ($r \times s \approx C_{\mathcal{M}}$).
 3. **The core RAG thesis is falsified** through three independent null results (DOE-022, DOE-024, DOE-026; $N=450$, all $p>0.39$), demonstrating that knowledge retrieval provides zero benefit in this domain.
-4. **Environment difficulty dominates** ($\eta^2=0.486$), explaining nearly half of all performance variance and dwarfing all agent architecture parameters combined.
+4. **Environment difficulty dominates** ($\eta^2=0.720$), explaining nearly three-quarters of all performance variance and dwarfing all agent architecture parameters combined.
 
 Our work demonstrates that DOE methodology reveals fundamental performance constraints that gradient-based optimization cannot discover. The rate-time compensation mechanism explains why tactical variations are irrelevant in simple FPS scenarios --- a structural insight that would be nearly impossible to derive from reinforcement learning alone. We recommend that game AI researchers apply DOE as a preliminary investigation tool before investing in complex architectures: in many scenarios, the architecture complexity budget is better spent on the single factor that matters most --- which, in VizDoom's defend_the_line, is simply whether the agent moves.
 

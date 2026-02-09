@@ -92,7 +92,7 @@ Through 29 systematic experiments, we discovered:
 1. **The hypothesis is false**: Three independent L2 RAG tests produce null results
 2. **Movement is dominant**: The sole meaningful factor is whether agents move
 3. **Rate-time compensation**: Fundamental constraint limiting tactical optimization
-4. **Environment over architecture**: doom_skill (environmental difficulty) explains 49% of variance; movement explains 33%; all agent parameters < 5%
+4. **Environment over architecture**: doom_skill (environmental difficulty) explains 72% of variance (η²=0.720); movement explains 33%; all agent parameters < 5%
 
 #### 1.4 Paper Roadmap
 
@@ -272,7 +272,7 @@ Systematic testing of base tactics:
   3. Environmental ceiling (fixed enemy spawn rate)
 
 **F-046 to F-051**: Environment constraints
-- **F-052**: doom_skill (environmental difficulty parameter) explains 49% of kill variance [STAT:η²=0.49], dominating all agent factors
+- **F-052**: doom_skill (environmental difficulty parameter) explains 72% of kill variance [STAT:η²=0.720], dominating all agent factors
 - **F-053 to F-051**: Agent parameters (memory, strength, curiosity) individually < 5% variance each
 
 ---

@@ -33,7 +33,7 @@ This table presents all 29 Design of Experiments (DOE) conducted across Phase 0 
 | 020 | 1e | OFAT (5 cond) | Best-of-breed tournament | 150 | burst_3 > adaptive > random | <0.001 | η²=0.199 | Multi-objective needed |
 | 021 | 2a | OFAT (6 cond) | Generational evolution | 180 | burst_3 globally optimal | <0.001 | η²=0.382 | Evolution converges Gen 2 |
 | 022 | 2a | 3×2 factorial | L2 RAG × doom_skill | 180 | L2 RAG null (1st) | 0.765 | η²=0.003 | First L2 failure |
-| 023 | 2a | 4×3 factorial | Strategy × difficulty | 360 | doom_skill dominant | <0.001 | η²=0.486 | Environment dominates |
+| 023 | 2a | 4×3 factorial | Strategy × difficulty | 360 | doom_skill dominant | <0.001 | η²=0.720 | Environment dominates |
 | 024 | 2b | 3×2 factorial | L2 meta-strategy × doom_skill | 180 | L2 null (2nd) | 0.598 | η²=0.006 | Second L2 failure |
 | 025 | 2b | OFAT (5 cond) | 5-action optimization | 150 | Strategy differentiates | <0.001 | η²=0.416 | Survival-first paradox |
 | 026 | 2b | OFAT (3 cond) | L2 RAG in 5-action | 90 | L2 null (3rd) → FALSIFIED | 0.954 | η²=0.001 | Core thesis falsified |
@@ -53,7 +53,7 @@ This table presents all 29 Design of Experiments (DOE) conducted across Phase 0 
   - Phase 2 (Optimization/Falsification): 9 DOEs, 1,770 episodes
 - **Significant Results (p < 0.05)**: 18 of 29 (62%)
 - **Null Results (p ≥ 0.05)**: 11 of 29 (38%)
-- **Largest Effect Size**: η²=0.486 (doom_skill in DOE-023)
+- **Largest Effect Size**: η²=0.720 (doom_skill in DOE-023)
 - **Smallest Non-Zero Effect**: η²=0.001 (L2 RAG in DOE-026)
 
 ### Key Milestones
@@ -192,16 +192,16 @@ This section presents the 20 most important findings from the 83 total findings 
 #### F-056: doom_skill Dominates All Agent Factors
 - **DOE Reference**: DOE-023
 - **Statistical Evidence**: p < 0.001
-- **Effect Size**: η² = 0.486 (49% of total variance)
+- **Effect Size**: η² = 0.720 (72% of total variance)
 - **Trust Level**: HIGH
-- **Interpretation**: Environmental difficulty (doom_skill) explains 49% of performance variance, dwarfing all agent design factors combined (~5%); environment dominates agent.
+- **Interpretation**: Environmental difficulty (doom_skill) explains 72% of performance variance, dwarfing all agent design factors combined (~5%); environment dominates agent.
 
 #### F-064: Strategy Differentiates (But Dominated)
 - **DOE Reference**: DOE-025
 - **Statistical Evidence**: p < 0.001
 - **Effect Size**: η² = 0.416
 - **Trust Level**: HIGH
-- **Interpretation**: Strategy selection shows largest agent-controlled effect when movement held constant; but still smaller than environmental factor (doom_skill: η² = 0.486).
+- **Interpretation**: Strategy selection shows largest agent-controlled effect when movement held constant; but still smaller than environmental factor (doom_skill: η² = 0.720).
 
 ### B.7 Parameter Irrelevance
 
@@ -250,7 +250,7 @@ This table shows the relative importance of different factors in explaining perf
 
 | Factor | η² Range | Typical η² | % Variance Explained | Experiments | Interpretation |
 |--------|----------|------------|---------------------|-------------|----------------|
-| **doom_skill (difficulty)** | 0.39-0.49 | 0.486 | **49%** | DOE-022, DOE-023, DOE-024 | Dominant environmental factor; enemy capability determines outcome far more than agent design |
+| **doom_skill (difficulty)** | 0.39-0.72 | 0.720 | **72%** | DOE-022, DOE-023, DOE-024 | Dominant environmental factor; enemy capability determines outcome far more than agent design |
 | **Movement presence** | 0.22-0.33 | 0.332 | **33%** | DOE-029 | Sole agent-controlled factor with substantial effect; all other architectural choices negligible |
 | **Strategy type (within movers)** | 0.01-0.07 | 0.03 | **3%** | DOE-012, DOE-013, DOE-014, DOE-028 | Minimal effect when movement present; tactical structure largely irrelevant |
 | **Architecture (L0/L1/L2)** | 0.12-0.27 | 0.15 | **15%** | DOE-008, DOE-010 | Modest effect driven entirely by L0_only deficit; L1=L2 (zero differentiation) |
@@ -262,7 +262,7 @@ This table shows the relative importance of different factors in explaining perf
 
 ### Key Insights
 
-1. **Environmental Dominance**: doom_skill (49%) exceeds all agent factors combined (~5-15%)
+1. **Environmental Dominance**: doom_skill (72%) exceeds all agent factors combined (~5-15%)
 2. **Movement Binary**: Presence/absence of movement (33%) is sole meaningful agent decision
 3. **Tactical Irrelevance**: Strategy type (3%), RAG (0.3%), parameters (<1%) all negligible
 4. **Hierarchy of Importance**: Environment >> Movement >> Architecture >> Strategy >> Parameters >> RAG
@@ -277,7 +277,7 @@ This table shows the relative importance of different factors in explaining perf
 
 ### Comparison to Prior Work
 
-Traditional RL approaches focus on policy optimization (equivalent to our "strategy" and "parameters" factors), which explain only ~4% of variance. Our systematic DOE reveals that **environmental factors (49%) and basic architectural decisions (33%) dominate**, suggesting prior work optimized negligible factors while ignoring dominant sources of variance.
+Traditional RL approaches focus on policy optimization (equivalent to our "strategy" and "parameters" factors), which explain only ~4% of variance. Our systematic DOE reveals that **environmental factors (72%) and basic architectural decisions (33%) dominate**, suggesting prior work optimized negligible factors while ignoring dominant sources of variance.
 
 ---
 
@@ -503,7 +503,7 @@ All experiments included:
    - Future work: Continuous movement gradient (0-100% strafe probability)
 
 3. **Why is doom_skill so dominant?**
-   - Environment explains 49% of variance (DOE-023)
+   - Environment explains 72% of variance (DOE-023)
    - Agent factors only ~5-15%
    - Future work: Reverse engineering enemy AI to understand dominance
 
