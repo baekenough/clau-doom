@@ -699,3 +699,69 @@ H-009: Memory-Strength trend continues beyond 0.7 toward 0.9 without diminishing
 3. If curvature detected: proceed to Phase 2 RSM (CCD centered on optimal)
 4. If linear continues: test boundary at [0.9, 1.0] or declare 0.9 as practical maximum
 5. In parallel, consider DOE-003 (layer ablation) to test H-005 (L0/L1/L2 individual contributions)
+
+---
+
+## 2026-02-09 — Phase 2 Analytical Work and Next-Generation Experiment Design
+
+### Context
+DOE-001 through DOE-020 established the Phase 1 foundation: 13 experiments on defend_the_line confirming burst_3 and adaptive_kill as top strategies, with random competitive and L0_only significantly worse. Phase 2 transitions from empirical exploration to theoretical analysis and next-generation experiments.
+
+### Analytical Deliverables
+
+#### TOPSIS Multi-Objective Analysis (Option A)
+- Full TOPSIS computation with 5 weight schemes applied to DOE-020 data
+- burst_3 ranked #1 across ALL weight schemes [STAT:C_i_avg=0.974]
+- Pareto front: only burst_3 and adaptive_kill non-dominated
+- Performance-robustness trade-off identified: burst_3 higher means, adaptive_kill lower CV
+- Findings: F-039 (burst_3 optimal), F-040 (performance-robustness trade-off), F-041 (3 strategies Pareto-dominated)
+- Document: research/analyses/TOPSIS_ANALYSIS_DOE020.md
+
+#### Information-Theoretic Analysis (Option C)
+- Shannon entropy analysis: H_max = 1.585 bits for 3-action space
+- Core insight: action space is information bottleneck limiting strategy differentiation
+- Three equalization forces identified: cooldown ceiling, displacement equivalence, enemy spatial uniformity
+- I(Strategy; Kill_Rate) ~ 0.082 bits across 5 experiments (< 0.2% channel utilization)
+- 5 testable predictions generated (P-001 through P-005)
+- Findings: F-042 (entropy != performance), F-043 (cooldown bottleneck), F-044 (MI bounded), F-045 (convergence zone)
+- Document: research/analyses/INFORMATION_THEORETIC_ANALYSIS.md
+
+### Experiment Designs
+
+#### DOE-021: Generational Evolution Gen 1 (Option B)
+- 8-parameter genome, 10 initial genomes (seeded from burst_3 and adaptive_kill)
+- TOPSIS-based fitness, crossover/mutation operators
+- 300 episodes (10 genomes x 30), seeds: 23001 + i*91
+- Tests H-025: evolution discovers superior strategies
+- Document: research/experiments/EXPERIMENT_ORDER_021.md
+
+#### DOE-022: L2 RAG Pipeline Activation (Option D)
+- 4 conditions: L0_only, L0_L1, L0_L1_L2_good, L0_L1_L2_random
+- First empirical test of OpenSearch kNN strategy retrieval
+- 120 episodes (4 x 30), seeds: 24001 + i*97
+- Tests H-005 (strategy doc quality) and new H-025 variant
+- Document: research/experiments/EXPERIMENT_ORDER_022.md
+
+#### DOE-023: Cross-Scenario Strategy Robustness (Option E)
+- 3x4 factorial split-plot: 3 scenario variants x 4 strategies
+- Scenarios: hard (2x monsters), close (reduced distance), slow (2x timeout)
+- 360 episodes (12 cells x 30), seeds: 25001 + i*101
+- Tests H-026: strategy generalization across scenarios
+- Document: research/experiments/EXPERIMENT_ORDER_023.md
+
+### New Hypotheses Generated
+- H-025: Generational evolution discovers superior strategies (DOE-021)
+- H-026: Top strategies generalize across scenario variants (DOE-023)
+- H-005 updated: DOE-022 directly tests L2 RAG pipeline
+
+### Summary Statistics
+- New findings adopted: F-039 through F-045 (7 findings)
+- New experiment orders: DOE-021, DOE-022, DOE-023 (780 planned episodes)
+- Cumulative episode budget: 3420 (completed) + 780 (planned) = 4200
+- Analysis documents: 2 new (TOPSIS, Information Theory)
+
+### Next Steps
+1. Execute DOE-021 (generational evolution) — requires TOPSIS fitness implementation
+2. Execute DOE-022 (L2 RAG pipeline) — requires infrastructure: strategy doc generation, embedding, OpenSearch indexing
+3. Execute DOE-023 (cross-scenario) — requires VizDoom scenario variant configuration
+4. Test information-theoretic predictions P-001 through P-005 when action space expansion is implemented

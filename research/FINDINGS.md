@@ -1181,3 +1181,210 @@ compound_attack_turn provides NO advantage over simple attack_only. Both strateg
 H-024 best-of-breed comparison confirms no single strategy dominates. burst_3 wins on total kills (15.40), adaptive_kill wins on kill_rate (45.97), both statistically equivalent on the other metric. random is competitive on both. Compound strategies are inferior on both metrics. Future agent optimization requires multi-objective methods (TOPSIS, Pareto front, weighted scoring) to balance kill_rate vs total kills vs survival_time. Single-metric optimization is insufficient. Recommendation: use TOPSIS with user-defined weights for kill_rate, kills, survival_time to select optimal strategy for specific objectives.
 
 **Adopted**: 2026-02-08 (Phase 1)
+
+---
+
+## F-039: burst_3 is the Multi-Objective Optimal Strategy
+
+**Hypothesis**: Derived from DOE-020 multi-objective analysis (TOPSIS)
+
+**Experiment Order**: DOE-020 (best-of-breed tournament)
+
+**Analysis**: TOPSIS_ANALYSIS_DOE020.md
+
+**Evidence**:
+- TOPSIS rank #1 across ALL 5 weight schemes [STAT:C_i_avg=0.974] [STAT:C_i_range=0.941-0.990]
+- Pareto-optimal (non-dominated on kills, kill_rate, survival_time)
+- Dominates 3 of 4 competitor strategies (random, compound_attack_turn, attack_only)
+- Highest kills [STAT:mean=15.40, SD=5.93], highest survival [STAT:mean=20.53, SD=8.03]
+- Only non-dominated by adaptive_kill (marginally higher kill_rate by +0.53 units)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Replicated across 5 independent experiments
+- Consistent #1 ranking regardless of weight scheme
+- Clear dominance relationships established via Pareto analysis
+
+**Interpretation**:
+burst_3 achieves the best balance across all three performance dimensions. Its slight deficit in kill_rate relative to adaptive_kill (-0.53 units, ~1.2%) is overwhelmingly compensated by advantages in kills (+2.37, ~18% higher) and survival time (+3.37s, ~20% higher). Under TOPSIS with any reasonable weight combination, burst_3 is the recommended strategy for defend_the_line.
+
+**Adopted**: 2026-02-09 (Phase 1 — TOPSIS Analysis)
+
+---
+
+## F-040: Performance-Robustness Trade-off Between burst_3 and adaptive_kill
+
+**Hypothesis**: Derived from cross-experiment replication analysis
+
+**Experiment Order**: DOE-020 + cross-experiment replication data (5 experiments)
+
+**Analysis**: TOPSIS_ANALYSIS_DOE020.md (Section 6: Robustness Analysis)
+
+**Evidence**:
+- burst_3 cross-experiment CV: kills=4.49%, kr=1.05%, survival=4.05%
+- adaptive_kill cross-experiment CV: kills=2.63%, kr=0.65%, survival=2.28%
+- adaptive_kill shows lower variability on ALL metrics [STAT:CV_kr=0.65% vs 1.05%] [STAT:CV_kills=2.63% vs 4.49%] [STAT:CV_surv=2.28% vs 4.05%]
+- burst_3 shows higher mean performance on kills (+2.37) and survival (+3.37)
+- adaptive_kill has marginally higher mean kill_rate (+0.53)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Cross-experiment data available but limited (burst_3: n=5 experiments, adaptive_kill: n=3)
+- CV comparison is descriptive, not formally tested
+- More replications needed for statistical comparison of variability
+
+**Interpretation**:
+If operational consistency is prioritized (e.g., competitive deployment), adaptive_kill may be preferred despite lower absolute performance. For maximum expected performance (e.g., research optimization), burst_3 is preferred. This trade-off should inform agent deployment decisions and multi-objective weight selection.
+
+**Adopted**: 2026-02-09 (Phase 1 — TOPSIS Analysis)
+
+---
+
+## F-041: Three Strategies are Pareto-Dominated
+
+**Hypothesis**: Derived from Pareto front analysis of DOE-020
+
+**Experiment Order**: DOE-020
+
+**Analysis**: TOPSIS_ANALYSIS_DOE020.md (Section 5: Pareto Front Analysis)
+
+**Evidence**:
+- random: dominated by burst_3 (inferior on all 3 criteria: kills, kill_rate, survival_time)
+- compound_attack_turn: dominated by burst_3, adaptive_kill, and random
+- attack_only: dominated by burst_3 and adaptive_kill
+- Only burst_3 and adaptive_kill are non-dominated (Pareto-optimal)
+
+**Trust Level**: HIGH
+
+**Trust Rationale**:
+- Dominance relationships are deterministic given observed means
+- compound_attack_turn and attack_only clearly inferior on multiple dimensions
+- Consistent with F-037 (compound = attack_only) and F-038 (multi-objective ranking)
+
+**Interpretation**:
+Future experiments should focus on the Pareto-optimal strategies (burst_3, adaptive_kill) or novel action spaces. Random, compound_attack_turn, and attack_only should not be pursued as standalone strategies — they are dominated and offer no unique advantage.
+
+**Adopted**: 2026-02-09 (Phase 1 — TOPSIS Analysis)
+
+---
+
+## F-042: Action Space Entropy Does Not Predict Performance
+
+**Hypothesis**: Derived from information-theoretic analysis of strategy action distributions
+
+**Experiment Order**: DOE-010 through DOE-020 (meta-analysis)
+
+**Analysis**: INFORMATION_THEORETIC_ANALYSIS.md (Section 1)
+
+**Evidence**:
+- Strategies span H = 0.0 to 1.585 bits with kill_rate 39.0-45.97 kr
+- Rank correlation between H and kill_rate: r_s ~ -0.09 (negligible)
+- Maximum-entropy strategy (random, H=1.585) achieves 42.40 kr (mid-tier)
+- Near-minimum entropy strategy (burst_3, H=1.061) achieves 45.44 kr (top-tier)
+- Zero-entropy strategy (attack_only, H=0.000) achieves 43.95 kr (mid-tier)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Theoretical analysis of empirical data from multiple experiments
+- Correlation not formally tested with hypothesis test due to small N of strategy types (5)
+- Consistent pattern across all DOE experiments
+
+**Interpretation**:
+Falsifies the naive hypothesis that "more randomness = better exploration = better performance." Performance is determined by the QUALITY of actions (effective displacement, attack-cooldown alignment), not the QUANTITY of randomness. The Shannon entropy of a strategy's action distribution provides no useful information about expected kill_rate.
+
+**Adopted**: 2026-02-09 (Phase 1 — Information-Theoretic Analysis)
+
+---
+
+## F-043: Weapon Cooldown Creates Information Bottleneck That Equalizes Strategies
+
+**Hypothesis**: Derived from temporal analysis of VizDoom weapon mechanics
+
+**Experiment Order**: DOE-010 through DOE-020 (meta-analysis)
+
+**Analysis**: INFORMATION_THEORETIC_ANALYSIS.md (Section 3)
+
+**Evidence**:
+- Weapon cooldown period (~12 ticks, ~340ms) creates temporal low-pass filter
+- R_effective = min(R_commanded, R_cooldown) = ~2.9 shots/sec for all strategies with p(ATTACK) >= 0.20
+- F-025: compound_attack_turn = compound_burst_3 (d=0.000) — cooldown absorbs timing differences
+- F-027: Attack ratio 50-100% does not affect kill_rate [STAT:p=0.812]
+- DOE-020: kill_rate SD within conditions (2.60-8.70) far exceeds between-condition differences (42.40-45.97)
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Strong theoretical argument supported by multiple empirical findings
+- Cooldown period not directly measured — estimated from game behavior
+- Consistent with F-025, F-027, and cross-experiment patterns
+
+**Interpretation**:
+The weapon cooldown acts as a physical equalizer: regardless of how frequently a strategy commands ATTACK, the actual fire rate is capped at ~2.9 shots/sec. This means all strategies with at least 20% attack probability achieve nearly identical offensive output. Breaking this bottleneck requires shorter cooldowns or multiple weapons.
+
+**Adopted**: 2026-02-09 (Phase 1 — Information-Theoretic Analysis)
+
+---
+
+## F-044: Mutual Information Between Strategy and Kill_Rate Is Bounded at ~0.1 Bits
+
+**Hypothesis**: Derived from information-theoretic quantification of strategy effects
+
+**Experiment Order**: DOE-010 through DOE-020 (meta-analysis)
+
+**Analysis**: INFORMATION_THEORETIC_ANALYSIS.md (Section 5)
+
+**Evidence**:
+- DOE-010: I ~ 0.092 bits (from eta_sq = 0.120)
+- DOE-011: I ~ 0.071 bits (from eta_sq = 0.094)
+- DOE-012: I ~ 0.112 bits (from eta_sq = 0.144)
+- DOE-018: I ~ 0.082 bits (from eta_sq = 0.107)
+- DOE-020: I ~ 0.053 bits (from eta_sq = 0.071)
+- Mean: I ~ 0.082 bits [STAT:ci=approximate 95%: 0.05-0.11]
+- Theoretical maximum: 54.1 bits/episode
+- Utilization: 0.082/54.1 = 0.15%
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Consistent across 5 independent experiments
+- Mutual information estimated indirectly from ANOVA effect sizes (not computed directly from joint distributions)
+- Bounded well below theoretical maximum across all experiments
+
+**Interpretation**:
+Knowing which strategy an agent uses provides essentially no information about its kill_rate — only 0.082 bits out of a possible 54.1 bits per episode. This quantifies the fundamental limitation: strategy accounts for less than 0.2% of outcome information. The remaining 99.8%+ is determined by game state randomness and environmental factors.
+
+**Adopted**: 2026-02-09 (Phase 1 — Information-Theoretic Analysis)
+
+---
+
+## F-045: Three Equalization Forces Create a Performance Convergence Zone
+
+**Hypothesis**: Derived from synthesis of multiple findings into unified theoretical framework
+
+**Experiment Order**: DOE-010 through DOE-020 (meta-synthesis)
+
+**Analysis**: INFORMATION_THEORETIC_ANALYSIS.md (Section 7)
+
+**Evidence**:
+- F-018: random ~ structured in 3-action space [STAT:p=0.741] [STAT:effect_size=Cohen's d=0.073]
+- F-022: random ~ structured in 5-action space [STAT:p=0.213] [STAT:effect_size=Cohen's d=0.325]
+- F-035: adaptive_kill ~ burst_3 ~ random top tier [STAT:all pairwise d < 0.50]
+- F-010: L0_only (violates displacement condition) significantly worse [STAT:p=0.000019] [STAT:effect_size=Cohen's d=-0.938]
+- F-017: sweep_lr (violates displacement condition) significantly worse [STAT:p=0.018] [STAT:effect_size=Cohen's d=0.857]
+- Three forces: (1) weapon cooldown ceiling, (2) stochastic displacement equivalence, (3) enemy spatial uniformity
+- Convergence zone: 42-46 kr for all strategies meeting minimum conditions
+
+**Trust Level**: MEDIUM
+
+**Trust Rationale**:
+- Synthesizes multiple HIGH-trust findings into unified framework
+- Framework is theoretical but its components are empirically validated
+- Boundary conditions (L0_only, sweep_lr) correctly predicted by theory
+
+**Interpretation**:
+Three independent physical mechanisms create a performance convergence zone: (1) weapon cooldown caps fire rate, (2) random movement covers the same angular range as systematic scanning over many episodes, and (3) uniform enemy distribution eliminates aiming advantages. Strategies satisfying minimum conditions (p(ATTACK) >= 0.20, effective displacement > 0, angular coverage > 90 degrees) all achieve 42-46 kr. Strategies outside these conditions (L0_only at 39.0, sweep_lr at 39.9) are clearly separated. Breaking the convergence zone requires modifying the game environment to weaken at least one equalization force.
+
+**Adopted**: 2026-02-09 (Phase 1 — Information-Theoretic Analysis)

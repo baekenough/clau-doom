@@ -424,6 +424,9 @@ How many factors are you testing?
 | DOE-018 | One-way CRD | defend_the_line | 5 (adaptive strategies) | 150 | adaptive_kill achieves highest kill_rate (46.18 kr, p<0.000002) | COMPLETE |
 | DOE-019 | One-way CRD | defend_the_line | 5 (cross-validation) | 150 | L0_only worst across 3 experiments (3x replicated) | COMPLETE |
 | DOE-020 | One-way CRD | defend_the_line | 5 (best-of-breed) | 150 | burst_3 highest kills (15.40), compound ≈ attack_only (no advantage) | COMPLETE |
+| DOE-021 | One-way CRD | defend_the_line | 10 (evolution genomes) | 300 | Generational evolution Gen 1 with TOPSIS fitness | DESIGNED |
+| DOE-022 | One-way CRD | defend_the_line | 4 (L0/L1/L2 layers) | 120 | L2 RAG pipeline activation: L0_only, L0_L1, L0_L1_L2_good, L0_L1_L2_random | DESIGNED |
+| DOE-023 | 3x4 Split-Plot | defend_the_line variants | 12 (3 scenarios x 4 strategies) | 360 | Cross-scenario strategy robustness: hard, close, slow variants | DESIGNED |
 
 ---
 
@@ -432,6 +435,11 @@ How many factors are you testing?
 - DOE-002 combines H-006, H-007, H-008 into a single factorial, saving ~210 episodes vs separate OFAT + factorial (150 vs 90+90+180=360).
 - DOE-003 gates DOE-004 and DOE-005 via Decision Gate (Full Stack vs L0 Only).
 - DOE-005 provides confirmatory test for H-008 (DOE-002 is exploratory). If results conflict, DOE-005 takes precedence.
-- Total Phase 0/1 budget: **1050 episodes** across 5 experiments (DOE-001 through DOE-005).
+- Total Phase 0/1 budget: **3420 episodes** across 20 experiments (DOE-001 through DOE-020).
 - Episode reuse between S2-01 Baseline 2 (Rule-Only) and S2-02 Ablation 3 (L0 Only) saves ~70 episodes.
 - Shared seed sets enable cross-experiment comparisons.
+- DOE-021 tests H-025 (evolution discovers superior strategies) using 8-parameter genome with TOPSIS-based fitness. Seeds: 23001 + i*91.
+- DOE-022 tests H-005 (strategy document quality) via L2 RAG pipeline. First empirical test of OpenSearch kNN retrieval. Seeds: 24001 + i*97.
+- DOE-023 tests H-026 (strategy generalization) across 3 scenario variants. Split-plot design with scenario as whole-plot factor. Seeds: 25001 + i*101.
+- Total Phase 2 planned budget: **780 episodes** across 3 experiments (DOE-021 through DOE-023).
+- Cumulative budget (all phases): **4200 episodes** (3420 completed + 780 planned).

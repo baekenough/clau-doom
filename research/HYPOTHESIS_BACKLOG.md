@@ -15,8 +15,9 @@
 ### H-005: Strategy Document Quality Matters [MEDIUM PRIORITY]
 **Statement**: Higher quality strategy documents (higher confidence_tier) lead to better agent performance.
 **Rationale**: Validates the RAG curation pipeline importance. If document quality does not matter, the refinement pipeline is unnecessary overhead.
-**Status**: Queued (Phase 1, planned as DOE-003 layer ablation or DOE-004 doc quality)
+**Status**: Experiment ordered (DOE-022: L2 RAG Pipeline Activation)
 **Date Added**: 2026-02-07
+**Update 2026-02-09**: DOE-022 (L2 RAG Pipeline Activation) will directly test this hypothesis by comparing L0_L1_L2_good vs L0_L1_L2_random conditions.
 
 ### H-015: Expanded Action Space (Turn+Strafe) Enables Strategy Differentiation [PARTIALLY REJECTED]
 **Statement**: When both turning (aim) and strafing (dodge) actions are available in defend_the_line, structured strategies will outperform random selection, unlike with the turn-only 3-action space where random is near-optimal.
@@ -49,6 +50,18 @@
 **Date Added**: 2026-02-08
 **Linked Experiment**: DOE-010
 **Key Findings**: F-016 (replication), F-017 (oscillation≡stasis), F-018 (H-014 rejected), F-019 (displacement hierarchy)
+
+### H-025: Generational Evolution Discovers Superior Strategies [HIGH PRIORITY]
+**Statement**: Evolutionary optimization using TOPSIS-based fitness with crossover and mutation can discover agent configurations that outperform the current best individual strategies (burst_3, adaptive_kill) within 5 generations.
+**Rationale**: DOE-020 identified burst_3 and adaptive_kill as Pareto-optimal. Evolution can explore the space between and beyond these strategies by combining their genomes through crossover and mutation. If the performance convergence zone (F-045) is a true ceiling, evolution will confirm this by converging to existing optima. If room exists above the zone, evolution may find it.
+**Status**: Experiment ordered (DOE-021: Generational Evolution Gen 1)
+**Date Added**: 2026-02-09
+
+### H-026: Top Strategies Generalize Across Scenario Variants [MEDIUM PRIORITY]
+**Statement**: burst_3 and adaptive_kill maintain their relative performance rankings when tested across scenario perturbations (increased difficulty, closer engagement, longer episodes) on defend_the_line.
+**Rationale**: All 13 experiments (DOE-008 through DOE-020) used the default defend_the_line configuration. Strategy rankings may be overfit to this specific setup. Testing robustness across scenario variants addresses a fundamental external validity concern for the Phase 1 conclusions.
+**Status**: Experiment ordered (DOE-023: Cross-Scenario Strategy Robustness)
+**Date Added**: 2026-02-09
 
 ## Queued Hypotheses
 
