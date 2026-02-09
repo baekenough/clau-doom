@@ -1,6 +1,6 @@
 """Action selection functions for VizDoom defend_the_center/defend_the_line scenarios.
 
-Provides action strategies for DOE-007 through DOE-020 ablation levels:
+Provides action strategies for DOE-007 through DOE-021 ablation levels:
 1.  random_action -- uniform random choice (3-action space)
 2.  rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
 3.  L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
@@ -22,6 +22,7 @@ Provides action strategies for DOE-007 through DOE-020 ablation levels:
 19. ForwardAttackAction -- move forward while attacking (DOE-016)
 20. AdaptiveKillAction -- state-dependent adaptive strategy (DOE-018)
 21. AggressiveAdaptiveAction -- aggressive adaptive, dodge only at critical health (DOE-018)
+22. GenomeAction -- parameterized genome action for evolutionary experiments (DOE-021)
 """
 
 from __future__ import annotations
@@ -779,3 +780,161 @@ class AggressiveAdaptiveAction:
         if state.health < 15:
             return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
         return ACTION_ATTACK
+
+
+class GenomeAction:
+    """Parameterized genome action for evolutionary experiments (DOE-021+).
+
+    8-parameter genome controlling burst/turn cycle with optional adaptive switching.
+
+    Genome parameters:
+        burst_length: Number of consecutive ATTACK actions [1..7]
+        turn_direction: "random", "alternate", "sweep_left", "sweep_right"
+        turn_count: Number of consecutive TURN actions [1..3]
+        health_threshold_high: Above this health → defensive mode [0..100]
+        health_threshold_low: Below this health → aggressive mode [0..100]
+        stagnation_window: Ticks without kill → force turn [0..10], 0=disabled
+        attack_probability: Base probability of ATTACK vs TURN [0.5..1.0]
+        adaptive_enabled: Use state-dependent switching
+
+    Behavior when adaptive_enabled = False:
+        repeat forever:
+          for i in 1..burst_length:
+            action = ATTACK
+          for i in 1..turn_count:
+            action = TURN_{turn_direction}
+
+    Behavior when adaptive_enabled = True:
+        if health > health_threshold_high:
+          # Defensive: more turning for survivability
+          action = TURN with p = 1 - attack_probability
+          action = ATTACK with p = attack_probability
+        elif health < health_threshold_low:
+          # Aggressive: always ATTACK
+          action = ATTACK
+        else:
+          # Normal: burst cycle (same as non-adaptive)
+          for i in 1..burst_length: ATTACK
+          for i in 1..turn_count: TURN
+
+        if stagnation_window > 0 and ticks_since_last_kill >= stagnation_window:
+          action = TURN  # Force reorientation
+    """
+
+    def __init__(
+        self,
+        burst_length: int = 3,
+        turn_direction: str = "random",
+        turn_count: int = 1,
+        health_threshold_high: int = 0,
+        health_threshold_low: int = 0,
+        stagnation_window: int = 0,
+        attack_probability: float = 0.75,
+        adaptive_enabled: bool = False,
+    ) -> None:
+        # Genome parameters
+        self.burst_length = burst_length
+        self.turn_direction = turn_direction
+        self.turn_count = turn_count
+        self.health_threshold_high = health_threshold_high
+        self.health_threshold_low = health_threshold_low
+        self.stagnation_window = stagnation_window
+        self.attack_probability = attack_probability
+        self.adaptive_enabled = adaptive_enabled
+
+        # Internal state (cleared by reset())
+        self._rng: random.Random = random.Random(0)
+        self._tick: int = 0
+        self._last_kills: int = 0
+        self._stagnant_ticks: int = 0
+        self._turn_alternator: int = 0  # For "alternate" turn direction
+
+    def reset(self, seed: int = 0) -> None:
+        """Reset state between episodes.
+
+        Seeds the internal RNG with a hash of (seed, all genome params)
+        so that different genomes produce different action sequences.
+
+        Args:
+            seed: Episode seed (from DOE seed set).
+        """
+        # CRITICAL: hash includes all genome parameters so that different
+        # genomes get different RNG streams even with the same episode seed.
+        combined = hash((
+            seed,
+            self.burst_length,
+            self.turn_direction,
+            self.turn_count,
+            self.health_threshold_high,
+            self.health_threshold_low,
+            self.stagnation_window,
+            round(self.attack_probability, 4),
+            self.adaptive_enabled,
+        ))
+        self._rng = random.Random(combined)
+        self._tick = 0
+        self._last_kills = 0
+        self._stagnant_ticks = 0
+        self._turn_alternator = 0
+
+    def __call__(self, state: GameState) -> int:
+        # Track ticks and kills for stagnation detection
+        if self.adaptive_enabled and self.stagnation_window > 0:
+            if state.kills > self._last_kills:
+                self._last_kills = state.kills
+                self._stagnant_ticks = 0
+            else:
+                self._stagnant_ticks += 1
+
+        # --- L0 emergency rules (highest priority, deterministic) ---
+        if state.health < 20:
+            return ACTION_MOVE_LEFT
+        if state.ammo == 0:
+            return ACTION_MOVE_LEFT
+
+        # --- Stagnation override (adaptive mode only) ---
+        if (self.adaptive_enabled
+            and self.stagnation_window > 0
+            and self._stagnant_ticks >= self.stagnation_window):
+            self._stagnant_ticks = 0  # Reset counter
+            return self._get_turn_action()
+
+        # --- Adaptive switching logic ---
+        if self.adaptive_enabled:
+            if state.health > self.health_threshold_high:
+                # Defensive mode: mostly turning
+                if self._rng.random() < (1.0 - self.attack_probability):
+                    return self._get_turn_action()
+                else:
+                    return ACTION_ATTACK
+            elif state.health < self.health_threshold_low:
+                # Aggressive mode: always attack
+                return ACTION_ATTACK
+            # else: fall through to normal burst cycle
+
+        # --- Normal burst/turn cycle ---
+        cycle_length = self.burst_length + self.turn_count
+        cycle_pos = self._tick % cycle_length
+
+        self._tick += 1
+
+        if cycle_pos < self.burst_length:
+            return ACTION_ATTACK
+        else:
+            return self._get_turn_action()
+
+    def _get_turn_action(self) -> int:
+        """Get turn action based on turn_direction parameter."""
+        if self.turn_direction == "random":
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])
+        elif self.turn_direction == "alternate":
+            # Alternate between left and right
+            self._turn_alternator = 1 - self._turn_alternator
+            return ACTION_MOVE_LEFT if self._turn_alternator == 0 else ACTION_MOVE_RIGHT
+        elif self.turn_direction == "sweep_left":
+            return ACTION_MOVE_LEFT
+        elif self.turn_direction == "sweep_right":
+            return ACTION_MOVE_RIGHT
+        else:
+            # Fallback: random
+            return self._rng.choice([ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT])

@@ -44,9 +44,10 @@ class RunConfig:
     seeds: list[int]
     condition: str  # e.g., "memory=0.7_strength=0.7"
     run_type: str  # "factorial" or "center"
-    action_type: str = "full_agent"  # "random", "rule_only", "l0_memory", "l0_strength", "full_agent", "random_5", "strafe_burst_3", "smart_5"
+    action_type: str = "full_agent"  # "random", "rule_only", "l0_memory", "l0_strength", "full_agent", "random_5", "strafe_burst_3", "smart_5", "genome"
     scenario: str = "defend_the_line.cfg"  # Per-run scenario override (used by DOE-011)
     num_actions: int = 3  # Number of available actions (3 or 5)
+    genome_params: dict | None = None  # For genome-based action functions (DOE-021+)
 
 
 @dataclass
@@ -901,6 +902,112 @@ def build_doe020_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe021_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-021: Generational Evolution — Gen 1.
+
+    H-025: Generational evolution discovers strategies superior to DOE-020 best-of-breed.
+    10 genomes × 30 episodes = 300 episodes.
+    Seeds: seed_i = 23001 + i * 91, i=0..29
+    Randomized run order: R07, R03, R10, R05, R01, R09, R06, R02, R08, R04
+    """
+    # Corrected seed formula: seed_29 = 23001 + 29*91 = 25640
+    seeds = [23001 + i * 91 for i in range(30)]
+    exp_id = "DOE-021"
+
+    # Define all 10 genomes as RunConfigs
+    genome_definitions = [
+        # G01: burst_3 exact replica
+        ("R01", "G01_burst_3_base", {
+            "burst_length": 3, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.75, "adaptive_enabled": False
+        }),
+        # G02: burst_3 with alternating turns
+        ("R02", "G02_burst_3_sweep", {
+            "burst_length": 3, "turn_direction": "alternate", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.75, "adaptive_enabled": False
+        }),
+        # G03: adaptive_kill exact replica
+        ("R03", "G03_adaptive_base", {
+            "burst_length": 3, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 50, "health_threshold_low": 25,
+            "stagnation_window": 5, "attack_probability": 0.80, "adaptive_enabled": True
+        }),
+        # G04: adaptive_kill variant
+        ("R04", "G04_adaptive_tuned", {
+            "burst_length": 3, "turn_direction": "alternate", "turn_count": 1,
+            "health_threshold_high": 60, "health_threshold_low": 20,
+            "stagnation_window": 7, "attack_probability": 0.85, "adaptive_enabled": True
+        }),
+        # G05: crossover (burst_3 + adaptive switching)
+        ("R05", "G05_crossover_A", {
+            "burst_length": 3, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 50, "health_threshold_low": 25,
+            "stagnation_window": 5, "attack_probability": 0.75, "adaptive_enabled": True
+        }),
+        # G06: crossover (burst_3 + more scanning)
+        ("R06", "G06_crossover_B", {
+            "burst_length": 3, "turn_direction": "alternate", "turn_count": 2,
+            "health_threshold_high": 60, "health_threshold_low": 20,
+            "stagnation_window": 0, "attack_probability": 0.80, "adaptive_enabled": False
+        }),
+        # G07: burst_2 (faster scanning)
+        ("R07", "G07_burst_2", {
+            "burst_length": 2, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.70, "adaptive_enabled": False
+        }),
+        # G08: burst_5 (longer bursts)
+        ("R08", "G08_burst_5", {
+            "burst_length": 5, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.80, "adaptive_enabled": False
+        }),
+        # G09: aggressive (maximum burst)
+        ("R09", "G09_aggressive", {
+            "burst_length": 7, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.95, "adaptive_enabled": False
+        }),
+        # G10: random baseline
+        ("R10", "G10_random_baseline", {
+            "burst_length": 3, "turn_direction": "random", "turn_count": 1,
+            "health_threshold_high": 0, "health_threshold_low": 0,
+            "stagnation_window": 0, "attack_probability": 0.50, "adaptive_enabled": False
+        }),
+    ]
+
+    runs = []
+    for run_label, condition, genome_params in genome_definitions:
+        runs.append(RunConfig(
+            run_id=f"{exp_id}-{run_label}",
+            run_label=run_label,
+            memory_weight=0.0,  # Not used for genome action
+            strength_weight=0.0,  # Not used for genome action
+            seeds=list(seeds),
+            condition=condition,
+            run_type="factorial",
+            action_type="genome",
+            genome_params=genome_params,
+        ))
+
+    # Randomized run order: R07, R03, R10, R05, R01, R09, R06, R02, R08, R04
+    # Map run labels to indices in the runs list
+    run_order_map = {r.run_label: i for i, r in enumerate(runs)}
+    order = [run_order_map[label] for label in ["R07", "R03", "R10", "R05", "R01", "R09", "R06", "R02", "R08", "R04"]]
+    randomized_runs = [runs[i] for i in order]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=randomized_runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 23001 + i * 91, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment executor
 # ---------------------------------------------------------------------------
@@ -929,6 +1036,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         CompoundBurst3Action,
         ForwardAttackAction,
         FullAgentAction,
+        GenomeAction,
         L0MemoryAction,
         L0StrengthAction,
         Random5Action,
@@ -1095,6 +1203,8 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = AdaptiveKillAction()
             elif run.action_type == "aggressive_adaptive":
                 action_fn = AggressiveAdaptiveAction()
+            elif run.action_type == "genome":
+                action_fn = GenomeAction(**run.genome_params)
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1281,6 +1391,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-018": build_doe018_config,
     "DOE-019": build_doe019_config,
     "DOE-020": build_doe020_config,
+    "DOE-021": build_doe021_config,
 }
 
 
