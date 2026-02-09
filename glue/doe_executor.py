@@ -2319,6 +2319,299 @@ def build_doe032_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe033_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-033: Action Space × Movement Interaction (3×2 Factorial)
+
+    Tests whether optimal action space amplifies movement benefit.
+    Factor A: action_space (3, 5, 7)
+    Factor B: movement (present=ar_50, absent=attack_raw for 5/7; random vs attack_only for 3)
+
+    Design: 3×2 full factorial, 30 episodes/cell, 180 total
+    Randomized run order: R4, R1, R6, R2, R5, R3
+    """
+    seeds = [65001 + i * 157 for i in range(30)]
+    exp_id = "DOE-033"
+
+    runs = [
+        # Randomized order: R4, R1, R6, R2, R5, R3
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="5act_stat",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="3act_move",
+            run_type="factorial",
+            action_type="random",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R6",
+            run_label="R6",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="7act_stat",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_7action.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="3act_stat",
+            run_type="factorial",
+            action_type="attack_only",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="7act_move",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_7action.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="5act_move",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 65001 + i * 157, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe034_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-034: Exact Replication of DOE-008 (One-Way, 5 Levels)
+
+    Tests reproducibility: identical design, identical seeds as DOE-008.
+    Factor: action_strategy (5 levels) — same as DOE-008
+    Uses DOE-008 seed set for direct comparison.
+
+    Design: One-way ANOVA, 30 episodes/level, 150 total
+    Same run order as DOE-008
+    """
+    # Use EXACT same seed set as DOE-008 for replication
+    seeds = [42 + i * 97 for i in range(30)]
+    exp_id = "DOE-034"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_only",
+            run_type="one_way",
+            action_type="attack_only",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random",
+            run_type="one_way",
+            action_type="random",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_memory",
+            run_type="one_way",
+            action_type="l0_memory",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="L0_strength",
+            run_type="one_way",
+            action_type="l0_strength",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="full_agent",
+            run_type="one_way",
+            action_type="full_agent",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 42 + i * 97, i=0..29 (IDENTICAL to DOE-008)",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe035_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-035: Best-of-Breed Configuration Tournament (One-Way, 5 Levels)
+
+    Tests top configurations from Phase 2 against each other.
+    All use doom_skill=1 (easiest, most signal), 5-action space (optimal).
+
+    5 conditions:
+    1. random_5: baseline random in 5-action (F-066: competitive)
+    2. ar_50: 50% attack ratio with movement (Phase 2 standard movement)
+    3. burst_3_5act: burst pattern in 5-action space
+    4. survival_burst: DOE-025 winner (F-063: paradoxically optimal)
+    5. attack_raw: no movement control (stationary attacker)
+
+    Design: One-way ANOVA, 30 episodes/level, 150 total, doom_skill=1
+    """
+    seeds = [69001 + i * 163 for i in range(30)]
+    exp_id = "DOE-035"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_5",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_50",
+            run_type="one_way",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="burst_3",
+            run_type="one_way",
+            action_type="burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="survival_burst",
+            run_type="one_way",
+            action_type="survival_burst",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_raw",
+            run_type="one_way",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 69001 + i * 163, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 def execute_doe032(config: ExperimentConfig) -> None:
     """Special executor for DOE-032: Sequential Learning experiment.
 
@@ -2515,6 +2808,9 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-030": build_doe030_config,
     "DOE-031": build_doe031_config,
     "DOE-032": build_doe032_config,
+    "DOE-033": build_doe033_config,
+    "DOE-034": build_doe034_config,
+    "DOE-035": build_doe035_config,
 }
 
 

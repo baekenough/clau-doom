@@ -1,64 +1,64 @@
 # Research PI Memory
 
 ## Project State
-- **Current Phase**: Phase 2 (L2 Architecture Redesign / Meta-Strategy)
-- **Hypotheses**: 27 total (H-001 through H-027)
-- **Experiment Orders**: 24 written (DOE-001 through DOE-024)
-- **Findings**: 56 (F-001 through F-056)
-- **Total Episodes Executed**: ~3000+ (DOE-001 through DOE-023 complete)
-- **DOE-024**: ORDERED, 360 episodes pending (L2 meta-strategy selection)
+- **Current Phase**: Phase 2 (Generalizability Testing)
+- **Hypotheses**: 35 total (H-001 through H-035)
+- **Experiment Orders**: 32 written (DOE-001 through DOE-032)
+- **Findings**: 83 (F-001 through F-083)
+- **Total Episodes Executed**: 5010 (DOE-001 through DOE-029 complete)
+- **DOE-030/031/032**: ORDERED, 820 episodes pending
 
-## Active Research Thread: L2 Meta-Strategy Selection
-- DOE-022: L2 action-level selection FAILED (F-049, d=1.641 regression)
-- Root cause: tactic_to_action() too coarse, replaces burst_3 patterns with constant ATTACK
-- F-050: Document quality irrelevant under coarse mapping (d=0.000)
-- F-051: L1 periodic patterns MUST be preserved when adding L2
-- DOE-023: Strategy rankings change with difficulty (F-053, interaction p=6.02e-04)
-- **DOE-024 Fix**: L2 selects STRATEGY NAME (meta-level), delegates to L1 function (preserves patterns)
-- H-027: ACTIVE -- L2 meta-strategy selection vs fixed strategies across 3 difficulty levels
+## Active Research Thread: Generalizability Testing
+- DOE-030 (H-033): Movement x difficulty interaction, 2x5 factorial, 300 ep
+- DOE-031 (H-034): Action space dilution (3/5/7/9), one-way, 120 ep
+- DOE-032 (H-035): L1 sequential cache learning, 2x2 factorial, 400 ep
 
-## Key Phase 1 Results (DOE-008 through DOE-021)
-- burst_3 globally optimal in 3-action space (F-039, DOE-021 evolution confirmed F-046)
-- adaptive_kill: kill_rate champion but degrades at Nightmare (F-055)
-- L0_only: universally worst (F-034, 3x replication)
-- 3-action space ceiling: ~43 kr regardless of strategy (F-035)
-- doom_skill dominates kills variance at 72% (F-052)
-
-## DOE-023 Cross-Difficulty Rankings (Critical for DOE-024)
-- Easy: adaptive_kill (22.93) > random (19.73) > burst_3 (19.73) > L0_only (15.63)
-- Normal: random (13.73) > adaptive_kill (13.43) > burst_3 (12.17) > L0_only (9.57)
-- Nightmare: random (4.97) > burst_3 (4.43) > adaptive_kill (3.87) > L0_only (3.57)
-- Effect compression: strategy spread shrinks 5.2x from Easy to Nightmare (F-054)
+## Central Findings (29-DOE Summary)
+- F-079: Movement is SOLE performance determinant (d=1.408, largest in program)
+- F-070: RAG hypothesis FALSIFIED (triple null: DOE-022/024/026)
+- F-074: Rate-time compensation is fundamental environment constraint
+- F-077: Full tactical invariance in 5-action space
+- F-082/F-083: Compensation breaks at movement boundary
+- F-052: doom_skill explains 72% of kills variance
+- F-054: Effect compression 5.2x from Easy to Nightmare
 
 ## Seed Set Information (Comprehensive)
 - DOE-001 through DOE-020: ranges [42, 23581]
-- DOE-021: [23001, 38104] (5 generations)
+- DOE-021: [23001, 38104]
 - DOE-022: [24001, 26814]
 - DOE-023: [25001, 27930]
-- DOE-024: [40001, 42988] (40001 + i*103, i=0..29)
-- Maximum seed used: 42988 (DOE-024)
+- DOE-024: [40001, 42988]
+- DOE-025: [45001, 48182] (45001 + i*107)
+- DOE-026: [50001, 53162] (50001 + i*109)
+- DOE-027: [47001, 50688] (47001 + i*127)
+- DOE-028: [48001, 51811] (48001 + i*131)
+- DOE-029: [49001, 52974] (49001 + i*137)
+- DOE-030: [53001, 57032] (53001 + i*139)
+- DOE-031: [57101, 61422] (57101 + i*149)
+- DOE-032: [61501, 62977] (61501 + k*151 + i*13)
+- Maximum seed used: 62977 (DOE-032)
 - All ranges verified: zero cross-experiment collisions
 
-## Hypothesis Status Summary (Active)
-- H-005 (Doc quality): Tested by DOE-022, document quality irrelevant under coarse mapping
-- H-027 (L2 meta-strategy): ACTIVE -- DOE-024 ORDERED
-
-## Key L2 Architecture Lessons
-- L2 must NOT replace L1 patterns -- it must select which L1 to delegate to
-- tactic_to_action() mapping is fundamentally broken for 3-action space (most tactics -> ATTACK)
-- Document quality only matters when the action mapping has sufficient granularity
-- Meta-strategy selection (strategy name, not action) is the correct L2 abstraction level
-- Query caching (1 qps not 35 qps) essential for OpenSearch load management
-- Strategy switching has overhead cost -- must be infrequent (once/second max)
+## Key Architecture Lessons
+- L2 RAG fails at ALL tested levels (action, meta-strategy, 5-action context)
+- L1 sequential learning untested (DOE-032 will test)
+- Movement is the only lever; all tactical choices are noise
+- Rate-time compensation makes kill_rate invariant to strategy within movement class
+- defend_the_line is standard scenario; basic.cfg and deadly_corridor have floor effects
 
 ## Lessons Learned (Cumulative)
-- Real VizDoom kill_rate is zero-inflated and right-skewed; always plan non-parametric fallbacks
-- Performance is flat at ~42 kr regardless of strategy in 3-action space
-- defend_the_line is standard scenario (F-012); basic.cfg and deadly_corridor have floor effects
-- TURN_LEFT/TURN_RIGHT != MOVE_LEFT/MOVE_RIGHT -- always verify button mapping
-- Cross-experiment replication essential when measurement instruments change
+- VizDoom kill_rate is zero-inflated and right-skewed; always plan non-parametric fallbacks
 - Arithmetic seed sequences (base + i*step) reliable for avoiding collisions
 - Pivot faster when parameter optimization yields null results
-- L2 RAG at action level fails; L2 RAG at meta-strategy level is the corrective hypothesis
 - doom_skill parameter works for difficulty variation (no WAD editing needed)
 - Effect compression at high difficulty limits strategy differentiation absolute values
+- 7-action and 9-action .cfg files need to be created for DOE-031
+- DOE-032 requires careful L1 cache management (clear vs persist between episodes)
+- Sequence-level means (not individual episodes) are the unit of observation for learning experiments
+
+## Notes on DOE-032 Design
+- Unit of observation: sequence mean (N=40), not individual episode (N=400)
+- Mixed-effects model for learning slope uses all 400 episodes
+- Power is marginal for medium effects; primarily exploratory
+- If null: completes falsification narrative (neither L1 nor L2 learning helps)
+- If positive: redirects research toward L1 optimization (breakthrough)

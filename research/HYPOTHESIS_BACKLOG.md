@@ -147,6 +147,36 @@
 **Linked Experiment**: DOE-032
 **Design**: 2x2 factorial: l1_cache (on/off) x sequence_mode (sequential/independent), 10 sequences of 10 episodes per cell
 
+### H-036: Movement Benefit Amplified in Larger Action Spaces [SUPPORTED]
+**Statement**: The movement × action_space interaction is significant; movement Cohen's d increases with action space size because larger spaces include strafing (real evasion) while 3-action space has only turning (rotation).
+**Status**: SUPPORTED (DOE-033)
+**Evidence**: Interaction F(2,174)=11.38, p=2.26e-05. d gradient: 3-act=0.414(NS) → 5-act=1.442 → 7-act=1.780.
+**Trust**: MEDIUM-HIGH
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Linked Experiment**: DOE-033
+**Key Findings**: F-092, F-093, F-094
+
+### H-037: DOE-008 Results Replicate With Identical Seeds [PARTIALLY SUPPORTED]
+**Statement**: DOE-008 architectural ablation results replicate with identical seeds 26 experiments later.
+**Status**: PARTIALLY SUPPORTED (DOE-034)
+**Evidence**: Rank order perfectly preserved. Kruskal-Wallis p=0.017. But parametric ANOVA p=0.062 (marginal). Mean shift ~1-2 kills downward.
+**Trust**: MEDIUM
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Linked Experiment**: DOE-034
+**Key Findings**: F-095, F-096
+
+### H-038: Combined Optimal Factors Produce Synergistic Effects [PARTIALLY SUPPORTED]
+**Statement**: The best combined configuration (5-action + movement + doom_skill=1) produces synergistic performance.
+**Status**: PARTIALLY SUPPORTED (DOE-035)
+**Evidence**: F(4,145)=48.381, p=8.55e-26, η²=0.572. Top 3 movement strategies equivalent (~24-27 kills). burst_3 catastrophic failure in 5-action space. Movement binary creates two tiers.
+**Trust**: HIGH
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Linked Experiment**: DOE-035
+**Key Findings**: F-097, F-098, F-099, F-100
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

@@ -408,8 +408,11 @@ How many factors are you testing?
 | 2 — Difficulty Interaction | H-033 | DOE-030 | 300 (10 cells x 30 episodes) | 5310 |
 | 2 — Action Space Dilution | H-034 | DOE-031 | 120 (4 levels x 30 episodes) | 5430 |
 | 2 — Sequential Learning | H-035 | DOE-032 | 400 (4 cells x 10 sequences x 10 episodes) | 5830 |
-| 2 — RSM | TBD | TBD | 330-510 | 6160-6340 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 5190-5550+ |
+| 3 — Movement × Action Space Interaction | H-036 | DOE-033 | 180 (6 cells x 30 episodes) | 6010 |
+| 3 — DOE-008 Replication | H-037 | DOE-034 | 150 (5 levels x 30 episodes) | 6160 |
+| 3 — Best-of-Breed Tournament | H-038 | DOE-035 | 150 (5 levels x 30 episodes) | 6310 |
+| 2 — RSM | TBD | TBD | 330-510 | 6640-6820 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 7720-7900+ |
 
 ---
 
@@ -447,6 +450,9 @@ How many factors are you testing?
 | DOE-030 | 2×5 Full Factorial | defend_the_line_5action (doom_skill 1-5) | movement (2) × doom_skill (5) | 300 | H-033 PARTIALLY SUPPORTED: Movement x difficulty non-monotonic interaction (p=0.002, η²p=0.040). Movement universal d>0.9. VizDoom difficulty degeneracy (skills 2=3=4). F-084~F-086 | COMPLETE |
 | DOE-031 | One-Way ANOVA (4 levels) | defend_the_line (3/5/7/9 action) | action_space (3, 5, 7, 9 actions) | 120 | H-034 PARTIALLY SUPPORTED: Non-monotonic 5≈7>3>>9 (F=20.35, p<0.001, η²=0.345). 9-action harmful (d=1.506). F-087~F-089 | COMPLETE |
 | DOE-032 | 2×2 Factorial + Repeated Measures | defend_the_line_5action | l1_cache (2) × sequence_mode (2), 10-ep sequences | 400 | H-035 REJECTED: Complete null (all p≥0.624). No L1 cache mechanism exists. No sequential learning. F-090~F-091 | COMPLETE |
+| DOE-033 | 3×2 Full Factorial | defend_the_line (3/5/7 action) | action_space (3) × movement (2) | 180 | H-036 SUPPORTED: Movement × action space interaction (p=2.26e-05). Strafing drives movement benefit (d=0.4→1.4→1.8). Stationary invariant to action space. F-092~F-094 | COMPLETE |
+| DOE-034 | One-Way CRD (Replication) | defend_the_line | 5 architecture levels (identical to DOE-008) | 150 | H-037 PARTIALLY SUPPORTED: Rank order replicates perfectly. KW p=0.017. ANOVA p=0.062 (marginal). Mean shift ~1-2 kills. F-095~F-096 | COMPLETE |
+| DOE-035 | One-Way CRD (Tournament) | defend_the_line_5action (doom_skill=1) | 5 best strategies | 150 | H-038 PARTIALLY SUPPORTED: F=48.381, p=8.55e-26, η²=0.572. Top 3 movement strategies equivalent. burst_3 catastrophic in 5-action. Performance ceiling ~27 kills. F-097~F-100 | COMPLETE |
 
 ---
 

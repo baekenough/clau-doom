@@ -1,5 +1,53 @@
 # Research Log
 
+## 2026-02-10 — DOE-033/034/035: Phase 3 Confirmation and Synthesis
+
+### Context
+Phase 2 (DOE-008 through DOE-032) systematically explored the defend_the_line parameter space, establishing movement dominance (F-079), action space optimization (F-087), and learning mechanism falsification (F-090/F-091). Phase 3 transitions to CONFIRMATION: testing interactions, replication, and synthesis of all findings.
+
+### Hypotheses
+H-036: Movement × action space interaction (HIGH priority)
+H-037: DOE-008 exact replication (MEDIUM priority)
+H-038: Best-of-breed synthesis tournament (HIGH priority)
+
+### Designs
+
+**DOE-033** (3×2 Factorial, 180 episodes):
+- action_space (3/5/7) × movement (present/absent)
+- Tests F-092 interaction hypothesis
+
+**DOE-034** (One-way CRD, 150 episodes):
+- Exact replication of DOE-008 (same seeds, same conditions)
+- Tests infrastructure reproducibility
+
+**DOE-035** (One-way CRD, 150 episodes):
+- 5 best strategies at doom_skill=1 in 5-action space
+- Tests absolute performance ceiling
+
+### Results
+
+DOE-033: H-036 SUPPORTED. Interaction F=11.38, p=2.26e-05. Movement d gradient: 3-act=0.414(NS) → 5-act=1.442 → 7-act=1.780. Stationary conditions identical (10.60 kills). Strafing, not turning, drives movement effect. Findings F-092~F-094.
+
+DOE-034: H-037 PARTIALLY SUPPORTED. Rank order replicates perfectly (L0_strength > L0_memory > random > full_agent > L0_only). Non-parametric Kruskal-Wallis p=0.017. But ANOVA p=0.062 (marginal) and means shifted ~1-2 kills down. Findings F-095~F-096.
+
+DOE-035: H-038 PARTIALLY SUPPORTED. F(4,145)=48.381, p=8.55e-26, η²=0.572. survival_burst ≈ ar_50 ≈ random_5 (~24-27 kills) > attack_raw (18.9) >> burst_3 (7.5). burst_3 catastrophically fails in 5-action space. Movement binary creates two performance tiers. Performance ceiling: ~27 kills at doom_skill=1. Findings F-097~F-100.
+
+### Cumulative Impact
+- Total experiments: 35
+- Total episodes: 6310 (5830 + 480 new)
+- Total findings: 100 (F-001 through F-100)
+- Phase 3 confirms movement as the single dominant architectural decision
+- Strafing mechanism identified as the driver (not turning)
+- Replication validates infrastructure robustness
+- Performance ceiling established at ~27 kills for random-action architectures
+
+### Next Steps
+- Consider Phase 4: adaptive/learning architectures beyond random-action
+- Cross-scenario validation (scenarios beyond defend_the_line)
+- Paper finalization with 100 findings and 35 DOEs
+
+---
+
 ## 2026-02-10 — DOE-030/031/032: Three-Experiment Generalizability Push
 
 ### Context

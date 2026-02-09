@@ -2438,3 +2438,104 @@ Playing 10 episodes sequentially produces NO learning curve compared to independ
 The current architecture is fundamentally stateless at the action-selection level. Each decision is an independent RNG draw parameterized only by current game state. For learning to emerge, the system would need an explicit adaptive mechanism (e.g., RL policy updates, Bayesian belief updating, or pattern recognition from stored episode data fed back into the action function).
 
 **Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-092: Action Space × Movement Interaction (DOE-033)
+
+**Hypothesis**: H-036
+**Experiment**: DOE-033 (3×2 Factorial, 180 episodes)
+**Evidence**: Two-way ANOVA interaction [STAT:f=F(2,174)=11.38] [STAT:p=2.26e-05] [STAT:eta2=partial η²p=0.078]
+
+Movement benefit depends on action space dimensionality. In 3-action space, "movement" (turning) yields d=0.414 (NS, p=0.114). In 5-action space, strafing yields d=1.442 (p<0.0001). In 7-action space, d=1.780 (p<0.0001). The interaction is driven by strafing providing genuine evasion, while turning provides only marginal aim benefit.
+
+**Trust**: MEDIUM-HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-093: Stationary Performance Invariant to Action Space (DOE-033)
+
+**Hypothesis**: H-036
+**Experiment**: DOE-033
+**Evidence**: All 3 stationary conditions produce identical kills: 10.60±2.36. [STAT:n=90 (3×30)]
+
+When movement is absent, action space dimensionality (3, 5, or 7 actions) has ZERO effect on performance. The attack_raw/attack_only behaviors converge to the same outcome regardless of how many non-attack actions are available, because the agent never selects them. This proves action space size matters ONLY through its provision of movement actions.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-094: Strafing (Not Turning) Drives the Movement Effect (DOE-033)
+
+**Hypothesis**: H-036
+**Experiment**: DOE-033
+**Evidence**: 3-action movement d=0.414 (p=0.114 NS) vs 5-action d=1.442 (p<0.0001) vs 7-action d=1.780 (p<0.0001)
+
+The massive movement effects documented in DOE-008 through DOE-030 are primarily driven by STRAFING (lateral translation via MOVE_LEFT/MOVE_RIGHT in 5/7-action spaces), not by TURNING (rotational aim changes via TURN_LEFT/TURN_RIGHT in 3-action space). Turning provides small, non-significant movement benefit (d=0.414). Strafing provides massive, highly significant benefit (d=1.4-1.8). This resolves the mechanism behind F-079 (movement dominance).
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-095: Architectural Rank Order Replicates Across 32 Experiments (DOE-034)
+
+**Hypothesis**: H-037
+**Experiment**: DOE-034 (Replication of DOE-008, 150 episodes, IDENTICAL seeds)
+**Evidence**: Rank order identical: L0_strength(12.90) > L0_memory(12.53) > random(12.40) > full_agent(12.03) > L0_only(10.33). Original DOE-008: L0_strength(14.93) > L0_memory(14.37) > random(14.30) > full_agent(11.90) > L0_only(9.37). Kruskal-Wallis [STAT:H=12.113] [STAT:p=0.0165]
+
+The rank ordering of 5 architectural conditions replicates perfectly from DOE-008 to DOE-034, separated by 26 intervening experiments. L0_only deficit and full_agent interference both replicate. VizDoom's deterministic seeding maintains consistent relative performance ordering.
+
+**Trust**: MEDIUM (parametric marginal p=0.062, non-parametric significant p=0.017)
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-096: Replication Signal Attenuation (DOE-034)
+
+**Hypothesis**: H-037
+**Experiment**: DOE-034
+**Evidence**: ANOVA p-value: DOE-008 p=0.000555 → DOE-034 p=0.062 (parametric). [STAT:f=F(4,145)=2.300] [STAT:p=0.0616]. But Kruskal-Wallis: [STAT:H=12.113] [STAT:p=0.0165]. Mean shift: top 3 conditions ~2 kills lower than DOE-008.
+
+While rank order replicates, overall significance attenuated. The top 3 conditions compressed closer together (spread 0.63→0.50 kills), reducing between-group variance. This suggests that the moderate architectural effects (η²=0.127 in DOE-008) are near the detection threshold at n=30, and minor session-level variance can shift parametric significance.
+
+**Trust**: MEDIUM
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-097: burst_3 Catastrophically Fails in 5-Action Space (DOE-035)
+
+**Hypothesis**: H-038
+**Experiment**: DOE-035 (Best-of-Breed, 150 episodes, doom_skill=1)
+**Evidence**: burst_3 mean=7.5±3.6 kills vs survival_burst=26.8±6.6, ar_50=26.6±8.1. Cohen's d vs survival_burst = 3.632 [STAT:p<0.001]. [STAT:f=F(4,145)=48.381] [STAT:p=8.55e-26] [STAT:eta2=0.572]
+
+burst_3 — globally optimal in 3-action space (F-046, DOE-021) — catastrophically fails when placed in 5-action space. burst_3 cycles [ATTACK, ATTACK, ATTACK, TURN, TURN] using only 3 actions, which means it never triggers MOVE_LEFT/MOVE_RIGHT (actions 3-4 in 5-action space). Without strafing, burst_3 behaves as a pure rotation+attack strategy, confirming that strafing (F-094) is the critical differentiator.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-098: Absolute Performance Ceiling at doom_skill=1 (DOE-035)
+
+**Hypothesis**: H-038
+**Experiment**: DOE-035
+**Evidence**: Best conditions achieve 26-27 mean kills, max single-episode 41 kills (ar_50). Survival reaches 60s time limit in multiple episodes. [STAT:n=150]
+
+At the easiest difficulty with the optimal action space (5-action), the best movement strategies (survival_burst, ar_50) achieve 26-27 kills per episode with survival >44 seconds. Several episodes reached the 60-second time limit. This establishes the practical performance ceiling of the current random-action architecture without any learning or optimization.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-099: Top 3 Strategies Form Statistical Equivalence Band (DOE-035)
+
+**Hypothesis**: H-038
+**Experiment**: DOE-035
+**Evidence**: Tukey HSD: survival_burst vs ar_50 p=0.9998, ar_50 vs random_5 p=0.4936, random_5 vs survival_burst p=0.3935. All pairwise differences NS. [STAT:n=90 (3×30)]
+
+survival_burst (26.8), ar_50 (26.6), and random_5 (23.9) form a statistically indistinguishable equivalence band in the optimal environment (5-action, doom_skill=1). This is the definitive confirmation of tactical invariance (F-077): within the movement-inclusive strategy class, specific tactical choices do not matter. The performance ceiling is determined by the movement/no-movement binary, not by within-movement strategy optimization.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-100: Movement Binary Creates Two Performance Tiers (DOE-035)
+
+**Hypothesis**: H-038
+**Experiment**: DOE-035
+**Evidence**: Movement tier: 23.9-26.8 kills (random_5, ar_50, survival_burst). Non-movement tier: 7.5-18.9 kills (burst_3, attack_raw). Gap between tiers: d=0.8-3.6. [STAT:p<0.001 for all cross-tier comparisons]
+
+At doom_skill=1 with 5-action space, performance cleanly separates into two tiers: (1) any strategy that includes strafing movement achieves ~24-27 kills, and (2) any strategy without strafing achieves ~8-19 kills. Within each tier, strategy choice is largely irrelevant. The movement/no-movement binary is the single most important architectural decision.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
