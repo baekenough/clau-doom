@@ -29,6 +29,8 @@ Provides action strategies for DOE-007 through DOE-024 ablation levels:
 26. Adaptive5Action -- health-responsive adaptive strategy for 5-action space (DOE-025)
 27. DodgeBurst3Action -- 3 attacks + 2 strafes cycle for 5-action space (DOE-025)
 28. SurvivalBurstAction -- 2 attacks + 2 strafes + 1 turn cycle for 5-action space (DOE-025)
+29. L2MetaStrategy5Action -- L2 meta-strategy selector for 5-action space (DOE-026)
+30. RandomRotation5Action -- random rotation among 5-action strategies (DOE-026)
 """
 
 from __future__ import annotations
@@ -1445,3 +1447,189 @@ class RandomSelectAction:
         choice = self._rng.choice(["burst_3", "adaptive_kill"])
         self.strategy_ticks[choice] = self.strategy_ticks.get(choice, 0) + 1
         return self.strategies[choice](state)
+
+
+class L2MetaStrategy5Action:
+    """L2 meta-strategy selector for 5-action space (DOE-026).
+
+    Queries OpenSearch strategies_meta_5action index for situation-aware
+    strategy selection among top 5-action strategies from DOE-025.
+
+    Delegates to: survival_burst, random_5, dodge_burst_3.
+    Query interval: 35 ticks (1 second) — re-evaluates periodically.
+    Fallback: survival_burst (best from DOE-025).
+    """
+    QUERY_INTERVAL = 35
+
+    def __init__(self, opensearch_url="http://opensearch:9200", index_name="strategies_meta_5action", k=5):
+        self.opensearch_url = opensearch_url
+        self.index_name = index_name
+        self.k = k
+        self.weights = {"similarity": 0.4, "confidence": 0.4, "recency": 0.2}
+
+        self.strategies = {
+            "survival_burst": SurvivalBurstAction(),
+            "random_5": Random5Action(),
+            "dodge_burst_3": DodgeBurst3Action(),
+        }
+        self.current_strategy = "survival_burst"
+        self._tick = 0
+
+        self.l2_query_count = 0
+        self.l2_strategy_switches = 0
+        self.strategy_ticks = {"survival_burst": 0, "random_5": 0, "dodge_burst_3": 0}
+        self.l2_latencies = []
+
+    def reset(self, seed=0):
+        """Reset state between episodes."""
+        self._tick = 0
+        self.current_strategy = "survival_burst"
+        self.l2_query_count = 0
+        self.l2_strategy_switches = 0
+        self.strategy_ticks = {"survival_burst": 0, "random_5": 0, "dodge_burst_3": 0}
+        self.l2_latencies = []
+        for s in self.strategies.values():
+            s.reset(seed)
+
+    def derive_situation_tags(self, state):
+        """Derive situation tags from game state."""
+        tags = []
+        if state.health < 30:
+            tags.append("low_health")
+        elif state.health >= 80:
+            tags.append("full_health")
+        if state.ammo < 10:
+            tags.append("low_ammo")
+        elif state.ammo >= 50:
+            tags.append("ammo_abundant")
+        if state.enemies_visible >= 3:
+            tags.append("multi_enemy")
+        elif state.enemies_visible == 1:
+            tags.append("single_enemy")
+        return tags
+
+    def query_opensearch(self, tags):
+        """Execute OpenSearch term-match query."""
+        import json
+        import time
+        import urllib.request
+
+        query_body = {
+            "size": self.k,
+            "query": {
+                "bool": {
+                    "should": [{"term": {"situation_tags": tag}} for tag in tags],
+                    "minimum_should_match": 1,
+                    "filter": [
+                        {"term": {"metadata.retired": False}},
+                        {"range": {"quality.trust_score": {"gte": 0.3}}}
+                    ]
+                }
+            }
+        }
+
+        url = f"{self.opensearch_url}/{self.index_name}/_search"
+        data = json.dumps(query_body).encode("utf-8")
+
+        start = time.monotonic()
+        try:
+            req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=0.08) as resp:
+                result = json.loads(resp.read())
+        except Exception:
+            return []
+        finally:
+            elapsed_ms = (time.monotonic() - start) * 1000
+            self.l2_latencies.append(elapsed_ms)
+
+        hits = result.get("hits", {}).get("hits", [])
+        docs = []
+        for hit in hits:
+            source = hit.get("_source", {})
+            score = hit.get("_score", 0.0)
+            docs.append({
+                "doc_id": source.get("doc_id", ""),
+                "decision": source.get("decision", {}),
+                "similarity": min(score / self.k, 1.0),
+                "confidence": source.get("quality", {}).get("trust_score", 0.5),
+                "recency": 0.8,
+            })
+        return docs
+
+    def score_document(self, doc):
+        """Score document: similarity*0.4 + confidence*0.4 + recency*0.2"""
+        return (
+            self.weights["similarity"] * doc.get("similarity", 0)
+            + self.weights["confidence"] * doc.get("confidence", 0)
+            + self.weights["recency"] * doc.get("recency", 0)
+        )
+
+    def _update_strategy(self, state):
+        """Query OpenSearch and update current strategy selection."""
+        tags = self.derive_situation_tags(state)
+        if not tags:
+            return
+
+        docs = self.query_opensearch(tags)
+        self.l2_query_count += 1
+
+        if docs:
+            best = max(docs, key=self.score_document)
+            strategy_name = best.get("decision", {}).get("strategy", "survival_burst")
+            if strategy_name in self.strategies and strategy_name != self.current_strategy:
+                self.l2_strategy_switches += 1
+                self.current_strategy = strategy_name
+
+    def __call__(self, state):
+        """Full L2-meta + L1-delegate cascade for 5-action space."""
+        self._tick += 1
+        self.strategy_ticks[self.current_strategy] = self.strategy_ticks.get(self.current_strategy, 0) + 1
+
+        if self._tick % self.QUERY_INTERVAL == 0:
+            self._update_strategy(state)
+
+        return self.strategies[self.current_strategy](state)
+
+
+class RandomRotation5Action:
+    """Random rotation among 5-action strategies (DOE-026).
+
+    Randomly selects from {survival_burst, random_5, dodge_burst_3}
+    every ROTATION_INTERVAL ticks. No game-state awareness.
+    Controls for strategy-switching benefit vs RAG-informed switching.
+    """
+    ROTATION_INTERVAL = 35
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+        self.strategies = {
+            "survival_burst": SurvivalBurstAction(),
+            "random_5": Random5Action(),
+            "dodge_burst_3": DodgeBurst3Action(),
+        }
+        self.current_strategy = "survival_burst"
+        self.strategy_ticks = {"survival_burst": 0, "random_5": 0, "dodge_burst_3": 0}
+        self.l2_strategy_switches = 0
+
+    def reset(self, seed=0):
+        self._rng = random.Random(hash(seed))
+        self._tick = 0
+        self.current_strategy = self._rng.choice(["survival_burst", "random_5", "dodge_burst_3"])
+        self.strategy_ticks = {"survival_burst": 0, "random_5": 0, "dodge_burst_3": 0}
+        self.l2_strategy_switches = 0
+        for s in self.strategies.values():
+            s.reset(seed)
+
+    def __call__(self, state):
+        self._tick += 1
+        self.strategy_ticks[self.current_strategy] = self.strategy_ticks.get(self.current_strategy, 0) + 1
+
+        if self._tick % self.ROTATION_INTERVAL == 0:
+            choices = ["survival_burst", "random_5", "dodge_burst_3"]
+            new_choice = self._rng.choice(choices)
+            if new_choice != self.current_strategy:
+                self.l2_strategy_switches += 1
+                self.current_strategy = new_choice
+
+        return self.strategies[self.current_strategy](state)

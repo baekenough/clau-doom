@@ -931,6 +931,43 @@ DOE-001 through DOE-020 established the Phase 1 foundation: 13 experiments on de
 
 ---
 
+## 2026-02-09 — DOE-026: L2 RAG Strategy Selection in 5-Action Space — REJECTED
+
+### Context
+DOE-025 established 5-action strategy differentiation (F-062, F-063), creating the necessary condition for RAG value. Three previous L2 experiments (DOE-022 in 3-action, DOE-024 meta-strategy) produced null results. This was the definitive test.
+
+### Hypothesis
+H-029: RAG strategy selection has value in 5-action space.
+Priority: High (core thesis test)
+Rationale: 5-action space has strategy differentiation; if RAG can't add value here, thesis needs revision.
+
+### Design
+DOE type: One-way ANOVA (5 conditions)
+Conditions: survival_burst, random_5, dodge_burst_3, l2_meta_5action, random_rotation_5
+Sample size: 30 episodes per condition, 150 total
+OpenSearch index: strategies_meta_5action (30 documents, 3 strategy targets)
+
+### Result
+[STAT:p=0.935] [STAT:f=F(4,145)=0.206] [STAT:eta2=0.006] [STAT:n=150]
+kills: Completely null (p=0.935). All conditions indistinguishable.
+survival: Null (p=0.772).
+kill_rate: Marginal (p=0.035) but negligible effect (η²=0.068).
+RAG selector WORST performer (kills=16.57).
+Conclusion: H-029 REJECTED. Trust: HIGH.
+
+### Key Discoveries
+- F-067: L2 RAG has no effect in 5-action space
+- F-068: Pre-filtered strategy pool eliminates selection value
+- F-069: RAG overhead slightly degrades performance (MEDIUM trust)
+- F-070: CORE THESIS FALSIFIED — third consecutive L2 null result (N=450 cumulative)
+
+### Next Steps
+- Core thesis "Agent Skill = DocQuality × ScoringAccuracy" is FALSIFIED for defend_the_line
+- Consider multi-scenario experiments, frame-level features, or cooperative settings
+- Write paper section documenting the negative result
+
+---
+
 ## 2026-02-09 — DOE-024: L2 Meta-Strategy Selection via RAG (REJECTED)
 
 ### Context

@@ -430,6 +430,7 @@ How many factors are you testing?
 | DOE-023 | 3x4 Factorial | defend_the_line (doom_skill) | 12 (3 skills x 4 strategies) | 360 | Cross-difficulty strategy robustness: doom_skill {1,3,5} x strategy {burst_3, random, adaptive_kill, L0_only} | COMPLETE |
 | DOE-024 | 4×3 Full Factorial | defend_the_line (doom_skill) | 12 (4 modes x 3 skills) | 360 | H-027 REJECTED: L2 meta-strategy no main effect (p=0.39), F-057~F-061 | COMPLETE |
 | DOE-025 | One-way ANOVA | defend_the_line_5action.cfg | 6 (strategy types) | 180 | H-028 PARTIALLY SUPPORTED: kills F(5,174)=4.057 p=0.0017 η²=0.104, survival F(5,174)=4.350 p=0.0009 η²=0.111, F-062~F-066 | COMPLETE |
+| DOE-026 | One-way (5 groups) | L2 RAG strategy selection in 5-action space | 5 conditions × 30 = 150 | H-029 REJECTED | F-067~F-070 |
 
 ---
 
@@ -446,4 +447,5 @@ How many factors are you testing?
 - DOE-023 tests H-026 (strategy generalization) across 3 doom_skill levels {1=Easy, 3=Normal, 5=Nightmare}. Full factorial design (revised from original split-plot WAD variant plan — WAD editing infeasible). Seeds: 25001 + i*101. Result: doom_skill dominant (η²=0.720), significant interaction (p=6e-4), H-026 PARTIALLY SUPPORTED.
 - Total Phase 2 planned budget: **780 episodes** across 3 experiments (DOE-021 through DOE-023).
 - DOE-025 tests H-028 (5-action strategy space creates separable tiers) with 6 conditions: random_5, strafe_burst_3, smart_5, adaptive_5, dodge_burst_3, survival_burst. Seeds: 45001 + i×107. Result: H-028 PARTIALLY SUPPORTED. Strategy separation confirmed (kills p=0.0017, survival p=0.0009), but survival_burst (defensive, 40% attack) is paradoxically optimal (F-064).
-- Cumulative budget (all phases): **4380 episodes** (3600 completed + 780 planned).
+- DOE-026 tests H-029 (L2 RAG has value in 5-action space where strategies differentiate). One-way ANOVA with 5 conditions: survival_burst, random_5, dodge_burst_3, l2_meta_5action, random_rotation_5. Seeds: 50001 + i×109. Result: H-029 REJECTED. L2 RAG produces completely null effect (kills p=0.935, survival p=0.772). F-067 (L2 RAG no effect), F-068 (pre-filtered pool), F-069 (RAG overhead), F-070 (core thesis falsified).
+- Cumulative budget (all phases): **4530 episodes** (3750 completed + 780 planned).

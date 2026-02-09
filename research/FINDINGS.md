@@ -1873,3 +1873,87 @@ The "smart" state-dependent heuristic (if kill → dodge, if miss → scan) is t
 
 **Interpretation**:
 Health-responsive adaptive behavior increases per-second lethality (highest kill_rate) but at the cost of total survival time and total kills. The health-triggered mode switching creates inconsistent behavior that reduces overall effectiveness. Suggests state-dependent strategies need to optimize for survival first, not reactively switch to defensive mode.
+
+---
+
+## F-067: L2 RAG Strategy Selection Has No Effect in 5-Action Space (DOE-026)
+
+**Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
+**Experiment Report**: RPT-026 (EXPERIMENT_REPORT_026.md)
+
+**Evidence**:
+- All conditions indistinguishable for kills [STAT:p=0.935] [STAT:f=F(4,145)=0.206] [STAT:eta2=partial η²=0.006]
+- All conditions indistinguishable for survival [STAT:p=0.772] [STAT:f=F(4,145)=0.450]
+- RAG selector numerically worst (kills=16.57 vs group mean=17.15)
+- Non-parametric confirms null: Kruskal-Wallis H(4)=0.872, p=0.927
+- [STAT:n=150] [STAT:power=adequate for medium effects]
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: L2 RAG meta-strategy selection provides no performance benefit in 5-action space. H-029 REJECTED.
+
+---
+
+## F-068: Pre-Filtered Strategy Pool Eliminates Selection Value (DOE-026)
+
+**Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
+**Experiment Report**: RPT-026 (EXPERIMENT_REPORT_026.md)
+
+**Evidence**:
+- Top 3 strategies from DOE-025 have kills range of only 1.0 (16.57-17.57)
+- Compared to DOE-025's full 6-strategy range of 5.9 (13.73-19.63)
+- All planned contrasts non-significant at Bonferroni α=0.0125
+- RAG vs Best Fixed: diff=-0.40, p=0.728
+- [STAT:n=150]
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: When candidate strategies are pre-filtered to top performers, their functional equivalence eliminates any value from adaptive selection.
+
+---
+
+## F-069: RAG Query Overhead Degrades Performance (DOE-026)
+
+**Hypothesis**: H-029 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-026 (EXPERIMENT_ORDER_026.md)
+**Experiment Report**: RPT-026 (EXPERIMENT_REPORT_026.md)
+
+**Evidence**:
+- RAG selector: kills=16.57 (worst of 5 conditions)
+- Fixed strategies: kills=16.97-17.40
+- Random rotation: kills=17.57 (best, no OpenSearch overhead)
+- OpenSearch query latency: ~2ms per query at 35-tick intervals
+- [STAT:n=150]
+
+**Trust Level**: MEDIUM (numerical trend, not statistically significant)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: OpenSearch query overhead and strategy-switching cost slightly degrade performance versus consistent strategy execution. The overhead cost may exceed any information gain from situation-awareness.
+
+---
+
+## F-070: Core Thesis Falsification — Triple L2 Null Result (DOE-022, DOE-024, DOE-026)
+
+**Hypothesis**: H-029, H-025, H-027 (HYPOTHESIS_BACKLOG.md)
+**Experiment Orders**: DOE-022, DOE-024, DOE-026
+**Experiment Reports**: RPT-022, RPT-024, RPT-026
+
+**Evidence**:
+- DOE-022 (3-action, tactic-level RAG): kills p=0.878
+- DOE-024 (3-action, meta-strategy RAG): kills p=0.393
+- DOE-026 (5-action, meta-strategy RAG): kills p=0.935
+- Cumulative N=450 across three independent tests
+- All used same scenario (defend_the_line) with different action spaces and RAG approaches
+
+**Trust Level**: HIGH (3 independent replications)
+
+**Adopted**: 2026-02-09 (Phase 1)
+
+**Interpretation**: The core thesis "Agent Skill = DocQuality × ScoringAccuracy" is FALSIFIED for the defend_the_line scenario across both 3-action and 5-action spaces. RAG-based strategy retrieval provides zero performance benefit over fixed heuristic strategies, regardless of action space dimensionality or retrieval granularity. The thesis requires fundamental revision or testing in qualitatively different domains (multi-scenario, cooperative multi-agent).

@@ -1100,9 +1100,11 @@ def execute_experiment(config: ExperimentConfig) -> None:
         L0MemoryAction,
         L0StrengthAction,
         L2MetaStrategyAction,
+        L2MetaStrategy5Action,
         L2RagAction,
         Random5Action,
         Random7Action,
+        RandomRotation5Action,
         RandomSelectAction,
         Smart5Action,
         StrafeBurst3Action,
@@ -1300,6 +1302,14 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 )
             elif run.action_type == "random_select":
                 action_fn = RandomSelectAction()
+            elif run.action_type == "l2_meta_5action":
+                action_fn = L2MetaStrategy5Action(
+                    opensearch_url="http://opensearch:9200",
+                    index_name="strategies_meta_5action",
+                    k=5,
+                )
+            elif run.action_type == "random_rotation_5":
+                action_fn = RandomRotation5Action()
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1695,6 +1705,95 @@ def build_doe025_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe026_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-026: L2 RAG Strategy Selection in 5-Action Space.
+
+    H-029: RAG strategy selection has value in 5-action space.
+    5 conditions: survival_burst, random_5, dodge_burst_3, l2_meta_5action, random_rotation_5.
+    All use defend_the_line_5action.cfg with 5 actions.
+
+    Seeds: seed_i = 46001 + i * 113, i=0..29
+    Randomized run order: R3, R1, R5, R4, R2
+    """
+    seeds = [46001 + i * 113 for i in range(30)]
+    exp_id = "DOE-026"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="survival_burst",
+            run_type="factorial",
+            action_type="survival_burst",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_5",
+            run_type="factorial",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="dodge_burst_3",
+            run_type="factorial",
+            action_type="dodge_burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="l2_meta_5action",
+            run_type="factorial",
+            action_type="l2_meta_5action",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_rotation_5",
+            run_type="factorial",
+            action_type="random_rotation_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+    ]
+
+    # Randomized order: R3, R1, R5, R4, R2
+    order = [runs[2], runs[0], runs[4], runs[3], runs[1]]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=order,
+        seed_set=seeds,
+        seed_formula="seed_i = 46001 + i * 113, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1721,6 +1820,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-023": build_doe023_config,
     "DOE-024": build_doe024_config,
     "DOE-025": build_doe025_config,
+    "DOE-026": build_doe026_config,
 }
 
 

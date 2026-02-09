@@ -75,11 +75,14 @@
 **Linked Experiment**: DOE-025
 **Key Findings**: F-062 (5-action differentiates, strategies separate into tiers), F-063 (survival optimal for kills), F-064 (survival-first paradox), F-065 (state-dependent heuristics degrade), F-066 (random competitive)
 
-### H-029: RAG Strategy Selection Has Value in 5-Action Space [HIGH PRIORITY]
+### H-029: RAG Strategy Selection Has Value in 5-Action Space [REJECTED]
 **Statement**: In the 5-action space where strategies differentiate (F-062, F-063), L2 RAG context-based strategy switching between survival_burst, random_5, and dodge_burst_3 will outperform any single fixed strategy.
 **Rationale**: DOE-025 showed strategies create separable tiers in the 5-action space (unlike 3-action). The core thesis "Agent Skill = DocQuality × ScoringAccuracy" can now be tested where strategy selection matters. RAG switching between top strategies based on game state may capture benefits of each.
-**Status**: Queued for DOE-026
+**Status**: REJECTED (DOE-026)
+**Evidence**: F-067, F-068, F-070
+**Trust**: HIGH
 **Date Added**: 2026-02-09
+**Date Rejected**: 2026-02-09
 
 ## Queued Hypotheses
 
