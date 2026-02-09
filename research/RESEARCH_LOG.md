@@ -1,5 +1,43 @@
 # Research Log
 
+## 2026-02-09 — DOE-021: Generational Evolution Confirms burst_3 Global Optimality
+
+### Context
+Phase 2 optimization: After DOE-008 through DOE-020 established burst_3 as the multi-objective optimal strategy (TOPSIS C_i=0.977), generational evolution was applied to determine if the evolutionary landscape contains superior strategies.
+
+### Hypothesis
+H-025: Generational evolution discovers strategies superior to DOE-020 best-of-breed within 5 generations.
+Priority: High
+Rationale: If burst_3 is a local optimum, crossover and mutation may escape its basin. If it is the global optimum, evolution will converge to it.
+
+### Design
+DOE type: Generational genetic algorithm with TOPSIS multi-objective fitness
+Genome: 8 parameters (burst_length, turn_direction, turn_count, health thresholds, stagnation, attack_prob, adaptive_enabled)
+Population: 10 genomes per generation, max 5 generations
+Selection: Top 4 → parents, elitism=1, diversity=1 random
+Crossover: Uniform (p=0.5/gene), Mutation: 20%/gene
+Convergence: Elite unchanged for 2 consecutive generations
+Sample size: 30 episodes per genome per generation (300/gen)
+Seed sets: Gen 1: 23001+i×91, Gen 2: 26001+i×97
+
+### Result
+Gen 1 ANOVA: [STAT:f=F(9,290)=8.106] [STAT:p<0.000001] [STAT:eta2=partial η²=0.201] [STAT:n=300]
+Gen 2 ANOVA: [STAT:f=F(9,290)=8.453] [STAT:p<0.000001] [STAT:eta2=partial η²=0.208] [STAT:n=300]
+Elite comparison: [STAT:p=0.648] [STAT:effect_size=Cohen's d=0.120] [STAT:n=60]
+Turn direction penalty: [STAT:effect_size=Cohen's d=1.17] [STAT:p<0.0001] [STAT:n=300]
+Convergence: Gen 2 (elite unchanged, independent lineage converged to identical params)
+Outcome D confirmed: burst_3 is globally optimal in 3-action space.
+Total episodes: 600 (40% of 1500 budget, 60% saved by convergence)
+Findings adopted: F-046 (global optimality), F-047 (turn_direction penalty), F-048 (adaptive null)
+Trust level: HIGH
+
+### Next Steps
+- Pivot to expanded action spaces (DOE-022: 5-action evolution or compound strategies)
+- Draft publication Section 4 (Results) covering DOE-001 through DOE-021
+- Archive evolution engine (doe021_evolve.py) for reuse with expanded action spaces
+
+---
+
 ## 2026-02-08 — DOE-012 through DOE-020: Systematic Strategy Exploration
 
 **DOE-012** (Compound Actions): H-016 REJECTED. Compound actions identical to each other but worse than burst_3. [STAT:f=F(4,145)=6.115] [STAT:p=0.000142]. F-025, F-026 adopted.

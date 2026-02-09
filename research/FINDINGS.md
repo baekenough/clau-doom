@@ -1388,3 +1388,82 @@ Knowing which strategy an agent uses provides essentially no information about i
 Three independent physical mechanisms create a performance convergence zone: (1) weapon cooldown caps fire rate, (2) random movement covers the same angular range as systematic scanning over many episodes, and (3) uniform enemy distribution eliminates aiming advantages. Strategies satisfying minimum conditions (p(ATTACK) >= 0.20, effective displacement > 0, angular coverage > 90 degrees) all achieve 42-46 kr. Strategies outside these conditions (L0_only at 39.0, sweep_lr at 39.9) are clearly separated. Breaking the convergence zone requires modifying the game environment to weaken at least one equalization force.
 
 **Adopted**: 2026-02-09 (Phase 1 — Information-Theoretic Analysis)
+
+---
+
+## F-046: Generational Evolution Converges at Gen 2 — burst_3 is Globally Optimal in 3-Action Space
+
+**Hypothesis**: H-025 — Outcome D confirmed (Convergence in Gen 1-2)
+
+**Experiment Order**: DOE-021 (EXPERIMENT_ORDER_021.md)
+
+**Experiment Report**: RPT-021 (EXPERIMENT_REPORT_021.md)
+
+**Evidence**:
+- Elite genome unchanged for 2 consecutive generations (convergence criterion met)
+- Independent crossover lineage converged to identical parameters (gen2_G04_x13 = G01_burst_3_base)
+- Cross-generation elite comparison: [STAT:p=0.648] [STAT:effect_size=Cohen's d=0.120] [STAT:n=60]
+- 9/10 Gen 2 genomes evolved burst_length=3 (strong directional selection)
+- Gen 1 ANOVA: [STAT:f=F(9,290)=8.106] [STAT:p<0.000001] [STAT:eta2=partial η²=0.201] [STAT:n=300]
+- Gen 2 ANOVA: [STAT:f=F(9,290)=8.453] [STAT:p<0.000001] [STAT:eta2=partial η²=0.208] [STAT:n=300]
+- Total episodes: [STAT:n=600] (300 per generation, 30 per genome)
+- Budget efficiency: 40% used (60% saved by early convergence)
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: The 3-action evolutionary landscape has a single dominant basin of attraction centered on {burst_length=3, turn_direction=random, turn_count=1, attack_probability=0.75, adaptive_enabled=false}. Evolutionary search confirms burst_3 is not merely a good local optimum but the global optimum. Evolution is unnecessary for optimizing the 3-action space — the DOE-020 Pareto front is the true frontier.
+
+**Next Steps**: Pivot to action space expansion (DOE-022). Draft publication Section 4.
+
+---
+
+## F-047: Non-Random turn_direction Is Universally Deleterious (d=1.17)
+
+**Hypothesis**: Strengthens F-010 (lateral movement breaks tunnel vision)
+
+**Experiment Order**: DOE-021 (EXPERIMENT_ORDER_021.md)
+
+**Experiment Report**: RPT-021 (EXPERIMENT_REPORT_021.md)
+
+**Evidence**:
+- Gen 1 bottom 3 genomes all use alternate or sweep directions (G02, G04, G06)
+- Gen 2 sweep_right genome worst performer (7.40 kills, C_i=0.000)
+- Random direction (n=210): 14.13 ± 4.34 kills
+- Non-random direction (n=90): 9.94 ± 2.59 kills
+- [STAT:p<0.0001] [STAT:effect_size=Cohen's d=1.17] [STAT:n=300]
+- Replicated across 2 independent generations with different seed sets
+- Non-parametric confirmation: Kruskal-Wallis [STAT:p<0.000001]
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: Deterministic turn patterns (alternate left-right, sweep in one direction) create predictable movement that reduces lateral scanning coverage. Random turn direction maximizes enemy encounter rate by ensuring uniform spatial exploration. This is consistent with F-042 (action entropy does not predict performance) — what matters is positional coverage, not action-level randomness.
+
+**Next Steps**: Incorporate turn_direction=random as a fixed constraint in future DOE designs.
+
+---
+
+## F-048: Adaptive Switching Provides No Benefit When Co-Optimized
+
+**Hypothesis**: H-025 Outcome C rejected
+
+**Experiment Order**: DOE-021 (EXPERIMENT_ORDER_021.md)
+
+**Experiment Report**: RPT-021 (EXPERIMENT_REPORT_021.md)
+
+**Evidence**:
+- Gen 1: G03 (adaptive=true, random dir) achieves 14.30 kills vs G01 (adaptive=false) at 14.87 kills (direction favors non-adaptive)
+- Gen 2: 8/10 genomes evolved adaptive_enabled=false (strong selection against adaptive)
+- Evolution explored adaptive combinations through crossover and mutation but did not retain them
+- Genetic operators had full opportunity to combine adaptive with burst_3 — adaptive was consistently deselected
+
+**Trust Level**: MEDIUM (directional evidence consistent across both generations, but confounded with other parameters in Gen 1)
+
+**Adopted**: 2026-02-09 (Phase 2)
+
+**Interpretation**: The adaptive switching mechanism (health-dependent mode changes, stagnation detection) adds complexity without measurable benefit when burst_length and turn_direction are already optimized. In the 3-action space, the simple burst_3 cycle is sufficient — no state-dependent decision-making improves upon it.
+
+**Next Steps**: Re-evaluate adaptive mechanisms in expanded action spaces (5+ actions) where state-dependent switching may have more room to add value.

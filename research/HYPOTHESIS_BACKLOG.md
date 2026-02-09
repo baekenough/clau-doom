@@ -51,11 +51,16 @@
 **Linked Experiment**: DOE-010
 **Key Findings**: F-016 (replication), F-017 (oscillation≡stasis), F-018 (H-014 rejected), F-019 (displacement hierarchy)
 
-### H-025: Generational Evolution Discovers Superior Strategies [HIGH PRIORITY]
+### H-025: Generational Evolution Discovers Superior Strategies [PARTIALLY REJECTED]
 **Statement**: Evolutionary optimization using TOPSIS-based fitness with crossover and mutation can discover agent configurations that outperform the current best individual strategies (burst_3, adaptive_kill) within 5 generations.
 **Rationale**: DOE-020 identified burst_3 and adaptive_kill as Pareto-optimal. Evolution can explore the space between and beyond these strategies by combining their genomes through crossover and mutation. If the performance convergence zone (F-045) is a true ceiling, evolution will confirm this by converging to existing optima. If room exists above the zone, evolution may find it.
-**Status**: Experiment ordered (DOE-021: Generational Evolution Gen 1)
+**Status**: Outcome D confirmed — Convergence at Gen 2, burst_3 is globally optimal in 3-action space
+**Evidence**: RPT-021, F-046, F-047, F-048
+**Trust**: HIGH
 **Date Added**: 2026-02-09
+**Date Resolved**: 2026-02-09
+**Linked Experiment**: DOE-021
+**Key Findings**: F-046 (convergence, global optimality), F-047 (turn_direction penalty d=1.17), F-048 (adaptive switching null)
 
 ### H-026: Top Strategies Generalize Across Scenario Variants [MEDIUM PRIORITY]
 **Statement**: burst_3 and adaptive_kill maintain their relative performance rankings when tested across scenario perturbations (increased difficulty, closer engagement, longer episodes) on defend_the_line.
