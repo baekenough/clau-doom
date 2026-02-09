@@ -368,6 +368,9 @@ How many factors are you testing?
 | H-022 | 1 | One-way CRD (5 levels) | DOE-018 | Adaptive vs fixed strategies | 150 (5 × 30) |
 | H-023 | 1 | One-way CRD (5 levels) | DOE-019 | Cross-validation of top strategies | 150 (5 × 30) |
 | H-024 | 1 | One-way CRD (5 levels) | DOE-020 | Best-of-breed comparison | 150 (5 × 30) |
+| H-033 | 2 | 2×5 Full Factorial | DOE-030 | movement × doom_skill | 10 cells × 30 = 300 |
+| H-034 | 2 | One-way ANOVA (4 levels) | DOE-031 | action_space (3/5/7/9) | 4 × 30 = 120 |
+| H-035 | 2 | 2×2 Factorial + Repeated Measures | DOE-032 | l1_cache × sequence_mode | 4 × 100 = 400 |
 | TBD | 2 | RSM-CCD | TBD | Top factors from Phase 0/1 | 11-17 runs x 30 = 330-510 |
 | TBD | 3 | Taguchi L9 x L4 | TBD | Control x Noise factors | 36 x 30 = 1080 |
 
@@ -402,7 +405,10 @@ How many factors are you testing?
 | 1 — Attack Ratio Gradient | H-030 | DOE-027 | 210 (7 levels x 30 episodes) | 3960 |
 | 1 — Temporal Attack Pattern | H-031 | DOE-028 | 150 (5 levels x 30 episodes) | 4110 |
 | 1 — Emergency Health Override | H-032 | DOE-029 | 120 (4 cells x 30 episodes) | 5010 |
-| 2 — RSM | TBD | TBD | 330-510 | 5340-5520 |
+| 2 — Difficulty Interaction | H-033 | DOE-030 | 300 (10 cells x 30 episodes) | 5310 |
+| 2 — Action Space Dilution | H-034 | DOE-031 | 120 (4 levels x 30 episodes) | 5430 |
+| 2 — Sequential Learning | H-035 | DOE-032 | 400 (4 cells x 10 sequences x 10 episodes) | 5830 |
+| 2 — RSM | TBD | TBD | 330-510 | 6160-6340 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 5190-5550+ |
 
 ---
@@ -438,6 +444,9 @@ How many factors are you testing?
 | DOE-027 | One-way (7 levels) | defend_the_line_5action | attack_ratio (0.2-0.8) | 210 | H-030 REJECTED: kills invariant to attack ratio (p=0.717), rate-time compensation, F-071~F-075 | COMPLETE |
 | DOE-028 | OFAT (5 levels) | defend_the_line_5action | burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10) | 150 | H-031 REJECTED: temporal grouping null (kills p=0.401, survival p=0.169, kill_rate p=0.374), F-076~F-078 | COMPLETE |
 | DOE-029 | 2² Factorial | defend_the_line_5action | action_pattern (2 levels) × health_override (2 levels) | 120 | H-032 PARTIALLY SUPPORTED: Pattern SIGNIFICANT (p<0.001, d=1.408), Override NULL (p=0.378), F-079~F-083 | COMPLETE |
+| DOE-030 | 2×5 Full Factorial | defend_the_line_5action (doom_skill 1-5) | movement (2) × doom_skill (5) | 300 | H-033 PARTIALLY SUPPORTED: Movement x difficulty non-monotonic interaction (p=0.002, η²p=0.040). Movement universal d>0.9. VizDoom difficulty degeneracy (skills 2=3=4). F-084~F-086 | COMPLETE |
+| DOE-031 | One-Way ANOVA (4 levels) | defend_the_line (3/5/7/9 action) | action_space (3, 5, 7, 9 actions) | 120 | H-034 PARTIALLY SUPPORTED: Non-monotonic 5≈7>3>>9 (F=20.35, p<0.001, η²=0.345). 9-action harmful (d=1.506). F-087~F-089 | COMPLETE |
+| DOE-032 | 2×2 Factorial + Repeated Measures | defend_the_line_5action | l1_cache (2) × sequence_mode (2), 10-ep sequences | 400 | H-035 REJECTED: Complete null (all p≥0.624). No L1 cache mechanism exists. No sequential learning. F-090~F-091 | COMPLETE |
 
 ---
 
@@ -458,4 +467,7 @@ How many factors are you testing?
 - DOE-027 tests H-030 (non-monotonic attack ratio relationship). One-way ANOVA with 7 levels: attack_ratio (0.2-0.8). Seeds: 47001 + i×127. Result: H-030 REJECTED. Kills invariant to attack ratio (p=0.717) due to rate-time compensation (F-074). F-071~F-075 adopted.
 - DOE-028 tests H-031 (temporal attack grouping affects kills). OFAT with 5 levels: burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10). Seeds: 48001 + i×131. Result: H-031 REJECTED. Temporal grouping has no effect (kills p=0.401, survival p=0.169). F-076~F-078 adopted.
 - DOE-029 tests H-032 (emergency health override improves performance). 2×2 factorial: action_pattern (random_50 vs pure_attack) × health_override (enabled vs disabled). Seeds: 49001 + i×137. Result: H-032 PARTIALLY SUPPORTED. Pattern MASSIVE effect (p<0.001, d=1.408), override NULL (p=0.378). F-079~F-083 adopted.
-- Cumulative budget (all phases): **5010 episodes** (4110 prior + 900 DOE-027~029).
+- DOE-030 tests H-033 (movement x difficulty interaction). 2×5 factorial: movement (present/absent) × doom_skill (1-5). Uses 5-action space. Seeds: 53001 + i*139, i=0..29. Max seed: 57032.
+- DOE-031 tests H-034 (action space dilution). One-way ANOVA: 4 levels (3/5/7/9 actions) with random strategy. Requires creation of 7-action and 9-action .cfg files. Seeds: 57101 + i*149, i=0..29. Max seed: 61422.
+- DOE-032 tests H-035 (L1 sequential cache learning). 2×2 factorial: l1_cache (on/off) × sequence_mode (sequential/independent). 10 sequences of 10 episodes per cell. Seeds: 61501 + k*151 + i*13, k=0..9, i=0..9. Max seed: 62977.
+- Cumulative budget (all phases): **5830 episodes** (5010 prior + 820 DOE-030~032).

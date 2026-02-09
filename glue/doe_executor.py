@@ -1108,6 +1108,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         PureAttackAction,
         Random5Action,
         Random7Action,
+        Random9Action,
         RandomRotation5Action,
         RandomSelectAction,
         Smart5Action,
@@ -1278,6 +1279,8 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = Burst3ThresholdAction(health_threshold=threshold)
             elif run.action_type == "random_7":
                 action_fn = Random7Action()
+            elif run.action_type == "random_9":
+                action_fn = Random9Action()
             elif run.action_type == "forward_attack":
                 action_fn = ForwardAttackAction()
             elif run.action_type == "adaptive_kill":
@@ -2013,6 +2016,472 @@ def build_doe029_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe030_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-030: Movement × Doom Skill Interaction (2×5 Full Factorial)
+
+    Tests how movement availability interacts with enemy difficulty.
+    Factor A: movement (present=ar_50 vs absent=attack_raw)
+    Factor B: doom_skill (1, 2, 3, 4, 5)
+
+    Design: 2×5 full factorial, 30 episodes/cell, 300 total
+    Randomized run order: R07, R03, R10, R01, R05, R08, R02, R09, R04, R06
+    """
+    seeds = [53001 + i * 139 for i in range(30)]
+    exp_id = "DOE-030"
+
+    runs = [
+        # Randomized order: R07, R03, R10, R01, R05, R08, R02, R09, R04, R06
+        RunConfig(
+            run_id=f"{exp_id}-R07",
+            run_label="R07",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk2",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=2,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R03",
+            run_label="R03",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk3",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R10",
+            run_label="R10",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk5",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R01",
+            run_label="R01",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk1",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R05",
+            run_label="R05",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk5",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R08",
+            run_label="R08",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk3",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R02",
+            run_label="R02",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk2",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=2,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R09",
+            run_label="R09",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk4",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=4,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R04",
+            run_label="R04",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk4",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=4,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R06",
+            run_label="R06",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk1",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 53001 + i * 139, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe031_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-031: Action Space Granularity Threshold (One-Way, 4 Levels)
+
+    Tests how action space dimensionality affects random agent performance.
+    Factor: action_space (3, 5, 7, 9 actions)
+
+    Design: One-way ANOVA, 30 episodes/level, 120 total
+    Randomized run order: R3, R1, R4, R2
+    """
+    seeds = [57101 + i * 149 for i in range(30)]
+    exp_id = "DOE-031"
+
+    runs = [
+        # Randomized order: R3, R1, R4, R2
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="action_7",
+            run_type="one_way",
+            action_type="random_7",
+            scenario="defend_the_line_7action.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="action_3",
+            run_type="one_way",
+            action_type="random",
+            scenario="defend_the_line.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="action_9",
+            run_type="one_way",
+            action_type="random_9",
+            scenario="defend_the_line_9action.cfg",
+            num_actions=9,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="action_5",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 57101 + i * 149, i=0..29",
+        scenario="defend_the_line.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe032_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-032: Cross-Episode Sequential Learning (2×2 Factorial).
+
+    Tests whether sequential episode execution with persistent action function
+    state produces learning effects vs independent episodes.
+
+    Factors:
+        l1_cache: on/off (whether action function state persists)
+        sequence_mode: sequential_10 / independent
+
+    4 conditions × 10 sequences × 10 episodes = 400 total episodes.
+    Uses ar_50 (AttackRatioAction with 50% attack) for all conditions.
+
+    Seed formula: seed_{k,i} = 61501 + k*151 + i*13, k=0..9, i=0..9
+    Randomized run order: R3, R1, R4, R2
+    """
+    exp_id = "DOE-032"
+
+    # Generate seed set: 10 sequences × 10 episodes per sequence
+    all_seeds = []
+    for k in range(10):
+        for i in range(10):
+            all_seeds.append(61501 + k * 151 + i * 13)
+
+    # 4 conditions, each gets all 100 seeds (same seeds for paired comparison)
+    # R1: cache_seq, R2: cache_ind, R3: nocache_seq, R4: nocache_ind
+    runs = [
+        # Randomized order: R3, R1, R4, R2
+        RunConfig(
+            run_id=f"{exp_id}-R3", run_label="R3",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(all_seeds), condition="nocache_seq",
+            run_type="factorial", action_type="ar_50",
+            scenario="defend_the_line_5action.cfg", num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1", run_label="R1",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(all_seeds), condition="cache_seq",
+            run_type="factorial", action_type="ar_50",
+            scenario="defend_the_line_5action.cfg", num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4", run_label="R4",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(all_seeds), condition="nocache_ind",
+            run_type="factorial", action_type="ar_50",
+            scenario="defend_the_line_5action.cfg", num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2", run_label="R2",
+            memory_weight=0.0, strength_weight=0.0,
+            seeds=list(all_seeds), condition="cache_ind",
+            run_type="factorial", action_type="ar_50",
+            scenario="defend_the_line_5action.cfg", num_actions=5,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=all_seeds,
+        seed_formula="seed_{k,i} = 61501 + k*151 + i*13, k=0..9, i=0..9",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def execute_doe032(config: ExperimentConfig) -> None:
+    """Special executor for DOE-032: Sequential Learning experiment.
+
+    Handles 4 conditions with different reset behavior:
+    - cache_seq: Action function NOT reset between episodes within sequence
+    - cache_ind: Action function reset before every episode
+    - nocache_seq: Action function NOT reset between episodes (same as cache_seq)
+    - nocache_ind: Action function reset before every episode (same as cache_ind)
+
+    Since there's no actual L1 DuckDB cache in the action functions,
+    cache_seq ≡ nocache_seq and cache_ind ≡ nocache_ind.
+    But we keep all 4 conditions for the designed 2×2 factorial analysis.
+
+    Episodes are grouped into sequences of 10 for analysis.
+    """
+    from glue.action_functions import AttackRatioAction
+    from glue.duckdb_writer import DuckDBWriter
+    from glue.episode_runner import EpisodeRunner
+    from glue.vizdoom_bridge import VizDoomBridge
+
+    total_episodes = sum(len(r.seeds) for r in config.runs)
+    logger.info("=" * 70)
+    logger.info(
+        "DOE-032 Sequential Learning: %s (%d runs, %d total episodes)",
+        config.experiment_id, len(config.runs), total_episodes,
+    )
+    logger.info("=" * 70)
+
+    bridge = VizDoomBridge(
+        scenario="defend_the_line_5action.cfg", num_actions=5, doom_skill=3
+    )
+    runner = EpisodeRunner(bridge)
+    db = DuckDBWriter(db_path=config.db_path)
+
+    db.write_seed_set(
+        experiment_id=config.experiment_id,
+        seed_set=config.seed_set,
+        formula=config.seed_formula,
+    )
+
+    experiment_start = time.monotonic()
+    completed = 0
+    skipped = 0
+
+    try:
+        for run_idx, run in enumerate(config.runs, start=1):
+            logger.info("-" * 50)
+            logger.info(
+                "[%d/%d] Condition: %s", run_idx, len(config.runs), run.condition
+            )
+
+            # Determine reset behavior from condition name
+            is_sequential = run.condition.endswith("_seq")
+
+            # Create action function for this condition
+            action_fn = AttackRatioAction(attack_ratio=0.5)
+
+            # Group seeds into sequences of 10
+            for seq_id in range(10):
+                seq_seeds = run.seeds[seq_id * 10 : (seq_id + 1) * 10]
+
+                # For sequential mode: reset action function only at sequence start
+                # For independent mode: reset before every episode
+                if is_sequential:
+                    # Reset at start of each sequence with first seed
+                    action_fn.reset(seed=seq_seeds[0])
+
+                for ep_in_seq, seed in enumerate(seq_seeds):
+                    # Episode number: global within this condition (1-100)
+                    episode_number = seq_id * 10 + ep_in_seq + 1
+
+                    # Skip already-completed episodes
+                    if _episode_exists(
+                        db, config.experiment_id, run.condition, episode_number
+                    ):
+                        skipped += 1
+                        continue
+
+                    # For independent mode: reset before EVERY episode
+                    if not is_sequential:
+                        action_fn.reset(seed=seed)
+
+                    result = runner.run_episode(
+                        seed=seed,
+                        condition=run.condition,
+                        episode_number=episode_number,
+                        action_fn=action_fn,
+                    )
+
+                    metrics = {
+                        "survival_time": result.metrics.survival_time,
+                        "kills": result.metrics.kills,
+                        "damage_dealt": result.metrics.damage_dealt,
+                        "damage_taken": result.metrics.damage_taken,
+                        "ammo_efficiency": result.metrics.ammo_efficiency,
+                        "exploration_coverage": result.metrics.exploration_coverage,
+                        "total_ticks": result.metrics.total_ticks,
+                        "shots_fired": result.metrics.shots_fired,
+                        "hits": result.metrics.hits,
+                        "cells_visited": result.metrics.cells_visited,
+                    }
+
+                    level_counts: dict[str, int] = {}
+                    for level in result.decision_levels:
+                        key = str(level)
+                        level_counts[key] = level_counts.get(key, 0) + 1
+
+                    db.write_episode(
+                        experiment_id=config.experiment_id,
+                        run_id=run.run_id,
+                        condition=run.condition,
+                        seed=seed,
+                        episode_number=episode_number,
+                        metrics=metrics,
+                        decision_latency_p99=result.decision_latency_p99,
+                        rule_match_rate=result.rule_match_rate,
+                        decision_level_counts=level_counts,
+                    )
+
+                    completed += 1
+
+                    # Progress logging
+                    if ep_in_seq == 0 or ep_in_seq == 9 or (ep_in_seq + 1) % 5 == 0:
+                        logger.info(
+                            "  [%s] seq=%d ep=%d/%d seed=%d kills=%d "
+                            "survival=%.1fs",
+                            run.condition, seq_id, ep_in_seq + 1, 10,
+                            seed, result.metrics.kills,
+                            result.metrics.survival_time,
+                        )
+
+                logger.info(
+                    "  Sequence %d/%d complete", seq_id + 1, 10
+                )
+
+            logger.info("  Condition %s complete", run.condition)
+
+    finally:
+        bridge.close()
+
+    # Verify data integrity
+    logger.info("-" * 50)
+    logger.info("Verifying data integrity...")
+    integrity = db.verify_integrity(config.experiment_id)
+    if integrity["valid"]:
+        logger.info("Data integrity OK")
+    else:
+        logger.warning("Data integrity issues: %s", integrity["issues"])
+
+    for cond, count in sorted(integrity["counts"].items()):
+        logger.info("  %s: %d episodes", cond, count)
+
+    db.close()
+
+    total_elapsed = time.monotonic() - experiment_start
+    logger.info("=" * 70)
+    logger.info(
+        "%s COMPLETE: %d new + %d skipped episodes in %.1fs",
+        config.experiment_id, completed, skipped, total_elapsed,
+    )
+    logger.info("=" * 70)
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -2043,6 +2512,9 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-027": build_doe027_config,
     "DOE-028": build_doe028_config,
     "DOE-029": build_doe029_config,
+    "DOE-030": build_doe030_config,
+    "DOE-031": build_doe031_config,
+    "DOE-032": build_doe032_config,
 }
 
 
@@ -2078,7 +2550,11 @@ def main() -> None:
     builder = EXPERIMENT_BUILDERS[args.experiment]
     config = builder(db_path=args.db_path)
 
-    execute_experiment(config)
+    # DOE-032 uses special sequential executor
+    if args.experiment == "DOE-032":
+        execute_doe032(config)
+    else:
+        execute_experiment(config)
 
 
 if __name__ == "__main__":

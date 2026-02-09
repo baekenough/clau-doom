@@ -117,6 +117,36 @@
 **Linked Experiment**: DOE-029
 **Key Findings**: Override has NO effect (F-080, p=0.378). But pattern (movement) has MASSIVE effect (F-079, d=1.408). Kill rate efficiency is movement-invariant (F-083, p=0.180). Rate-time compensation breaks at movement boundary (F-082).
 
+### H-033: Movement Dominance Interacts with Difficulty Level [HIGH PRIORITY]
+**Statement**: The movement vs no-movement performance gap (F-079, d=1.408) varies across doom_skill levels 1-5. Two competing predictions: (1) amplification -- movement becomes MORE critical at harder difficulties because enemies are faster/deadlier, or (2) compression -- effect compression (F-054) shrinks the gap at extreme difficulties.
+**Rationale**: F-079 established movement as sole determinant at doom_skill=3. DOE-023 showed 72% variance from doom_skill (F-052) and 5.2x effect compression (F-054). The interaction between movement and difficulty determines whether F-079 is a universal law or difficulty-specific finding.
+**Status**: COMPLETED — PARTIALLY SUPPORTED
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Key Findings**: Interaction significant (F-084, p=0.002, η²p=0.040). Movement universally beneficial d>0.9 (F-086). VizDoom difficulty degeneracy discovered: skills 2=3=4 identical (F-085). Non-monotonic inverted-U pattern: movement benefit peaks at middle difficulty (d=1.450).
+**Linked Experiment**: DOE-030
+**Design**: 2x5 factorial: movement (present/absent) x doom_skill (1-5), 30 episodes/cell, 5-action space
+
+### H-034: Action Space Dilution Creates Monotonic Random Performance Gradient [MEDIUM PRIORITY]
+**Statement**: Random strategy performance decreases monotonically with action space size (3, 5, 7, 9 actions) on defend_the_line, because the probability of selecting ATTACK decreases from 33% to 11%, creating a dilution effect that proportionally reduces kill rate.
+**Rationale**: F-077 (tactical invariance) was established in 5-action space. DOE-011 showed 3-action vs 5-action differentiation (F-020). The 7-action and 9-action regimes are untested on defend_the_line. DOE-016 tested 7-action on deadly_corridor but hit a scenario floor effect (F-030). This experiment isolates the action space dimensionality effect on a scenario with known signal.
+**Status**: COMPLETED — PARTIALLY SUPPORTED
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Key Findings**: Non-monotonic action space curve (F-087): 5≈7 > 3 >> 9. Kill rate dilution confirmed (F-089). 9-action space contains harmful actions (F-088, d=1.506 worse than 5-action). Optimal action space is 5-7 actions (includes strafing without harmful actions).
+**Linked Experiment**: DOE-031
+**Design**: One-way ANOVA: 4 levels (3/5/7/9 actions), random strategy only, 30 episodes/level
+
+### H-035: L1 Sequential Cache Enables Cross-Episode Learning [MEDIUM PRIORITY]
+**Statement**: When episodes are played sequentially without resetting the L1 DuckDB cache, agent performance improves over a 10-episode sequence (positive learning slope), whereas independent episodes or disabled cache show no improvement.
+**Rationale**: L2 RAG was falsified across 3 experiments (F-070). But L1 local cache was never tested for sequential learning. L1 operates differently from L2: it stores local experiential patterns, not abstract strategy documents. If sequential exposure with active cache produces a learning curve, it demonstrates that experiential learning succeeds where document-based learning fails.
+**Status**: COMPLETED — REJECTED (Complete Null)
+**Date Added**: 2026-02-10
+**Date Analyzed**: 2026-02-10
+**Key Findings**: L1 cache mechanism does not exist (F-090). No sequential learning effect (F-091). All effects perfectly null (p=1.000 for cache, p=0.624 for sequence mode). Completes falsification of both L1 and L2 learning in current architecture.
+**Linked Experiment**: DOE-032
+**Design**: 2x2 factorial: l1_cache (on/off) x sequence_mode (sequential/independent), 10 sequences of 10 episodes per cell
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

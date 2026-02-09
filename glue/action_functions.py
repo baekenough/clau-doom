@@ -842,6 +842,29 @@ class Random7Action:
         return self._rng.randint(0, 6)
 
 
+class Random9Action:
+    """Uniform random over 9-action space.
+
+    For DOE-031: Tests action space dilution with maximal action count.
+    Actions: 0-8 mapping to MOVE_LEFT, MOVE_RIGHT, TURN_LEFT, TURN_RIGHT,
+    ATTACK, MOVE_FORWARD, MOVE_BACKWARD, SPEED, TURN180.
+    Random p(attack) = 11.1%
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        return self._rng.randint(0, 8)
+
+
 class ForwardAttackAction:
     """Move forward while attacking. For deadly_corridor: advance through corridor.
 
@@ -1769,3 +1792,24 @@ class PureAttackAction:
             if state.ammo == 0:
                 return self._rng.choice([2, 3])
         return 4  # ATTACK
+
+
+class Random9Action:
+    """Uniform random over 9-action space (defend_the_line_9action).
+
+    Actions: 0-8 mapping to MOVE_LEFT, MOVE_RIGHT, TURN_LEFT, TURN_RIGHT,
+    ATTACK, MOVE_FORWARD, MOVE_BACKWARD, SPEED, TURN180.
+    """
+
+    def __init__(self):
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+        return self._rng.randint(0, 8)

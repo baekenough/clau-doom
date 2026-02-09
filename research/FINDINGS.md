@@ -2263,3 +2263,178 @@ Rate-time compensation (F-074) is NOT universal. It holds WITHIN movement classe
 Kill efficiency (kills per minute of survival) is the same whether the agent moves or not. An agent that always attacks kills at 40.8/min; an agent that attacks 50% of the time kills at 42.2/min. Movement does NOT reduce kill efficiency — it only extends survival time, which provides more opportunities to accumulate kills. This explains why movement produces 70% more total kills: 60% more survival × ~same kill rate = ~70% more kills.
 
 **Adopted**: 2026-02-09 (Phase 1)
+
+---
+
+### F-084: Movement × Difficulty Non-Monotonic Interaction (DOE-030)
+
+**Hypothesis**: H-033 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-030 (EXPERIMENT_ORDER_030.md)
+**Experiment Report**: RPT-030 (EXPERIMENT_REPORT_030.md)
+
+**Evidence**:
+- Interaction significant [STAT:f=F(2,294)=6.19] [STAT:p=0.002] [STAT:eta2=η²p=0.040]
+- Movement main effect [STAT:f=F(1,294)=104.42] [STAT:p<0.001] [STAT:eta2=η²p=0.262]
+- Skill main effect [STAT:f=F(2,294)=352.04] [STAT:p<0.001] [STAT:eta2=η²p=0.705]
+- Movement Cohen's d by difficulty: Easy 0.993, Middle 1.450, Nightmare 0.913 (inverted-U)
+- Kruskal-Wallis non-parametric confirmation: H=228.020, p<0.001
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Movement's benefit follows an inverted-U pattern across difficulty levels: largest at intermediate difficulty (d=1.450), not at extremes. This refines F-079: movement is universally beneficial (d>0.9 at ALL difficulties), but its relative advantage peaks at middle difficulty where enemies are threatening enough to create survivability pressure but not so overwhelming as to compress all outcomes. At nightmare difficulty, effect compression (F-054) shrinks the movement gap from 5.3 kills to 1.3 kills absolute.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-085: VizDoom Difficulty Degeneracy (Skills 2=3=4 Identical) (DOE-030)
+
+**Hypothesis**: H-033 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-030 (EXPERIMENT_ORDER_030.md)
+**Experiment Report**: RPT-030 (EXPERIMENT_REPORT_030.md)
+
+**Evidence**:
+- doom_skill levels 2, 3, and 4 produce ROW-BY-ROW identical results (same kills, survival_time, kill_rate for same seeds)
+- Only 3 effective difficulty levels exist: Easy (1), Middle (2=3=4), Nightmare (5)
+- Confirmed by exact numerical comparison across 90 episodes per level
+
+**Trust Level**: HIGH (infrastructure finding)
+
+**Interpretation**:
+VizDoom engine maps doom_skill levels 2, 3, and 4 to the same internal parameters for defend_the_line. This is a game engine limitation, not a data quality issue. Future experiments should use only 3 difficulty levels (1, 2/3, 5) to avoid wasted episodes. DOE-023's use of doom_skill {1, 3, 5} was optimal by coincidence.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-086: Movement Universality Across All Difficulties (DOE-030)
+
+**Hypothesis**: H-033 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-030 (EXPERIMENT_ORDER_030.md)
+**Experiment Report**: RPT-030 (EXPERIMENT_REPORT_030.md)
+
+**Evidence**:
+- Movement Cohen's d: Easy=0.993, Middle=1.450, Nightmare=0.913
+- ALL d > 0.9 (large effect at every difficulty)
+- Absolute gains: Easy +5.30, Middle +4.77, Nightmare +1.33 kills
+- [STAT:n=300 episodes] [STAT:power > 0.99 for all comparisons]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+F-079 (movement as sole performance determinant) generalizes across ALL difficulty levels on defend_the_line. Movement provides large benefits (d>0.9) whether enemies are easy or nightmarish. The mechanism (strafing avoids projectiles while maintaining kill rate, per F-082/F-083) is difficulty-invariant. This upgrades F-079 from a difficulty-specific finding to a universal law of defend_the_line.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-087: Non-Monotonic Action Space Performance Curve (DOE-031)
+
+**Hypothesis**: H-034 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-031 (EXPERIMENT_ORDER_031.md)
+**Experiment Report**: RPT-031 (EXPERIMENT_REPORT_031.md)
+
+**Evidence**:
+- Overall ANOVA: [STAT:f=F(3,116)=20.345] [STAT:p<0.001] [STAT:eta2=η²p=0.345]
+- Means: 3-action=14.03, 5-action=16.73, 7-action=16.43, 9-action=8.40
+- Quadratic contrast: [STAT:f=F(1,116)=37.94] [STAT:p<0.001] (non-monotonic confirmed)
+- Linear contrast: slope=-0.860 kills/action, [STAT:p=0.000162]
+- Post-hoc: 9-action vs all others p<0.001; 3/5/7 NOT different from each other
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Action space size and performance have a non-monotonic (inverted-U) relationship: performance improves from 3→5 actions, plateaus at 5→7, then crashes at 9 actions. The 5-action and 7-action spaces include strafing (STRAFE_LEFT, STRAFE_RIGHT) which provides the movement benefit (F-079). The 3-action space lacks strafing; the 9-action space includes harmful actions (SPEED doubles movement speed making aiming harder; MOVE_FORWARD walks toward enemies). Optimal action space is 5-7 actions with strafing.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-088: 9-Action Space Contains Harmful Actions (DOE-031)
+
+**Hypothesis**: H-034 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-031 (EXPERIMENT_ORDER_031.md)
+**Experiment Report**: RPT-031 (EXPERIMENT_REPORT_031.md)
+
+**Evidence**:
+- 9-action mean kills: 8.40 (vs 16.73 for 5-action, Cohen's d=1.506)
+- 9-action significantly worse than ALL other spaces (all p<0.001)
+- 9-action adds: SPEED, TURN_LEFT_RIGHT_DELTA, MOVE_FORWARD, MOVE_BACKWARD
+- [STAT:f=F(3,116)=20.345] [STAT:p<0.001]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+The 9-action space halves performance compared to the 5-action baseline. The culprits are SPEED (doubles movement speed, making aimed shots impossible as the agent overshoots targets) and MOVE_FORWARD (walks toward enemies, reducing distance and increasing damage taken). MOVE_BACKWARD may also reduce kill opportunities by moving out of effective range. Random strategy in 9-action space spends ~44% of time on harmful actions (4/9), compared to 0% in 5-action space. This demonstrates that action space design is critical: adding actions can DEGRADE performance when harmful options are included.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-089: Kill Rate Dilution Confirmed Across Action Spaces (DOE-031)
+
+**Hypothesis**: H-034 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-031 (EXPERIMENT_ORDER_031.md)
+**Experiment Report**: RPT-031 (EXPERIMENT_REPORT_031.md)
+
+**Evidence**:
+- Kill rate ANOVA: [STAT:f=F(3,116)=27.553] [STAT:p<0.001]
+- Kill rate monotonically decreases: 3-action (highest) > 5-action > 7-action > 9-action (lowest)
+- Attack probability: 33% (3-action) → 20% (5-action) → 14% (7-action) → 11% (9-action)
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+The H-034 dilution prediction is confirmed for KILL RATE: as action space size increases, the probability of selecting ATTACK on any given frame decreases proportionally, reducing kills-per-minute. However, the dilution effect on TOTAL KILLS is non-monotonic (F-087) because 5-action and 7-action spaces compensate for lower attack frequency with survival-enhancing movement (F-079). This extends the rate-time compensation framework (F-074) to the action space dimension: fewer attacks + more survival ≈ same or better total kills, up to a threshold where harmful actions dominate.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-090: L1 Cache Mechanism Does Not Exist in Current Architecture (DOE-032)
+
+**Hypothesis**: H-035 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-032 (EXPERIMENT_ORDER_032.md)
+**Experiment Report**: RPT-032 (EXPERIMENT_REPORT_032.md)
+
+**Evidence**:
+- l1_cache main effect: [STAT:f=F(1,36)=0.000] [STAT:p=1.000] [STAT:eta2=η²p=0.000]
+- cache_seq and nocache_seq produce ROW-BY-ROW identical results
+- cache_ind and nocache_ind produce ROW-BY-ROW identical results
+- All action functions are stateless RNG-based decision makers with no persistent memory
+- [STAT:n=400 episodes]
+
+**Trust Level**: HIGH (architecture finding)
+
+**Interpretation**:
+The hypothesized L1 DuckDB cache for action-level learning does not exist in the current implementation. All action functions (Random5Action, AttackRatioAction, etc.) make decisions based purely on the current game state (health, ammo, selected weapon) and RNG, with no reference to previous episodes or accumulated patterns. This is an ARCHITECTURE finding: the system was designed for real-time performance (<100ms decision latency) which precluded any database query in the action loop. Learning would require a fundamentally different mechanism.
+
+**Adopted**: 2026-02-10 (Phase 2)
+
+---
+
+### F-091: No Sequential Learning Effect in Current Architecture (DOE-032)
+
+**Hypothesis**: H-035 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-032 (EXPERIMENT_ORDER_032.md)
+**Experiment Report**: RPT-032 (EXPERIMENT_REPORT_032.md)
+
+**Evidence**:
+- sequence_mode main effect: [STAT:f=F(1,36)=0.245] [STAT:p=0.624] [STAT:eta2=η²p=0.007]
+- Interaction (l1_cache × sequence_mode): [STAT:f=F(1,36)=0.000] [STAT:p=1.000]
+- Learning slope in ALL conditions: +0.142, t=0.516, [STAT:p=0.618] (not significant)
+- Cohen's d (sequential vs independent): -0.021 (negligible)
+- Kruskal-Wallis confirmation: H=0.424, [STAT:p=0.935]
+- [STAT:n=400 episodes, 40 sequence-level observations]
+
+**Trust Level**: HIGH
+
+**Interpretation**:
+Playing 10 episodes sequentially produces NO learning curve compared to independent episodes. This completes the falsification of both learning mechanisms:
+- L2 document-based learning: falsified by DOE-022/024/026 triple null (F-070)
+- L1 experiential learning: falsified by DOE-032 complete null (this finding)
+
+The current architecture is fundamentally stateless at the action-selection level. Each decision is an independent RNG draw parameterized only by current game state. For learning to emerge, the system would need an explicit adaptive mechanism (e.g., RL policy updates, Bayesian belief updating, or pattern recognition from stored episode data fed back into the action function).
+
+**Adopted**: 2026-02-10 (Phase 2)

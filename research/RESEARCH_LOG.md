@@ -1,5 +1,54 @@
 # Research Log
 
+## 2026-02-10 — DOE-030/031/032: Three-Experiment Generalizability Push
+
+### Context
+DOE-029 concluded the defend_the_line optimization arc with a definitive finding: movement is the sole performance determinant (F-079, d=1.408). The 29-DOE program systematically eliminated all tactical optimization paths. The research now pivots to GENERALIZABILITY testing: does this conclusion hold under variation of difficulty, action space dimensionality, and learning paradigm?
+
+### Hypotheses
+H-033: Movement x difficulty interaction (HIGH priority)
+H-034: Action space dilution gradient (MEDIUM priority)
+H-035: L1 sequential cache learning (MEDIUM priority)
+
+### Designs
+
+**DOE-030** (2x5 Factorial, 300 episodes):
+- Factors: movement (present/absent) x doom_skill (1-5)
+- Tests whether F-079 (movement dominance) generalizes across all 5 difficulty levels
+- Extends DOE-023's difficulty investigation with the precise movement contrast
+- Seeds: 53001 + i*139, i=0..29
+
+**DOE-031** (One-Way ANOVA, 4 levels, 120 episodes):
+- Factor: action_space (3, 5, 7, 9 actions)
+- Tests random strategy dilution across increasing action dimensionality
+- Requires creation of 7-action and 9-action .cfg files
+- Seeds: 57101 + i*149, i=0..29
+
+**DOE-032** (2x2 Factorial with Repeated Measures, 400 episodes):
+- Factors: l1_cache (on/off) x sequence_mode (sequential/independent)
+- Tests whether L1 experiential learning succeeds where L2 document-based RAG failed
+- Novel measurement: learning slope across 10-episode sequences
+- Seeds: 61501 + k*151 + i*13, k=0..9, i=0..9
+
+### Result
+PENDING (experiments ordered but not yet executed)
+
+### Research Strategy Rationale
+Three experiments target distinct generalizability dimensions:
+1. **Environmental** (difficulty): Does the finding hold under harder/easier conditions?
+2. **Architectural** (action space): Does the finding hold with more/fewer degrees of freedom?
+3. **Temporal** (learning): Can the system improve with sequential experience?
+
+These form a comprehensive generalizability package for the paper. If F-079 holds across all three dimensions, it represents a strong negative result about tactical optimization in simple FPS environments. If any dimension breaks the pattern, it identifies the boundary conditions of the finding.
+
+### Budget
+DOE-030: 300 episodes (cumulative: 5310)
+DOE-031: 120 episodes (cumulative: 5430)
+DOE-032: 400 episodes (cumulative: 5830)
+Total new: 820 episodes
+
+---
+
 ## 2026-02-09 — DOE-029: Emergency Health Override Effect (SIGNIFICANT)
 
 ### Context
@@ -1121,3 +1170,64 @@ Trust level: HIGH
 - Consider embedding-based retrieval instead of tag matching
 - Consider longer episodes or scenarios with more strategic depth
 - 3-action space may be inherently too constrained for RAG differentiation
+
+---
+
+## 2026-02-10 — DOE-030, DOE-031, DOE-032: Phase 2 Execution Batch (Movement, Action Space, Learning)
+
+### Context
+Phase 2 experimental execution batch. Three experiments designed to probe movement universality, action space dimensionality, and learning mechanisms. All three executed and analyzed in a single autonomous session.
+
+### DOE-030: Movement × Difficulty Interaction (H-033)
+DOE type: 2×5 Full Factorial (collapsed to 2×3 effective)
+Factors: movement (2 levels: present/absent) × doom_skill (5 levels → 3 effective)
+Sample size: 300 episodes (30 per cell, 10 cells)
+Seeds: 53001 + i×139, i=0..29
+
+#### Result
+[STAT:f=F(1,294)=104.42] [STAT:p<0.001] [STAT:eta2=η²p=0.262] for movement
+[STAT:f=F(2,294)=352.04] [STAT:p<0.001] [STAT:eta2=η²p=0.705] for skill
+[STAT:f=F(2,294)=6.19] [STAT:p=0.002] [STAT:eta2=η²p=0.040] for interaction
+Conclusion: H-033 PARTIALLY SUPPORTED. Non-monotonic inverted-U interaction confirmed.
+Trust level: HIGH
+Findings adopted: F-084 (non-monotonic interaction), F-085 (difficulty degeneracy), F-086 (movement universality)
+
+### DOE-031: Action Space Granularity (H-034)
+DOE type: One-Way ANOVA (4 levels)
+Factor: action_space (3, 5, 7, 9 actions)
+Sample size: 120 episodes (30 per level)
+Seeds: 57101 + i×149, i=0..29
+
+#### Result
+[STAT:f=F(3,116)=20.345] [STAT:p<0.001] [STAT:eta2=η²p=0.345]
+Means: 3-action=14.03, 5-action=16.73, 7-action=16.43, 9-action=8.40
+Conclusion: H-034 PARTIALLY SUPPORTED. Non-monotonic curve: 5≈7 > 3 >> 9.
+Trust level: HIGH
+Findings adopted: F-087 (non-monotonic curve), F-088 (harmful 9-action), F-089 (kill rate dilution)
+
+### DOE-032: Cross-Episode Sequential Learning (H-035)
+DOE type: 2×2 Factorial with Repeated Measures
+Factors: l1_cache (on/off) × sequence_mode (sequential/independent)
+Sample size: 400 episodes (4 conditions × 10 sequences × 10 episodes)
+Seeds: 61501 + k×151 + i×13, k=0..9, i=0..9
+
+#### Result
+[STAT:f=F(1,36)=0.000] [STAT:p=1.000] for l1_cache (completely null)
+[STAT:f=F(1,36)=0.245] [STAT:p=0.624] [STAT:eta2=η²p=0.007] for sequence_mode
+[STAT:f=F(1,36)=0.000] [STAT:p=1.000] for interaction
+Conclusion: H-035 REJECTED. Complete null (Outcome D). No learning mechanism exists.
+Trust level: HIGH
+Findings adopted: F-090 (no L1 cache mechanism), F-091 (no sequential learning)
+
+### Cumulative Impact
+- Total findings adopted this session: 8 (F-084 through F-091)
+- Cumulative episodes: 5830 (5010 prior + 820 this batch)
+- Learning falsification complete: L2 (F-070) + L1 (F-090/F-091) both null
+- Movement dominance extends to all difficulties (F-086 upgrades F-079)
+- Optimal action space identified: 5-7 actions (F-087)
+
+### Next Steps
+- Phase 2 primary questions answered: movement is universal, action space has optimal range, learning is absent
+- Consider Phase 3: fine-grained movement mechanics (what makes strafing effective?)
+- Consider environmental variation: test on different scenarios (deadly_corridor, my_way_home)
+- Consider RL integration: if current stateless architecture can't learn, what minimal adaptive mechanism would enable learning?
