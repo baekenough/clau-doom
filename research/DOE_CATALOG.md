@@ -397,6 +397,7 @@ How many factors are you testing?
 | 1 — Adaptive Strategies | H-022 | DOE-018 | 150 (5 levels x 30 episodes) | 3120 |
 | 1 — Cross-Validation | H-023 | DOE-019 | 150 (5 levels x 30 episodes) | 3270 |
 | 1 — Best-of-Breed | H-024 | DOE-020 | 150 (5 levels x 30 episodes) | 3420 |
+| 1 — 5-Action Strategy Optimization | H-028 | DOE-025 | 180 (6 conditions x 30 episodes) | 3600 |
 | 2 — RSM | TBD | TBD | 330-510 | 3750-3930 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 4680-4860+ |
 
@@ -428,6 +429,7 @@ How many factors are you testing?
 | DOE-022 | One-way CRD | defend_the_line | 4 (L0/L1/L2 layers) | 120 | L2 RAG pipeline activation: L0_only, L0_L1, L0_L1_L2_good, L0_L1_L2_random | DESIGNED |
 | DOE-023 | 3x4 Factorial | defend_the_line (doom_skill) | 12 (3 skills x 4 strategies) | 360 | Cross-difficulty strategy robustness: doom_skill {1,3,5} x strategy {burst_3, random, adaptive_kill, L0_only} | COMPLETE |
 | DOE-024 | 4×3 Full Factorial | defend_the_line (doom_skill) | 12 (4 modes x 3 skills) | 360 | H-027 REJECTED: L2 meta-strategy no main effect (p=0.39), F-057~F-061 | COMPLETE |
+| DOE-025 | One-way ANOVA | defend_the_line_5action.cfg | 6 (strategy types) | 180 | H-028 PARTIALLY SUPPORTED: kills F(5,174)=4.057 p=0.0017 η²=0.104, survival F(5,174)=4.350 p=0.0009 η²=0.111, F-062~F-066 | COMPLETE |
 
 ---
 
@@ -436,11 +438,12 @@ How many factors are you testing?
 - DOE-002 combines H-006, H-007, H-008 into a single factorial, saving ~210 episodes vs separate OFAT + factorial (150 vs 90+90+180=360).
 - DOE-003 gates DOE-004 and DOE-005 via Decision Gate (Full Stack vs L0 Only).
 - DOE-005 provides confirmatory test for H-008 (DOE-002 is exploratory). If results conflict, DOE-005 takes precedence.
-- Total Phase 0/1 budget: **3420 episodes** across 20 experiments (DOE-001 through DOE-020).
+- Total Phase 0/1 budget: **3600 episodes** across 21 experiments (DOE-001 through DOE-020, DOE-025).
 - Episode reuse between S2-01 Baseline 2 (Rule-Only) and S2-02 Ablation 3 (L0 Only) saves ~70 episodes.
 - Shared seed sets enable cross-experiment comparisons.
 - DOE-021 tests H-025 (evolution discovers superior strategies) using 8-parameter genome with TOPSIS-based fitness. Seeds: 23001 + i*91.
 - DOE-022 tests H-005 (strategy document quality) via L2 RAG pipeline. First empirical test of OpenSearch kNN retrieval. Seeds: 24001 + i*97.
 - DOE-023 tests H-026 (strategy generalization) across 3 doom_skill levels {1=Easy, 3=Normal, 5=Nightmare}. Full factorial design (revised from original split-plot WAD variant plan — WAD editing infeasible). Seeds: 25001 + i*101. Result: doom_skill dominant (η²=0.720), significant interaction (p=6e-4), H-026 PARTIALLY SUPPORTED.
 - Total Phase 2 planned budget: **780 episodes** across 3 experiments (DOE-021 through DOE-023).
-- Cumulative budget (all phases): **4200 episodes** (3420 completed + 780 planned).
+- DOE-025 tests H-028 (5-action strategy space creates separable tiers) with 6 conditions: random_5, strafe_burst_3, smart_5, adaptive_5, dodge_burst_3, survival_burst. Seeds: 45001 + i×107. Result: H-028 PARTIALLY SUPPORTED. Strategy separation confirmed (kills p=0.0017, survival p=0.0009), but survival_burst (defensive, 40% attack) is paradoxically optimal (F-064).
+- Cumulative budget (all phases): **4380 episodes** (3600 completed + 780 planned).

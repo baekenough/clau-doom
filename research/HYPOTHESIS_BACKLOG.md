@@ -64,6 +64,23 @@
 **Key Findings**: F-046 (convergence, global optimality), F-047 (turn_direction penalty d=1.17), F-048 (adaptive switching null)
 
 
+### H-028: 5-Action Strategy Space Creates Separable Performance Tiers [PARTIALLY SUPPORTED]
+**Statement**: In the 5-action space (turn+strafe+attack), systematic variation of attack ratio and strafing patterns produces separable strategy performance tiers, unlike the 3-action space where random is near-optimal.
+**Rationale**: DOE-011 showed 5-action space creates inter-space differentiation (3-action vs 5-action, C4: p=0.003) but not intra-5-action differentiation (smart_5 vs random_5, C3: p=0.213). DOE-025 systematically maps the attack/strafe ratio gradient to determine whether strategy selection within the 5-action space matters.
+**Status**: PARTIALLY SUPPORTED (DOE-025). Strategies form separable tiers (kills p=0.0017, survival p=0.0009) but gradient doesn't align with attack ratio. survival_burst (defensive) paradoxically optimal.
+**Evidence**: EXPERIMENT_REPORT_025.md, F-062, F-063, F-064, F-065, F-066
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Analyzed**: 2026-02-09
+**Linked Experiment**: DOE-025
+**Key Findings**: F-062 (5-action differentiates, strategies separate into tiers), F-063 (survival optimal for kills), F-064 (survival-first paradox), F-065 (state-dependent heuristics degrade), F-066 (random competitive)
+
+### H-029: RAG Strategy Selection Has Value in 5-Action Space [HIGH PRIORITY]
+**Statement**: In the 5-action space where strategies differentiate (F-062, F-063), L2 RAG context-based strategy switching between survival_burst, random_5, and dodge_burst_3 will outperform any single fixed strategy.
+**Rationale**: DOE-025 showed strategies create separable tiers in the 5-action space (unlike 3-action). The core thesis "Agent Skill = DocQuality × ScoringAccuracy" can now be tested where strategy selection matters. RAG switching between top strategies based on game state may capture benefits of each.
+**Status**: Queued for DOE-026
+**Date Added**: 2026-02-09
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

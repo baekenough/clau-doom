@@ -1082,6 +1082,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
     """
     # Defer heavy imports so --help works without dependencies
     from glue.action_functions import (
+        Adaptive5Action,
         AdaptiveKillAction,
         AggressiveAdaptiveAction,
         AttackOnlyAction,
@@ -1092,6 +1093,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         Burst7Action,
         CompoundAttackTurnAction,
         CompoundBurst3Action,
+        DodgeBurst3Action,
         ForwardAttackAction,
         FullAgentAction,
         GenomeAction,
@@ -1104,6 +1106,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         RandomSelectAction,
         Smart5Action,
         StrafeBurst3Action,
+        SurvivalBurstAction,
         SweepLRAction,
         random_action,
         rule_only_action,
@@ -1248,6 +1251,12 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = StrafeBurst3Action()
             elif run.action_type == "smart_5":
                 action_fn = Smart5Action()
+            elif run.action_type == "adaptive_5":
+                action_fn = Adaptive5Action()
+            elif run.action_type == "dodge_burst_3":
+                action_fn = DodgeBurst3Action()
+            elif run.action_type == "survival_burst":
+                action_fn = SurvivalBurstAction()
             elif run.action_type == "compound_attack_turn":
                 action_fn = CompoundAttackTurnAction()
             elif run.action_type == "compound_burst_3":
@@ -1585,6 +1594,107 @@ def build_doe024_config(db_path=None):
     )
 
 
+def build_doe025_config(db_path: Path | None = None) -> ExperimentConfig:
+    """Build configuration for DOE-025: 5-Action Strategy Optimization.
+
+    H-028: 5-action strategies create separable performance tiers.
+    6 conditions: random_5, strafe_burst_3, smart_5, adaptive_5, dodge_burst_3, survival_burst.
+    All use defend_the_line_5action.cfg with 5 actions.
+
+    Seeds: seed_i = 45001 + i * 107, i=0..29
+    Randomized run order (seed 20250225): R3, R6, R1, R4, R2, R5
+    """
+    seeds = [45001 + i * 107 for i in range(30)]
+    exp_id = "DOE-025"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_5",
+            run_type="factorial",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="strafe_burst_3",
+            run_type="factorial",
+            action_type="strafe_burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="smart_5",
+            run_type="factorial",
+            action_type="smart_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="adaptive_5",
+            run_type="factorial",
+            action_type="adaptive_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="dodge_burst_3",
+            run_type="factorial",
+            action_type="dodge_burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R6",
+            run_label="R6",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="survival_burst",
+            run_type="factorial",
+            action_type="survival_burst",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+    ]
+
+    # Randomized order (seed 20250225): R3, R6, R1, R4, R2, R5
+    order = [runs[2], runs[5], runs[0], runs[3], runs[1], runs[4]]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=order,
+        seed_set=seeds,
+        seed_formula="seed_i = 45001 + i * 107, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1610,6 +1720,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-022": build_doe022_config,
     "DOE-023": build_doe023_config,
     "DOE-024": build_doe024_config,
+    "DOE-025": build_doe025_config,
 }
 
 

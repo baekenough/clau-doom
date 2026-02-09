@@ -1767,3 +1767,109 @@ The L0_only deficit established in DOE-008 (F-010) generalizes across all tested
 **Adopted**: 2026-02-09 (Phase 1)
 
 **Interpretation**: The project's core thesis that agent skill emerges from RAG document quality multiplied by Rust scoring accuracy remains unvalidated after two L2 RAG experiments. Both the coarse tactic-to-action approach (DOE-022) and the refined meta-strategy delegation approach (DOE-024) produce identical performance to fixed baselines. This suggests either (a) the 3-action space is too constrained for RAG to matter, (b) the tag-based retrieval is too coarse, or (c) the thesis itself needs revision.
+
+---
+
+## F-062: 5-Action Strategy Differentiates Kills (DOE-025)
+
+**Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
+**Experiment Report**: RPT-025 (EXPERIMENT_REPORT_025.md)
+
+**Evidence**:
+- Strategy main effect significant [STAT:p=0.0017] [STAT:F(5,174)=4.057]
+- Effect size medium [STAT:eta2=partial η²=0.104]
+- Sample size adequate [STAT:n=180] [STAT:power=1-β=0.956]
+- Equal variance PASS (Levene p=0.173)
+- Non-parametric confirmation: Kruskal-Wallis H=20.385, p=0.001058
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1b)
+
+**Interpretation**:
+In the 5-action space (turn+strafe+attack), strategy type creates separable kill tiers. Unlike the 3-action space where random was near-optimal (F-018), structured strategies now differentiate meaningfully. survival_burst leads (19.63 kills), smart_5 trails (13.73 kills).
+
+---
+
+## F-063: 5-Action Strategy Differentiates Survival (DOE-025)
+
+**Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
+**Experiment Report**: RPT-025 (EXPERIMENT_REPORT_025.md)
+
+**Evidence**:
+- Strategy main effect highly significant [STAT:p=0.0009] [STAT:F(5,174)=4.350]
+- Effect size medium [STAT:eta2=partial η²=0.111]
+- Sample size adequate [STAT:n=180] [STAT:power=1-β=0.968]
+- Equal variance PASS (Levene p=0.205)
+- Non-parametric confirmation: Kruskal-Wallis H=20.642, p=0.000946
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1b)
+
+**Interpretation**:
+Strategy type has highly significant effect on survival time in the 5-action space. survival_burst achieves 30.10s mean survival vs smart_5 at 21.25s. Confirms and extends DOE-011 finding F-023 (strafing improves survival, η²=0.225).
+
+---
+
+## F-064: Survival-First Paradox in 5-Action Space (DOE-025)
+
+**Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
+**Experiment Report**: RPT-025 (EXPERIMENT_REPORT_025.md)
+
+**Evidence**:
+- survival_burst (40% attack): kills=19.63±7.37, survival=30.10±10.79s
+- strafe_burst_3 (75% attack): kills=17.07±3.89, survival=24.88±5.94s
+- Pairwise: smart_5 vs survival_burst kills diff=-5.90 [STAT:p=0.000414]
+- Mann-Whitney U=684.0 [STAT:p=0.000536]
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1b)
+
+**Interpretation**:
+Counterintuitively, the most defensive strategy (survival_burst, 40% attack) achieves the highest kill count AND longest survival. The "survival enables offense" principle: staying alive longer provides more opportunities to attack, outweighing the lower attack frequency. This inverts the expected relationship between attack ratio and kill output.
+
+---
+
+## F-065: State-Dependent Heuristics Degrade 5-Action Performance (DOE-025)
+
+**Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
+**Experiment Report**: RPT-025 (EXPERIMENT_REPORT_025.md)
+
+**Evidence**:
+- smart_5 worst in kills (13.73±4.47) among all 6 strategies
+- vs random_5: diff=-4.40 [STAT:p=0.002297] (Bonferroni sig)
+- vs strafe_burst_3: diff=-3.33 [STAT:p=0.003172] (Bonferroni sig)
+- vs survival_burst: diff=-5.90 [STAT:p=0.000414] (Bonferroni sig)
+
+**Trust Level**: HIGH
+
+**Adopted**: 2026-02-09 (Phase 1b)
+
+**Interpretation**:
+The "smart" state-dependent heuristic (if kill → dodge, if miss → scan) is the worst performer in the 5-action space. This mirrors the full-agent interference finding (F-011) from DOE-008 — complex heuristic logic actively degrades performance compared to simple cyclic or random strategies. Replicates across both 3-action and 5-action spaces.
+
+---
+
+## F-066: Adaptive Health-Responsiveness Trades Survival for Kill Efficiency (DOE-025)
+
+**Hypothesis**: H-028 (HYPOTHESIS_BACKLOG.md)
+**Experiment Order**: DOE-025 (EXPERIMENT_ORDER_025.md)
+**Experiment Report**: RPT-025 (EXPERIMENT_REPORT_025.md)
+
+**Evidence**:
+- adaptive_5 highest kill_rate (42.84±5.95/min) but low survival (22.02±7.69s)
+- C4 contrast (adaptive vs non-adaptive): kill_rate diff=+2.52, p=0.0203, d=0.454
+- survival diff vs survival_burst: -8.08s [STAT:p=0.001462]
+
+**Trust Level**: MEDIUM (contrast p=0.0203, above Bonferroni α=0.01)
+
+**Adopted**: 2026-02-09 (Phase 1b)
+
+**Interpretation**:
+Health-responsive adaptive behavior increases per-second lethality (highest kill_rate) but at the cost of total survival time and total kills. The health-triggered mode switching creates inconsistent behavior that reduces overall effectiveness. Suggests state-dependent strategies need to optimize for survival first, not reactively switch to defensive mode.

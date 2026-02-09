@@ -26,6 +26,9 @@ Provides action strategies for DOE-007 through DOE-024 ablation levels:
 23. L2RagAction -- L2 RAG strategy retrieval with OpenSearch kNN (DOE-022)
 24. L2MetaStrategyAction -- L2 meta-strategy selector, delegates to L1 strategies (DOE-024)
 25. RandomSelectAction -- random strategy selector baseline (DOE-024)
+26. Adaptive5Action -- health-responsive adaptive strategy for 5-action space (DOE-025)
+27. DodgeBurst3Action -- 3 attacks + 2 strafes cycle for 5-action space (DOE-025)
+28. SurvivalBurstAction -- 2 attacks + 2 strafes + 1 turn cycle for 5-action space (DOE-025)
 """
 
 from __future__ import annotations
@@ -474,6 +477,159 @@ class Smart5Action:
             return self._rng.choice([2, 3])  # random strafe direction
 
         return 4  # fallback: ATTACK
+
+
+class Adaptive5Action:
+    """Health-responsive adaptive strategy for 5-action space.
+
+    For DOE-025: Tests value of state-dependent behavior in 5-action space.
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+
+    Behavior:
+    - Track health over last 10 ticks
+    - If health dropped >10 in last 10 ticks: strafe mode (strafe 60%, attack 40%)
+    - If health stable: attack mode (burst_3 pattern: 3 attacks + 1 turn)
+    - After kill: 1 tick strafe dodge then resume
+    L0 emergency: low health (<20) or no ammo -> full strafe
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._health_history = None  # deque(maxlen=10)
+        self._last_kills = 0
+        self._burst_pos = 0
+        self._dodge_after_kill = False
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        from collections import deque
+        self._rng = _random.Random(seed)
+        self._health_history = deque(maxlen=10)
+        self._last_kills = 0
+        self._burst_pos = 0
+        self._dodge_after_kill = False
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            from collections import deque
+            self._rng = _random.Random(42)
+            self._health_history = deque(maxlen=10)
+
+        self._health_history.append(state.health)
+
+        # L0 emergency
+        if state.health < 20:
+            return self._rng.choice([2, 3])  # random strafe
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])
+
+        # Post-kill dodge
+        if state.kills > self._last_kills:
+            self._last_kills = state.kills
+            self._dodge_after_kill = True
+
+        if self._dodge_after_kill:
+            self._dodge_after_kill = False
+            return self._rng.choice([2, 3])  # strafe dodge
+
+        # Check if health is declining
+        health_declining = False
+        if len(self._health_history) >= 10:
+            health_delta = self._health_history[-1] - self._health_history[0]
+            if health_delta < -10:
+                health_declining = True
+
+        if health_declining:
+            # Strafe mode: 60% strafe, 40% attack
+            if self._rng.random() < 0.6:
+                return self._rng.choice([2, 3])  # strafe
+            else:
+                return 4  # ATTACK
+        else:
+            # Attack mode: burst_3 pattern with turns
+            pos = self._burst_pos % 4
+            self._burst_pos += 1
+            if pos < 3:
+                return 4  # ATTACK
+            else:
+                return self._rng.choice([0, 1])  # random turn to scan
+
+
+class DodgeBurst3Action:
+    """3 attacks + 2 strafes cycle for 5-action space.
+
+    For DOE-025: Intermediate point on attack/strafe gradient (60% attack).
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+    Cycle: ATTACK, ATTACK, ATTACK, STRAFE, STRAFE (period = 5)
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._cycle_pos = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._cycle_pos = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # L0 emergency
+        if state.health < 20:
+            return self._rng.choice([2, 3])
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])
+
+        pos = self._cycle_pos % 5
+        self._cycle_pos += 1
+
+        if pos < 3:
+            return 4  # ATTACK
+        else:
+            return self._rng.choice([2, 3])  # random strafe
+
+
+class SurvivalBurstAction:
+    """2 attacks + 2 strafes + 1 turn cycle for 5-action space.
+
+    For DOE-025: Maximum survival with minimal offense (40% attack).
+    Actions: 0=TURN_LEFT, 1=TURN_RIGHT, 2=MOVE_LEFT, 3=MOVE_RIGHT, 4=ATTACK
+    Cycle: ATTACK, ATTACK, STRAFE, STRAFE, TURN (period = 5)
+    """
+
+    def __init__(self):
+        self._rng = None
+        self._cycle_pos = 0
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._cycle_pos = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # L0 emergency
+        if state.health < 20:
+            return self._rng.choice([2, 3])
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])
+
+        pos = self._cycle_pos % 5
+        self._cycle_pos += 1
+
+        if pos < 2:
+            return 4  # ATTACK
+        elif pos < 4:
+            return self._rng.choice([2, 3])  # random strafe
+        else:
+            return self._rng.choice([0, 1])  # random turn to scan
 
 
 class CompoundAttackTurnAction:

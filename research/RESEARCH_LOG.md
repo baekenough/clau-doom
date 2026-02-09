@@ -1,5 +1,41 @@
 # Research Log
 
+## 2026-02-09 — DOE-025: 5-Action Strategy Optimization
+
+### Context
+3-action space exhausted: burst_3 globally optimal (DOE-021), random near-optimal (F-018), L2 RAG null result (F-057, F-061). Expanded to 5-action space (turn+strafe+attack) to test whether action space expansion creates strategy differentiation.
+
+### Hypothesis
+H-028: 5-action strategies create separable performance tiers.
+Priority: High
+Rationale: DOE-011 showed strafing dramatically improves survival (F-023, η²=0.225) but only 3 strategies tested. Systematic mapping of attack/strafe ratio gradient needed.
+
+### Design
+DOE type: One-way ANOVA (6 conditions)
+Factors: Strategy type (random_5, strafe_burst_3, smart_5, adaptive_5, dodge_burst_3, survival_burst)
+Scenario: defend_the_line_5action.cfg, doom_skill=3
+Sample size: 30 episodes per condition, 180 total
+Seeds: seed_i = 45001 + i × 107, i=0..29
+
+### Result
+[STAT:p=0.0017] [STAT:F(5,174)=4.057] [STAT:eta2=0.104] (kills)
+[STAT:p=0.0009] [STAT:F(5,174)=4.350] [STAT:eta2=0.111] (survival_time)
+[STAT:p=0.045] [STAT:F(5,174)=2.323] [STAT:eta2=0.063] (kill_rate, marginal)
+Kruskal-Wallis confirms: kills H=20.385 p=0.001, survival H=20.642 p=0.0009
+Power: kills 0.956, survival 0.968
+Conclusion: H-028 PARTIALLY SUPPORTED. 5 new findings adopted (F-062 through F-066).
+Trust level: HIGH
+
+### Key Discoveries
+1. **Survival-First Paradox (F-064)**: survival_burst (40% attack) gets MOST kills (19.63) AND longest survival (30.10s). Defensive play enables offense.
+2. **State-Dependent Heuristics Degrade (F-065)**: smart_5 worst performer (13.73 kills), significantly worse than random. Mirrors F-011 interference finding.
+3. **5-Action Differentiates (F-062, F-063)**: Unlike 3-action where random is near-optimal, 5-action creates meaningful strategy separation — necessary condition for RAG value.
+
+### Next Steps
+DOE-026: Test L2 RAG strategy selection in 5-action space. Top 3 strategies (survival_burst, random_5, dodge_burst_3) as RAG candidates. First credible test of core thesis.
+
+---
+
 ## 2026-02-09 — DOE-023: Cross-Difficulty Strategy Robustness
 
 ### Context
