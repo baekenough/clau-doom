@@ -161,7 +161,7 @@ Figure~\ref{fig:timeline} presents the progression of all 29 experiments across 
 
 4. *Trust classification.* Findings receive a trust level: HIGH ($p < 0.01$, $n \geq 50$, clean diagnostics), MEDIUM ($p < 0.05$, $n \geq 30$), LOW ($p < 0.10$ or diagnostic violations), or UNTRUSTED (no statistical test or $p \geq 0.10$). Only HIGH and MEDIUM findings are adopted.
 
-5. *Audit trail.* Every finding traces through a complete chain: hypothesis (HYPOTHESIS\_BACKLOG) $\to$ experiment order (EXPERIMENT\_ORDER) $\to$ experiment report (EXPERIMENT\_REPORT) $\to$ finding (FINDINGS). No result is reported without this chain.
+5. *Audit trail.* Every finding traces through a complete chain: hypothesis (HYPOTHESIS\_BACKLOG) $\to$ experiment order (EXPERIMENT\_ORDER) $\to$ experiment report (EXPERIMENT\_REPORT) $\to$ finding (FINDINGS). No result is reported without this chain. Appendix~E provides full statistical methods detail; Appendix~A lists all 29 DOEs.
 
 ### 3.3 VizDoom Environment
 
@@ -182,7 +182,7 @@ We evaluate on VizDoom's \texttt{defend\_the\_line} scenario, selected through s
 ## 4. Results
 \label{sec:results}
 
-We present results across four phases spanning 29 DOEs and 5,010 total episodes. Phase 0--1 validates infrastructure and maps the strategy landscape. Phase 2 tests and falsifies the core RAG hypothesis. Phase 3 discovers rate-time compensation and confirms movement as the sole performance determinant.
+We present results across four phases spanning 29 DOEs and 5,010 total episodes (Appendix~A provides the complete DOE summary table; Appendix~B catalogs the top 20 findings with full evidence). Phase 0--1 validates infrastructure and maps the strategy landscape. Phase 2 tests and falsifies the core RAG hypothesis. Phase 3 discovers rate-time compensation and confirms movement as the sole performance determinant.
 
 ### 4.1 Infrastructure Validation and Strategy Exploration (DOE-001--020)
 
@@ -491,4 +491,4 @@ Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and Klimov, O. (2017). Prox
 
 **Acknowledgments**: This research was conducted using Claude Code, an AI-assisted development tool by Anthropic. Claude Code served as an active co-investigator in experimental design, statistical analysis, and paper composition.
 
-**Reproducibility**: All experiment orders, reports, and statistical analyses are available in the project repository at [repository URL to be added]. Fixed seed sets are provided for all 29 DOEs.
+**Reproducibility**: All experiment orders, reports, and statistical analyses are available in the project repository at [repository URL to be added]. Fixed seed sets are provided for all 29 DOEs. Appendices~A--H provide the complete DOE summary table, findings catalogue, variance decomposition, rate-time compensation evidence, statistical methods, glossary, future work directions, and ethics statement.
