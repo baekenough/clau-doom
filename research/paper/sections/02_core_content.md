@@ -75,11 +75,11 @@ We present results across four phases spanning 29 DOEs and 5,010 total episodes.
 
 - *L0-only is universally worst.* The pure-reflex strategy (always attack nearest enemy) was significantly worse than all alternatives across three independent experiments with different seed sets: DOE-008 ($d = 0.938$), DOE-010 ($d = 0.654$), DOE-019 ($d = 0.83$--$1.48$). The mechanism is tunnel vision: L0-only commits to a single enemy without lateral scanning (F-010, F-034).
 
-- *Random matches structured strategies in 3-action space.* Random action selection is statistically indistinguishable from all structured strategies: $F(3,116) = 0.517$, $p = 0.671$ (F-018). The 3-action space is too constrained for intelligent strategies to outperform uniform randomness.
+- *Random matches structured strategies in 3-action space.* Random action selection is statistically indistinguishable from all structured strategies (planned contrast: $t = -0.332$, $p = 0.741$, $d = 0.073$; F-018). The 3-action space is too constrained for intelligent strategies to outperform uniform randomness.
 
 - *Strafing trades kill rate for survival.* Expanding from 3 to 5 actions reduces kill rate by 3.18 kr/min ($d = 0.523$, $p = 0.003$) but increases survival by 63\% ($\eta^2 = 0.225$), producing more total kills (F-020, F-023, F-024).
 
-- *Compound actions confer no benefit.* Simultaneous multi-action commands (attack+turn on the same tick) produce identical results to sequential commands ($d = 0.000$; F-025). VizDoom's weapon cooldown (~12 ticks, ~340ms) absorbs all timing differences between strategies (F-043).
+- *Compound actions confer no benefit.* Simultaneous multi-action commands (attack+turn on the same tick) produce identical results to sequential commands ($d = 0.000$; F-025). VizDoom's weapon cooldown (~8 ticks, ~229ms) absorbs all timing differences between strategies (F-043).
 
 - *Best-of-breed strategies.* \texttt{burst\_3} (3 attacks, 1 reposition) achieves the highest total kills (15.40; F-036). \texttt{adaptive\_kill} (state-dependent switching) achieves the highest kill rate (46.18 kr/min; F-032). Both form a two-member Pareto front; all other strategies are dominated (F-039, F-041).
 
