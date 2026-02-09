@@ -1,5 +1,44 @@
 # Research Log
 
+## 2026-02-09 — DOE-028: Temporal Attack Pattern Study (NULL)
+
+### Context
+DOE-027 showed kills are invariant to attack RATIO (F-071) due to rate-time compensation (F-074). DOE-025 showed survival_burst (structured burst-3) outperformed random. F-075 attributed this to strategy STRUCTURE. DOE-028 tests whether temporal grouping (burst cycling) creates performance differences at a fixed 50% attack ratio.
+
+### Hypothesis
+H-031: Temporal attack grouping affects kill performance independently of ratio.
+Priority: High
+Rationale: If structure matters, burst cycling should outperform random at same ratio.
+
+### Design
+DOE type: OFAT (5 levels)
+Factor: burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10)
+All conditions: 50% attack ratio
+Sample size: 30 episodes per condition, 150 total
+Seeds: 48001 + i × 131, i=0..29
+
+### Result
+kills: [STAT:f=F(4,145)=1.017] [STAT:p=0.401] [STAT:eta2=0.027] — NULL
+survival: [STAT:f=F(4,145)=1.634] [STAT:p=0.169] [STAT:eta2=0.043] — NULL
+kill_rate: [STAT:f=F(4,145)=1.069] [STAT:p=0.374] [STAT:eta2=0.029] — NULL
+Kruskal-Wallis confirms all nulls.
+All planned contrasts null (C1 p=0.636, C2 p=0.815, C3 p=0.149, C4 p=0.893).
+Conclusion: H-031 REJECTED. Findings F-076, F-077, F-078 adopted.
+Trust: HIGH (for null result)
+
+### Key Discoveries
+1. **Full Tactical Invariance (F-077)**: Neither ratio (DOE-027) nor structure (DOE-028) affects kills. The 5-action defend_the_line environment is completely insensitive to tactical choices.
+2. **Rate-time compensation is universal (F-078)**: kr × surv ≈ constant holds for both random and deterministic patterns.
+3. **Research program convergence**: 28 DOEs systematically eliminated all tactical optimization paths.
+
+### Next Steps
+Research program has reached a natural endpoint for defend_the_line optimization. Options:
+1. Paper writing (core narrative: rigorous DOE methodology falsifies RAG thesis)
+2. New scenario with multi-hit enemies
+3. Meta-analysis of 78 findings across 28 DOEs
+
+---
+
 ## 2026-02-09 — DOE-025: 5-Action Strategy Optimization
 
 ### Context

@@ -1,6 +1,6 @@
 """Action selection functions for VizDoom defend_the_center/defend_the_line scenarios.
 
-Provides action strategies for DOE-007 through DOE-024 ablation levels:
+Provides action strategies for DOE-007 through DOE-028 ablation levels:
 1.  random_action -- uniform random choice (3-action space)
 2.  rule_only_action -- L0 hardcoded reflex rules (from Rust agent-core)
 3.  L0MemoryAction -- L0 rules + memory dodge heuristic (no strength modulation)
@@ -32,6 +32,7 @@ Provides action strategies for DOE-007 through DOE-024 ablation levels:
 29. L2MetaStrategy5Action -- L2 meta-strategy selector for 5-action space (DOE-026)
 30. RandomRotation5Action -- random rotation among 5-action strategies (DOE-026)
 31. AttackRatioAction -- parametric attack ratio for gradient sweep (DOE-027)
+32. BurstCycleAction -- deterministic burst cycle action for DOE-028
 """
 
 from __future__ import annotations
@@ -1671,3 +1672,46 @@ class AttackRatioAction:
             return 4  # ATTACK
         else:
             return self._rng.choice([0, 1, 2, 3])  # random movement
+
+
+class BurstCycleAction:
+    """Deterministic burst cycle action for 5-action space (DOE-028).
+
+    Cycles between burst_length attack ticks and burst_length movement ticks.
+    Attack ratio is exactly 50% regardless of burst_length.
+    Movement ticks use uniform random selection from TURN_LEFT(0), TURN_RIGHT(1),
+    MOVE_LEFT(2), MOVE_RIGHT(3).
+    """
+
+    def __init__(self, burst_length: int = 3):
+        self.burst_length = burst_length
+        self.cycle_length = burst_length * 2  # attack phase + move phase
+        self._tick = 0
+        self._rng = None
+
+    def reset(self, seed: int) -> None:
+        import random as _random
+        self._rng = _random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            import random as _random
+            self._rng = _random.Random(42)
+
+        # Health/ammo override (same as AttackRatioAction)
+        if state.health < 20:
+            return self._rng.choice([2, 3])
+        if state.ammo == 0:
+            return self._rng.choice([2, 3])
+
+        # Determine phase within cycle
+        phase_position = self._tick % self.cycle_length
+        self._tick += 1
+
+        if phase_position < self.burst_length:
+            # Attack phase
+            return 4  # ATTACK
+        else:
+            # Move phase: random movement
+            return self._rng.choice([0, 1, 2, 3])

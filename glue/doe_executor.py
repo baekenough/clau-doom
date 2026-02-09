@@ -1092,6 +1092,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         Burst3ThresholdAction,
         Burst5Action,
         Burst7Action,
+        BurstCycleAction,
         CompoundAttackTurnAction,
         CompoundBurst3Action,
         DodgeBurst3Action,
@@ -1314,6 +1315,9 @@ def execute_experiment(config: ExperimentConfig) -> None:
             elif run.action_type.startswith("ar_"):
                 ratio = int(run.action_type.split("_")[1]) / 100.0
                 action_fn = AttackRatioAction(attack_ratio=ratio)
+            elif run.action_type.startswith("cycle_"):
+                burst_len = int(run.action_type.split("_")[1])
+                action_fn = BurstCycleAction(burst_length=burst_len)
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -1846,6 +1850,89 @@ def build_doe027_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe028_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-028: Temporal Attack Pattern Study (Burst Cycle)
+
+    5 conditions all at 50% attack ratio, varying temporal grouping:
+    random_50, cycle_2, cycle_3, cycle_5, cycle_10
+    """
+    seeds = [48001 + i * 131 for i in range(30)]
+    exp_id = "DOE-028"
+
+    runs = [
+        # Randomized order: R3, R5, R1, R4, R2
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="cycle_3",
+            run_type="factorial",
+            action_type="cycle_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="cycle_10",
+            run_type="factorial",
+            action_type="cycle_10",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_50",
+            run_type="factorial",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="cycle_5",
+            run_type="factorial",
+            action_type="cycle_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="cycle_2",
+            run_type="factorial",
+            action_type="cycle_2",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+        ),
+    ]
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="seed_i = 48001 + i * 131, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -1874,6 +1961,7 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-025": build_doe025_config,
     "DOE-026": build_doe026_config,
     "DOE-027": build_doe027_config,
+    "DOE-028": build_doe028_config,
 }
 
 

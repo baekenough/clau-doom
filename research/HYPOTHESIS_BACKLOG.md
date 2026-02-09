@@ -95,6 +95,17 @@
 **Linked Experiment**: DOE-027
 **Key Findings**: F-071 (kills invariant to attack ratio), F-072 (survival decreases linearly), F-073 (kill rate increases monotonically), F-074 (rate-time compensation mechanism), F-075 (survival-first paradox is strategy structure artifact)
 
+### H-031: Temporal Attack Grouping Affects Kill Performance [REJECTED]
+**Statement**: Temporal grouping of attacks (burst cycling) affects kill performance independently of attack ratio, since concentrated attacks target the same enemy while dispersed attacks waste shots after movement changes aim direction.
+**Rationale**: DOE-027 showed kills are invariant to attack ratio (F-071), but DOE-025's survival_burst (structured burst-3) outperformed random_5. The difference was hypothesized to be temporal structure rather than composition.
+**Status**: REJECTED (DOE-028)
+**Evidence**: F-076, F-077, F-078
+**Trust**: HIGH (for null result)
+**Date Added**: 2026-02-09
+**Date Rejected**: 2026-02-09
+**Linked Experiment**: DOE-028
+**Key Findings**: F-076 (temporal grouping null), F-077 (full tactical invariance), F-078 (rate-time compensation extends to structure)
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses

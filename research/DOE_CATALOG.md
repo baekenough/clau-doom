@@ -398,8 +398,11 @@ How many factors are you testing?
 | 1 — Cross-Validation | H-023 | DOE-019 | 150 (5 levels x 30 episodes) | 3270 |
 | 1 — Best-of-Breed | H-024 | DOE-020 | 150 (5 levels x 30 episodes) | 3420 |
 | 1 — 5-Action Strategy Optimization | H-028 | DOE-025 | 180 (6 conditions x 30 episodes) | 3600 |
-| 2 — RSM | TBD | TBD | 330-510 | 3750-3930 |
-| 3 — Robust/Sequential | TBD | TBD | 1080+ | 4680-4860+ |
+| 1 — L2 RAG 5-Action | H-029 | DOE-026 | 150 (5 conditions x 30 episodes) | 3750 |
+| 1 — Attack Ratio Gradient | H-030 | DOE-027 | 210 (7 levels x 30 episodes) | 3960 |
+| 1 — Temporal Attack Pattern | H-031 | DOE-028 | 150 (5 levels x 30 episodes) | 4110 |
+| 2 — RSM | TBD | TBD | 330-510 | 4440-4620 |
+| 3 — Robust/Sequential | TBD | TBD | 1080+ | 5190-5550+ |
 
 ---
 
@@ -432,6 +435,7 @@ How many factors are you testing?
 | DOE-025 | One-way ANOVA | defend_the_line_5action.cfg | 6 (strategy types) | 180 | H-028 PARTIALLY SUPPORTED: kills F(5,174)=4.057 p=0.0017 η²=0.104, survival F(5,174)=4.350 p=0.0009 η²=0.111, F-062~F-066 | COMPLETE |
 | DOE-026 | One-way (5 groups) | L2 RAG strategy selection in 5-action space | 5 conditions × 30 = 150 | H-029 REJECTED | F-067~F-070 |
 | DOE-027 | One-way (7 levels) | defend_the_line_5action | attack_ratio (0.2-0.8) | 210 | H-030 REJECTED: kills invariant to attack ratio (p=0.717), rate-time compensation, F-071~F-075 | COMPLETE |
+| DOE-028 | OFAT (5 levels) | defend_the_line_5action | burst_pattern (random_50, cycle_2, cycle_3, cycle_5, cycle_10) | 150 | H-031 REJECTED: temporal grouping null (kills p=0.401, survival p=0.169, kill_rate p=0.374), F-076~F-078 | COMPLETE |
 
 ---
 
