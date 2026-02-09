@@ -205,6 +205,7 @@ We present results across four phases spanning 29 DOEs and 5,010 total episodes.
 - *Best-of-breed strategies.* \texttt{burst\_3} (3 attacks, 1 reposition) achieves the highest total kills (15.40; F-036). \texttt{adaptive\_kill} (state-dependent switching) achieves the highest kill rate (46.18 kr/min; F-032). Both form a two-member Pareto front; all other strategies are dominated (F-039, F-041).
 
 ### 4.2 Core Thesis Falsification (DOE-022, DOE-024, DOE-026)
+\label{sec:falsification}
 
 We tested the central hypothesis---that L2 RAG strategy retrieval improves agent performance---through three independent experiments spanning two action spaces and three retrieval implementations.
 
