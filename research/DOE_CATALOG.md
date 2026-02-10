@@ -492,3 +492,7 @@ How many factors are you testing?
 - DOE-040 tests H-043 (difficulty-performance gradient). SUPPORTED: Strong linear gradient (slope=-4.57 kills/step, R²=0.67). Kill-rate paradox confirmed: sk5 highest rate (62.5 kr) but fewest kills (6.48). Seeds: 89001 + i×191, i=0..49. F-109~F-111 (HIGH trust).
 - DOE-041 tests H-044 (movement advantage on deadly_corridor). PARTIALLY SUPPORTED: random_7 significantly outperforms deterministic strategies (d=0.856), but scenario extremely difficult (73% zero-kill, max 2 kills). Seeds: 93001 + i×193, i=0..29. F-112 (MEDIUM trust).
 - Cumulative budget (all phases): **6950 episodes** (6650 prior + 300 DOE-039~041).
+| DOE-042 | One-Way CRD | 5 strategies at doom_skill=3 | 150 | Phase 4 | F=9.379, p<0.001 | HIGH |
+| DOE-043 | One-Way CRD | deadly_corridor hybrid strategies | 150 | Phase 4 | F=2.989, p≈0.021 | LOW |
+| DOE-044 | Evolutionary | 5-gen genome optimization | 1000 | Phase 4 | +54% kills Gen1→Gen5 | MEDIUM |
+| DOE-045 | Two-Way 3×3 | strategy × difficulty interaction | 270 | Phase 4 | F_diff=445, F_strat=NS | HIGH |

@@ -35,6 +35,11 @@ Provides action strategies for DOE-007 through DOE-028 ablation levels:
 32. BurstCycleAction -- deterministic burst cycle action for DOE-028
 33. AttackRatioActionRaw -- attack ratio WITHOUT health override for DOE-029
 34. PureAttackAction -- always attack with optional health override for DOE-029
+35. ForwardBiased7Action -- weighted random favoring forward movement (DOE-043, 7-action)
+36. StrafeDodge7Action -- weighted random favoring lateral strafing (DOE-043, 7-action)
+37. BurstAdvance7Action -- state machine: 3-tick forward burst + 1 random other (DOE-043, 7-action)
+38. AdaptiveAggression7Action -- weighted random with high attack+forward bias (DOE-044, 7-action)
+39. Genome5Action -- 8-parameter genome for 5-action defend_the_line space (DOE-044)
 """
 
 from __future__ import annotations
@@ -1813,3 +1818,264 @@ class Random9Action:
             import random as _random
             self._rng = _random.Random(42)
         return self._rng.randint(0, 8)
+
+
+class ForwardBiased7Action:
+    """Weighted random for 7-action deadly_corridor, biased toward forward movement.
+
+    For DOE-043: Tests whether forward-biased movement improves corridor traversal.
+    Actions: MOVE_LEFT=0, MOVE_RIGHT=1, ATTACK=2, MOVE_FORWARD=3,
+             MOVE_BACKWARD=4, TURN_LEFT=5, TURN_RIGHT=6
+    Weights: [0.10, 0.10, 0.25, 0.35, 0.05, 0.075, 0.075]
+    """
+
+    _WEIGHTS = [0.10, 0.10, 0.25, 0.35, 0.05, 0.075, 0.075]
+    _ACTIONS = [0, 1, 2, 3, 4, 5, 6]
+
+    def __init__(self):
+        self._rng = None
+        # Pre-compute cumulative weights for random.choices
+        self._cum_weights = []
+        total = 0.0
+        for w in self._WEIGHTS:
+            total += w
+            self._cum_weights.append(total)
+
+    def reset(self, seed: int) -> None:
+        self._rng = random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            self._rng = random.Random(42)
+        return self._rng.choices(
+            self._ACTIONS, cum_weights=self._cum_weights
+        )[0]
+
+
+class StrafeDodge7Action:
+    """Weighted random for 7-action deadly_corridor, biased toward lateral strafing.
+
+    For DOE-043: Tests whether strafe-heavy movement improves survivability.
+    Actions: MOVE_LEFT=0, MOVE_RIGHT=1, ATTACK=2, MOVE_FORWARD=3,
+             MOVE_BACKWARD=4, TURN_LEFT=5, TURN_RIGHT=6
+    Weights: [0.20, 0.20, 0.25, 0.20, 0.05, 0.05, 0.05]
+    """
+
+    _WEIGHTS = [0.20, 0.20, 0.25, 0.20, 0.05, 0.05, 0.05]
+    _ACTIONS = [0, 1, 2, 3, 4, 5, 6]
+
+    def __init__(self):
+        self._rng = None
+        self._cum_weights = []
+        total = 0.0
+        for w in self._WEIGHTS:
+            total += w
+            self._cum_weights.append(total)
+
+    def reset(self, seed: int) -> None:
+        self._rng = random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            self._rng = random.Random(42)
+        return self._rng.choices(
+            self._ACTIONS, cum_weights=self._cum_weights
+        )[0]
+
+
+class BurstAdvance7Action:
+    """State machine for 7-action deadly_corridor: 3-tick forward burst + 1 random other.
+
+    For DOE-043: Tests whether structured forward bursts improve corridor traversal.
+    Actions: MOVE_LEFT=0, MOVE_RIGHT=1, ATTACK=2, MOVE_FORWARD=3,
+             MOVE_BACKWARD=4, TURN_LEFT=5, TURN_RIGHT=6
+
+    Pattern: 3 ticks MOVE_FORWARD (action 3), then 1 tick random from
+    remaining 6 actions (0,1,2,4,5,6), repeat.
+    """
+
+    _OTHER_ACTIONS = [0, 1, 2, 4, 5, 6]
+
+    def __init__(self):
+        self._rng = None
+        self._tick = 0
+
+    def reset(self, seed: int) -> None:
+        self._rng = random.Random(seed)
+        self._tick = 0
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            self._rng = random.Random(42)
+
+        pos = self._tick % 4
+        self._tick += 1
+
+        if pos < 3:
+            return 3  # MOVE_FORWARD
+        else:
+            return self._rng.choice(self._OTHER_ACTIONS)
+
+
+class AdaptiveAggression7Action:
+    """Weighted random for 7-action deadly_corridor with high attack+forward bias.
+
+    For DOE-044: Tests aggressive forward-attack strategy in corridor.
+    Actions: MOVE_LEFT=0, MOVE_RIGHT=1, ATTACK=2, MOVE_FORWARD=3,
+             MOVE_BACKWARD=4, TURN_LEFT=5, TURN_RIGHT=6
+    Weights: [0.125, 0.125, 0.30, 0.30, 0.05, 0.05, 0.05]
+    """
+
+    _WEIGHTS = [0.125, 0.125, 0.30, 0.30, 0.05, 0.05, 0.05]
+    _ACTIONS = [0, 1, 2, 3, 4, 5, 6]
+
+    def __init__(self):
+        self._rng = None
+        self._cum_weights = []
+        total = 0.0
+        for w in self._WEIGHTS:
+            total += w
+            self._cum_weights.append(total)
+
+    def reset(self, seed: int) -> None:
+        self._rng = random.Random(seed)
+
+    def __call__(self, state) -> int:
+        if self._rng is None:
+            self._rng = random.Random(42)
+        return self._rng.choices(
+            self._ACTIONS, cum_weights=self._cum_weights
+        )[0]
+
+
+class Genome5Action:
+    """8-parameter genome action for 5-action defend_the_line space (DOE-044).
+
+    State machine with burst/cooldown/movement phases controlled by genome
+    parameters. Provides a rich behavioral space for evolutionary optimization.
+
+    5-action indices: MOVE_LEFT=0, MOVE_RIGHT=1, TURN_LEFT=2,
+                      TURN_RIGHT=3, ATTACK=4
+
+    Genome parameters:
+        attack_probability: Probability of initiating attack burst [0.20..0.80]
+        strafe_probability: Probability of strafing vs turning during movement [0.00..0.50]
+        strafe_direction_bias: Left/right strafe bias [-1.0..1.0]
+        burst_length: Consecutive ATTACK actions per burst [1..5]
+        burst_cooldown: Movement ticks between bursts [0..3]
+        forward_tendency: Probability of random movement (hesitation) [0.00..0.30]
+        turn_vs_strafe_ratio: Fraction of movement allocated to turning [0.00..1.00]
+        movement_commitment: Consecutive movement in same direction [1..4]
+
+    State machine:
+        burst_counter > 0  -> ATTACK, decrement counter
+        cooldown_counter > 0 -> movement action, decrement counter
+        else -> probabilistic: hesitate / attack burst / movement
+    """
+
+    def __init__(
+        self,
+        attack_probability: float = 0.50,
+        strafe_probability: float = 0.25,
+        strafe_direction_bias: float = 0.0,
+        burst_length: int = 3,
+        burst_cooldown: int = 1,
+        forward_tendency: float = 0.10,
+        turn_vs_strafe_ratio: float = 0.50,
+        movement_commitment: int = 2,
+    ) -> None:
+        # Genome parameters
+        self.attack_probability = attack_probability
+        self.strafe_probability = strafe_probability
+        self.strafe_direction_bias = strafe_direction_bias
+        self.burst_length = burst_length
+        self.burst_cooldown = burst_cooldown
+        self.forward_tendency = forward_tendency
+        self.turn_vs_strafe_ratio = turn_vs_strafe_ratio
+        self.movement_commitment = movement_commitment
+
+        # Internal state (cleared by reset())
+        self._rng: random.Random = random.Random(0)
+        self._burst_counter: int = 0
+        self._cooldown_counter: int = 0
+        self._movement_commitment_counter: int = 0
+        self._last_movement_action: int = 0
+
+    def reset(self, seed: int = 0) -> None:
+        """Reset state between episodes.
+
+        Seeds the internal RNG with a hash of (seed, all genome params)
+        so that different genomes produce different action sequences.
+        """
+        combined = hash((
+            seed,
+            round(self.attack_probability, 4),
+            round(self.strafe_probability, 4),
+            round(self.strafe_direction_bias, 4),
+            self.burst_length,
+            self.burst_cooldown,
+            round(self.forward_tendency, 4),
+            round(self.turn_vs_strafe_ratio, 4),
+            self.movement_commitment,
+        ))
+        self._rng = random.Random(combined)
+        self._burst_counter = 0
+        self._cooldown_counter = 0
+        self._movement_commitment_counter = 0
+        self._last_movement_action = 0
+
+    def __call__(self, state: GameState) -> int:
+        # --- Burst phase: consecutive attacks ---
+        if self._burst_counter > 0:
+            self._burst_counter -= 1
+            if self._burst_counter == 0:
+                self._cooldown_counter = self.burst_cooldown
+            return 4  # ATTACK
+
+        # --- Cooldown phase: forced movement between bursts ---
+        if self._cooldown_counter > 0:
+            self._cooldown_counter -= 1
+            if self._cooldown_counter == 0:
+                self._burst_counter = self.burst_length
+            return self._select_movement_action()
+
+        # --- Decision phase: probabilistic action selection ---
+        r = self._rng.random()
+
+        if r < self.forward_tendency:
+            # Hesitation: random movement (no forward in 5-action space)
+            return self._rng.choice([0, 1, 2, 3])
+
+        if r < self.forward_tendency + self.attack_probability:
+            # Start attack burst (this tick is the first attack)
+            self._burst_counter = self.burst_length - 1
+            if self.burst_length == 1:
+                self._cooldown_counter = self.burst_cooldown
+            return 4  # ATTACK
+
+        # Movement action
+        return self._select_movement_action()
+
+    def _select_movement_action(self) -> int:
+        """Select a movement action respecting commitment and bias."""
+        # If committed to a direction, continue
+        if self._movement_commitment_counter > 0:
+            self._movement_commitment_counter -= 1
+            return self._last_movement_action
+
+        # Choose between turning and strafing
+        r = self._rng.random()
+        if r < self.turn_vs_strafe_ratio:
+            # Turn: 50/50 left or right
+            action = 2 if self._rng.random() < 0.5 else 3  # TURN_LEFT or TURN_RIGHT
+        else:
+            # Strafe: biased by strafe_direction_bias
+            bias_r = self._rng.random()
+            if bias_r < (0.5 + self.strafe_direction_bias / 2.0):
+                action = 1  # MOVE_RIGHT
+            else:
+                action = 0  # MOVE_LEFT
+
+        self._movement_commitment_counter = self.movement_commitment - 1
+        self._last_movement_action = action
+        return action

@@ -1,5 +1,47 @@
 # Research Log
 
+## 2026-02-10 — DOE-042~045 Phase 4 Execution Batch
+
+### Context
+Phase 4 experiment batch: new scenario exploration and difficulty mapping.
+Four experiments executed covering strategy comparison, hybrid navigation, evolutionary optimization, and difficulty interaction.
+
+### Results Summary
+- **DOE-042**: 5-action strategy comparison at sk3, F(4,145)=9.379, p<0.001, η²=0.206 [HIGH trust]
+- **DOE-043**: deadly_corridor hybrid strategies, F(4,145)=2.989, p≈0.021, η²=0.076 [LOW trust]
+- **DOE-044**: Evolutionary 5-gen optimization, Gen1→Gen5 +54% kills, best=25.3 kills [MEDIUM trust]
+- **DOE-045**: 3×3 strategy×difficulty factorial, difficulty F=445, strategy F=1.49 (NS) [HIGH trust]
+
+### Key Findings
+- F-113: attack_raw significantly inferior at doom_skill=3
+- F-114: deadly_corridor undiscriminating across hybrid strategies
+- F-115: Evolution improves mean kills by 54% over 5 generations
+- F-116: Difficulty dominates strategy in 5-action space; strategy rankings stable across difficulty
+
+### Cumulative Progress
+- Total episodes: 5210 + 1570 = 6780
+- DOE count: DOE-001 through DOE-045
+- Key pattern: evolved genomes converge to turn_vs_strafe_ratio≈0.7-0.8, burst_length=1
+
+---
+
+## 2026-02-10 — Phase 4 Experiment Design Batch: DOE-042~045 + predict_position Exclusion
+
+Designed 4 new experiments (DOE-042~045) covering sk3 strategy comparison, deadly_corridor hybrid strategies, evolutionary optimization, and multi-difficulty tournament. Total new episodes planned: ~1570 (150+150+1000+270). Permanently excluded predict_position.cfg from research program based on F-108 (zero shots fired, scenario fundamentally incompatible with agent architecture). predict_position joins basic.cfg as non-viable scenario.
+
+### Experiments Ordered
+- **DOE-042** (H-045): 5-action strategy comparison at doom_skill=3, 150 episodes
+- **DOE-043** (H-046): Hybrid navigation strategies for deadly_corridor, 120 episodes
+- **DOE-044** (H-047): Evolutionary optimization in 5-action space, 1000 episodes max
+- **DOE-045** (H-048): Multi-difficulty strategy tournament, 450 episodes
+
+### predict_position Exclusion
+- F-108: zero shots fired across all 60 episodes, both strategies
+- Scenario requires projectile trajectory prediction — architectural mismatch
+- Scenario viability hierarchy finalized: defend_the_line > deadly_corridor > basic.cfg (non-viable) > predict_position (excluded) > defend_the_center (low discrimination)
+
+---
+
 ## 2026-02-10 — DOE-039/040/041: Phase 4 New Scenario Exploration and Difficulty Mapping
 
 ### Context

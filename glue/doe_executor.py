@@ -1083,6 +1083,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
     # Defer heavy imports so --help works without dependencies
     from glue.action_functions import (
         Adaptive5Action,
+        AdaptiveAggression7Action,
         AdaptiveKillAction,
         AggressiveAdaptiveAction,
         AttackOnlyAction,
@@ -1093,12 +1094,15 @@ def execute_experiment(config: ExperimentConfig) -> None:
         Burst3ThresholdAction,
         Burst5Action,
         Burst7Action,
+        BurstAdvance7Action,
         BurstCycleAction,
         CompoundAttackTurnAction,
         CompoundBurst3Action,
         DodgeBurst3Action,
         ForwardAttackAction,
+        ForwardBiased7Action,
         FullAgentAction,
+        Genome5Action,
         GenomeAction,
         L0MemoryAction,
         L0StrengthAction,
@@ -1113,6 +1117,7 @@ def execute_experiment(config: ExperimentConfig) -> None:
         RandomSelectAction,
         Smart5Action,
         StrafeBurst3Action,
+        StrafeDodge7Action,
         SurvivalBurstAction,
         SweepLRAction,
         random_action,
@@ -1329,6 +1334,16 @@ def execute_experiment(config: ExperimentConfig) -> None:
                 action_fn = PureAttackAction(health_override=True)
             elif run.action_type == "attack_raw":
                 action_fn = PureAttackAction(health_override=False)
+            elif run.action_type == "forward_biased_7":
+                action_fn = ForwardBiased7Action()
+            elif run.action_type == "strafe_dodge_7":
+                action_fn = StrafeDodge7Action()
+            elif run.action_type == "burst_advance_7":
+                action_fn = BurstAdvance7Action()
+            elif run.action_type == "adaptive_aggression_7":
+                action_fn = AdaptiveAggression7Action()
+            elif run.action_type == "genome5":
+                action_fn = Genome5Action(**run.genome_params)
             else:  # "full_agent" (default)
                 action_fn = FullAgentAction(
                     memory_weight=run.memory_weight,
@@ -3214,6 +3229,741 @@ def build_doe041_config(db_path: Path | None = None) -> ExperimentConfig:
     )
 
 
+def build_doe042_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-042: 5-Action Strategy Comparison at doom_skill=3
+
+    Tests top-performing 5-action strategies head-to-head.
+    Hypothesis H-045: Strategy differentiation persists at moderate difficulty.
+
+    defend_the_line_5action.cfg actions: MOVE_LEFT, MOVE_RIGHT, ATTACK,
+    MOVE_FORWARD, MOVE_BACKWARD.
+    Factor: strategy (random_5, ar_50, dodge_burst_3, survival_burst, attack_raw)
+
+    Design: One-way CRD, 5 levels, 30 episodes/level, 150 total
+    Seed formula: 95001 + i*197, i=0..29
+    Scenario: defend_the_line_5action.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=95001, step=197)
+    exp_id = "DOE-042"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_5",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_50",
+            run_type="one_way",
+            action_type="ar_50",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="dodge_burst_3",
+            run_type="one_way",
+            action_type="dodge_burst_3",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="survival_burst",
+            run_type="one_way",
+            action_type="survival_burst",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_raw",
+            run_type="one_way",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+    ]
+
+    # Randomize run order: R4, R2, R5, R1, R3
+    import random as _rng
+    rng = _rng.Random(20260220)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="95001 + i*197, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe043_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-043: deadly_corridor.cfg 7-Action Advanced Strategy Comparison
+
+    Tests purpose-built 7-action strategies in navigation+combat scenario.
+    Hypothesis H-046: Specialized movement strategies outperform random in
+    7-action deadly_corridor.
+
+    deadly_corridor.cfg actions: MOVE_LEFT, MOVE_RIGHT, ATTACK, MOVE_FORWARD,
+    MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT.
+    Factor: strategy (random_7, forward_biased_7, strafe_dodge_7,
+                      burst_advance_7, adaptive_aggression_7)
+
+    Design: One-way CRD, 5 levels, 30 episodes/level, 150 total
+    Seed formula: 97001 + i*199, i=0..29
+    Scenario: deadly_corridor.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=97001, step=199)
+    exp_id = "DOE-043"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_7",
+            run_type="one_way",
+            action_type="random_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="forward_biased_7",
+            run_type="one_way",
+            action_type="forward_biased_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="strafe_dodge_7",
+            run_type="one_way",
+            action_type="strafe_dodge_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="burst_advance_7",
+            run_type="one_way",
+            action_type="burst_advance_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R5",
+            run_label="R5",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="adaptive_aggression_7",
+            run_type="one_way",
+            action_type="adaptive_aggression_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+    ]
+
+    # Randomize run order
+    import random as _rng
+    rng = _rng.Random(20260221)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="97001 + i*199, i=0..29",
+        scenario="deadly_corridor.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe044_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-044: Evolutionary Genome Optimization (Gen 1 Initial Population)
+
+    Gen 1 of multi-generation evolutionary experiment using TOPSIS selection.
+    10 genomes x 20 episodes each on defend_the_line_5action.cfg.
+
+    Genome parameters: attack_probability, strafe_probability,
+    strafe_direction_bias, burst_length, burst_cooldown, forward_tendency,
+    turn_vs_strafe_ratio, movement_commitment.
+
+    Design: 10 genomes, 20 episodes/genome, 200 total
+    Seed formula: 99001 + i*211, i=0..19
+    Scenario: defend_the_line_5action.cfg
+    """
+    seeds = _generate_seed_set(n=20, base=99001, step=211)
+    exp_id = "DOE-044"
+
+    genomes = [
+        {"attack_probability": 0.50, "strafe_probability": 0.50, "strafe_direction_bias": 0.0, "burst_length": 1, "burst_cooldown": 0, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.00, "movement_commitment": 1},
+        {"attack_probability": 0.50, "strafe_probability": 0.50, "strafe_direction_bias": 0.0, "burst_length": 1, "burst_cooldown": 0, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.30, "movement_commitment": 1},
+        {"attack_probability": 0.50, "strafe_probability": 0.40, "strafe_direction_bias": 0.0, "burst_length": 3, "burst_cooldown": 1, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.10, "movement_commitment": 1},
+        {"attack_probability": 0.60, "strafe_probability": 0.30, "strafe_direction_bias": 0.0, "burst_length": 3, "burst_cooldown": 2, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.20, "movement_commitment": 2},
+        {"attack_probability": 0.35, "strafe_probability": 0.50, "strafe_direction_bias": 0.0, "burst_length": 2, "burst_cooldown": 1, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.05, "movement_commitment": 3},
+        {"attack_probability": 0.70, "strafe_probability": 0.30, "strafe_direction_bias": 0.0, "burst_length": 4, "burst_cooldown": 1, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.15, "movement_commitment": 1},
+        {"attack_probability": 0.50, "strafe_probability": 0.45, "strafe_direction_bias": -0.6, "burst_length": 2, "burst_cooldown": 1, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.10, "movement_commitment": 2},
+        {"attack_probability": 0.45, "strafe_probability": 0.25, "strafe_direction_bias": 0.0, "burst_length": 2, "burst_cooldown": 1, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.60, "movement_commitment": 1},
+        {"attack_probability": 0.40, "strafe_probability": 0.40, "strafe_direction_bias": 0.0, "burst_length": 2, "burst_cooldown": 1, "forward_tendency": 0.15, "turn_vs_strafe_ratio": 0.10, "movement_commitment": 1},
+        {"attack_probability": 0.50, "strafe_probability": 0.50, "strafe_direction_bias": 0.0, "burst_length": 1, "burst_cooldown": 0, "forward_tendency": 0.00, "turn_vs_strafe_ratio": 0.50, "movement_commitment": 1},
+    ]
+
+    runs = []
+    for i, genome in enumerate(genomes, start=1):
+        label = f"R{i:02d}"
+        runs.append(
+            RunConfig(
+                run_id=f"{exp_id}-{label}",
+                run_label=label,
+                memory_weight=0.0,
+                strength_weight=0.0,
+                seeds=list(seeds),
+                condition=f"G{i:02d}",
+                run_type="one_way",
+                action_type="genome5",
+                scenario="defend_the_line_5action.cfg",
+                num_actions=5,
+                doom_skill=3,
+                genome_params=dict(genome),
+            )
+        )
+
+    # Randomize run order: R05,R08,R02,R10,R06,R01,R04,R09,R07,R03
+    import random as _rng
+    rng = _rng.Random(4401)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="99001 + i*211, i=0..19",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe045_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-045: Strategy x Difficulty Two-Way Factorial (3x3)
+
+    Tests interaction between strategy and difficulty level.
+    Hypothesis H-047: Strategy effectiveness depends on difficulty.
+
+    Factor A: strategy (random_5, survival_burst, dodge_burst_3)
+    Factor B: doom_skill (1=easy, 3=hard, 5=nightmare)
+
+    Design: 3x3 full factorial, 30 episodes/cell, 270 total
+    Seed formula: 101001 + i*223, i=0..29
+    Scenario: defend_the_line_5action.cfg
+
+    Block order: easy(sk1) -> medium(sk3) -> nightmare(sk5)
+    Within blocks, strategy order randomized per EXPERIMENT_ORDER_045.
+    """
+    seeds = _generate_seed_set(n=30, base=101001, step=223)
+    exp_id = "DOE-045"
+
+    strategies = ["random_5", "survival_burst", "dodge_burst_3"]
+    difficulties = [1, 3, 5]
+    difficulty_labels = {1: "sk1", 3: "sk3", 5: "sk5"}
+
+    runs = []
+    run_num = 0
+    for skill in difficulties:
+        for strat in strategies:
+            run_num += 1
+            cond = f"{strat}_{difficulty_labels[skill]}"
+            runs.append(
+                RunConfig(
+                    run_id=f"{exp_id}-R{run_num}",
+                    run_label=f"R{run_num}",
+                    memory_weight=0.0,
+                    strength_weight=0.0,
+                    seeds=list(seeds),
+                    condition=cond,
+                    run_type="factorial",
+                    action_type=strat,
+                    scenario="defend_the_line_5action.cfg",
+                    num_actions=5,
+                    doom_skill=skill,
+                )
+            )
+
+    # Block-randomize: within each difficulty block, shuffle strategies
+    # Block 1 (easy, sk1): R1-R3  Block 2 (medium, sk3): R4-R6  Block 3 (nightmare, sk5): R7-R9
+    import random as _rng
+    block1 = runs[0:3]
+    block2 = runs[3:6]
+    block3 = runs[6:9]
+    rng = _rng.Random(20260222)
+    rng.shuffle(block1)
+    rng.shuffle(block2)
+    rng.shuffle(block3)
+    runs = block1 + block2 + block3
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="101001 + i*223, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+# ---------------------------------------------------------------------------
+# DOE-044 evolutionary executor
+# ---------------------------------------------------------------------------
+
+
+def _topsis(results: list[dict], weights: list[float]) -> list[float]:
+    """Compute TOPSIS closeness coefficients.
+
+    Args:
+        results: List of dicts with 'kills', 'survival_time', 'kill_rate'.
+        weights: Weights for each criterion (all maximize).
+
+    Returns:
+        Closeness coefficients (0-1), higher is better.
+    """
+    import math
+
+    n = len(results)
+    criteria = ["kills", "survival_time", "kill_rate"]
+
+    # Build decision matrix
+    matrix = [[r[c] for c in criteria] for r in results]
+
+    # Normalize columns
+    col_norms = [
+        math.sqrt(sum(row[j] ** 2 for row in matrix)) for j in range(3)
+    ]
+    normalized = [
+        [row[j] / (col_norms[j] if col_norms[j] > 0 else 1) for j in range(3)]
+        for row in matrix
+    ]
+
+    # Apply weights
+    weighted = [
+        [normalized[i][j] * weights[j] for j in range(3)] for i in range(n)
+    ]
+
+    # Ideal best and worst (all maximize)
+    ideal_best = [max(weighted[i][j] for i in range(n)) for j in range(3)]
+    ideal_worst = [min(weighted[i][j] for i in range(n)) for j in range(3)]
+
+    # Distances to ideal best/worst
+    d_plus = [
+        math.sqrt(sum((weighted[i][j] - ideal_best[j]) ** 2 for j in range(3)))
+        for i in range(n)
+    ]
+    d_minus = [
+        math.sqrt(sum((weighted[i][j] - ideal_worst[j]) ** 2 for j in range(3)))
+        for i in range(n)
+    ]
+
+    # Closeness coefficient
+    closeness = [
+        d_minus[i] / (d_plus[i] + d_minus[i])
+        if (d_plus[i] + d_minus[i]) > 0
+        else 0
+        for i in range(n)
+    ]
+    return closeness
+
+
+def execute_doe044(config: ExperimentConfig) -> None:
+    """Evolutionary executor for DOE-044: 5 generations with TOPSIS selection.
+
+    Runs 10 genomes per generation, evaluates via TOPSIS, then evolves
+    the population through selection, crossover, and mutation.
+
+    Convergence: stops if best genome unchanged for 2 consecutive generations.
+    """
+    import math
+    import random as _rng
+
+    from glue.action_functions import Genome5Action
+    from glue.duckdb_writer import DuckDBWriter
+    from glue.episode_runner import EpisodeRunner
+    from glue.vizdoom_bridge import VizDoomBridge
+
+    MAX_GENERATIONS = 5
+    GENOMES_PER_GEN = 10
+    EPISODES_PER_GENOME = 20
+    TOPSIS_WEIGHTS = [0.50, 0.30, 0.20]  # kills, survival_time, kill_rate
+
+    # Seed sets per generation
+    gen_seeds = {
+        1: _generate_seed_set(n=20, base=99001, step=211),
+        2: _generate_seed_set(n=20, base=104001, step=223),
+        3: _generate_seed_set(n=20, base=109001, step=227),
+        4: _generate_seed_set(n=20, base=114001, step=229),
+        5: _generate_seed_set(n=20, base=119001, step=233),
+    }
+
+    # Mutation parameters
+    MUTATION_PROB = 0.20
+    FLOAT_SIGMA = {
+        "attack_probability": 0.15,
+        "strafe_probability": 0.12,
+        "strafe_direction_bias": 0.20,
+        "forward_tendency": 0.08,
+        "turn_vs_strafe_ratio": 0.15,
+    }
+    FLOAT_CLAMP = {
+        "attack_probability": (0.0, 1.0),
+        "strafe_probability": (0.0, 1.0),
+        "strafe_direction_bias": (-1.0, 1.0),
+        "forward_tendency": (0.0, 1.0),
+        "turn_vs_strafe_ratio": (0.0, 1.0),
+    }
+    INT_CLAMP = {
+        "burst_length": (1, 7),
+        "burst_cooldown": (0, 5),
+        "movement_commitment": (1, 5),
+    }
+
+    # Extract Gen 1 genomes from config
+    current_genomes = []
+    for run in sorted(config.runs, key=lambda r: r.condition):
+        current_genomes.append(dict(run.genome_params))
+
+    total_episodes = MAX_GENERATIONS * GENOMES_PER_GEN * EPISODES_PER_GENOME
+    logger.info("=" * 70)
+    logger.info(
+        "DOE-044 Evolutionary: %s (%d gens, %d genomes/gen, %d ep/genome, %d total max)",
+        config.experiment_id,
+        MAX_GENERATIONS,
+        GENOMES_PER_GEN,
+        EPISODES_PER_GENOME,
+        total_episodes,
+    )
+    logger.info("=" * 70)
+
+    bridge = VizDoomBridge(
+        scenario="defend_the_line_5action.cfg", num_actions=5, doom_skill=3
+    )
+    runner = EpisodeRunner(bridge)
+    db = DuckDBWriter(db_path=config.db_path)
+
+    db.write_seed_set(
+        experiment_id=config.experiment_id,
+        seed_set=config.seed_set,
+        formula=config.seed_formula,
+    )
+
+    experiment_start = time.monotonic()
+    completed = 0
+    skipped = 0
+
+    rng = _rng.Random(44044)  # Deterministic RNG for evolution
+
+    prev_best_genome: dict | None = None
+    unchanged_count = 0
+
+    try:
+        for gen in range(1, MAX_GENERATIONS + 1):
+            logger.info("=" * 50)
+            logger.info("GENERATION %d/%d", gen, MAX_GENERATIONS)
+            logger.info("=" * 50)
+
+            seeds = gen_seeds[gen]
+            gen_exp_id = (
+                config.experiment_id if gen == 1
+                else f"{config.experiment_id}_gen{gen}"
+            )
+
+            # Register seed set for non-Gen1
+            if gen > 1:
+                db.write_seed_set(
+                    experiment_id=gen_exp_id,
+                    seed_set=seeds,
+                    formula=f"gen{gen} seeds",
+                )
+
+            genome_results: list[dict] = []
+
+            for g_idx, genome in enumerate(current_genomes):
+                g_label = f"G{g_idx + 1:02d}"
+                condition = f"gen{gen}_{g_label}" if gen > 1 else g_label
+
+                logger.info(
+                    "  [Gen %d] Genome %s: %s", gen, g_label, genome
+                )
+
+                action_fn = Genome5Action(**genome)
+
+                ep_kills = []
+                ep_survival = []
+                ep_kill_rate = []
+
+                for ep_i, seed in enumerate(seeds):
+                    episode_number = ep_i + 1
+
+                    # Check resumption
+                    if _episode_exists(db, gen_exp_id, condition, episode_number):
+                        skipped += 1
+                        continue
+
+                    action_fn.reset(seed=seed)
+
+                    result = runner.run_episode(
+                        seed=seed,
+                        condition=condition,
+                        episode_number=episode_number,
+                        action_fn=action_fn,
+                    )
+
+                    metrics = {
+                        "survival_time": result.metrics.survival_time,
+                        "kills": result.metrics.kills,
+                        "damage_dealt": result.metrics.damage_dealt,
+                        "damage_taken": result.metrics.damage_taken,
+                        "ammo_efficiency": result.metrics.ammo_efficiency,
+                        "exploration_coverage": result.metrics.exploration_coverage,
+                        "total_ticks": result.metrics.total_ticks,
+                        "shots_fired": result.metrics.shots_fired,
+                        "hits": result.metrics.hits,
+                        "cells_visited": result.metrics.cells_visited,
+                    }
+
+                    level_counts: dict[str, int] = {}
+                    for level in result.decision_levels:
+                        key = str(level)
+                        level_counts[key] = level_counts.get(key, 0) + 1
+
+                    db.write_episode(
+                        experiment_id=gen_exp_id,
+                        run_id=f"{gen_exp_id}-{g_label}",
+                        condition=condition,
+                        seed=seed,
+                        episode_number=episode_number,
+                        metrics=metrics,
+                        decision_latency_p99=result.decision_latency_p99,
+                        rule_match_rate=result.rule_match_rate,
+                        decision_level_counts=level_counts,
+                    )
+
+                    ep_kills.append(result.metrics.kills)
+                    ep_survival.append(result.metrics.survival_time)
+                    ep_kill_rate.append(result.metrics.kill_rate)
+                    completed += 1
+
+                # Compute means for this genome
+                mean_kills = sum(ep_kills) / len(ep_kills) if ep_kills else 0.0
+                mean_survival = (
+                    sum(ep_survival) / len(ep_survival) if ep_survival else 0.0
+                )
+                mean_kr = (
+                    sum(ep_kill_rate) / len(ep_kill_rate) if ep_kill_rate else 0.0
+                )
+
+                genome_results.append({
+                    "genome": genome,
+                    "label": g_label,
+                    "kills": mean_kills,
+                    "survival_time": mean_survival,
+                    "kill_rate": mean_kr,
+                })
+
+                logger.info(
+                    "    %s: kills=%.1f  survival=%.1fs  kill_rate=%.2f/min",
+                    g_label, mean_kills, mean_survival, mean_kr,
+                )
+
+            # Compute TOPSIS fitness
+            fitness = _topsis(genome_results, TOPSIS_WEIGHTS)
+            ranked = sorted(
+                zip(fitness, genome_results),
+                key=lambda x: x[0],
+                reverse=True,
+            )
+
+            logger.info("-" * 40)
+            logger.info("Gen %d TOPSIS Rankings:", gen)
+            for rank, (score, gr) in enumerate(ranked, 1):
+                logger.info(
+                    "  #%d: %s  C_i=%.4f  (kills=%.1f, surv=%.1fs, kr=%.2f)",
+                    rank,
+                    gr["label"],
+                    score,
+                    gr["kills"],
+                    gr["survival_time"],
+                    gr["kill_rate"],
+                )
+
+            # Check convergence
+            best_genome = ranked[0][1]["genome"]
+
+            def _genome_distance(a: dict, b: dict) -> float:
+                dist = 0.0
+                for key in a:
+                    dist += (float(a[key]) - float(b[key])) ** 2
+                return math.sqrt(dist)
+
+            if prev_best_genome is not None:
+                dist = _genome_distance(best_genome, prev_best_genome)
+                if dist < 0.01:
+                    unchanged_count += 1
+                    logger.info(
+                        "Best genome unchanged (dist=%.4f), count=%d",
+                        dist,
+                        unchanged_count,
+                    )
+                    if unchanged_count >= 2:
+                        logger.info(
+                            "Convergence detected at Gen %d, stopping.", gen
+                        )
+                        break
+                else:
+                    unchanged_count = 0
+            prev_best_genome = dict(best_genome)
+
+            # Evolve next generation
+            if gen < MAX_GENERATIONS:
+                r1 = ranked[0][1]["genome"]
+                r2 = ranked[1][1]["genome"]
+                r3 = ranked[2][1]["genome"]
+                r4 = ranked[3][1]["genome"]
+
+                def _crossover(p1: dict, p2: dict) -> dict:
+                    child = {}
+                    for key in p1:
+                        child[key] = p1[key] if rng.random() < 0.5 else p2[key]
+                    return child
+
+                def _mutate(genome: dict) -> dict:
+                    mutated = dict(genome)
+                    for key in mutated:
+                        if rng.random() < MUTATION_PROB:
+                            if key in FLOAT_SIGMA:
+                                sigma = FLOAT_SIGMA[key]
+                                lo, hi = FLOAT_CLAMP[key]
+                                mutated[key] = max(
+                                    lo,
+                                    min(hi, mutated[key] + rng.gauss(0, sigma)),
+                                )
+                            elif key in INT_CLAMP:
+                                lo, hi = INT_CLAMP[key]
+                                delta = rng.choice([-1, 1])
+                                mutated[key] = max(
+                                    lo, min(hi, mutated[key] + delta)
+                                )
+                    # Constraint: burst_cooldown=0 if burst_length=1
+                    if mutated["burst_length"] == 1:
+                        mutated["burst_cooldown"] = 0
+                    return mutated
+
+                def _random_genome() -> dict:
+                    g = {
+                        "attack_probability": rng.uniform(0.2, 0.8),
+                        "strafe_probability": rng.uniform(0.1, 0.6),
+                        "strafe_direction_bias": rng.uniform(-0.5, 0.5),
+                        "burst_length": rng.randint(1, 5),
+                        "burst_cooldown": rng.randint(0, 3),
+                        "forward_tendency": rng.uniform(0.0, 0.3),
+                        "turn_vs_strafe_ratio": rng.uniform(0.0, 0.6),
+                        "movement_commitment": rng.randint(1, 3),
+                    }
+                    if g["burst_length"] == 1:
+                        g["burst_cooldown"] = 0
+                    return g
+
+                next_gen = [
+                    dict(r1),                           # 1: Elite (best, unchanged)
+                    _mutate(_crossover(r1, r2)),         # 2: Child of Rank1 x Rank2
+                    _mutate(_crossover(r1, r2)),         # 3: Child of Rank1 x Rank2
+                    _mutate(_crossover(r1, r3)),         # 4: Child of Rank1 x Rank3
+                    _mutate(_crossover(r2, r4)),         # 5: Child of Rank2 x Rank4
+                    _mutate(_crossover(r3, r4)),         # 6: Child of Rank3 x Rank4
+                    _mutate(_crossover(r1, r4)),         # 7: Child of Rank1 x Rank4
+                    _mutate(dict(r2)),                   # 8: Mutation-only clone of Rank2
+                    _mutate(dict(r3)),                   # 9: Mutation-only clone of Rank3
+                    _random_genome(),                    # 10: Random new genome
+                ]
+
+                current_genomes = next_gen
+                logger.info("Next generation created (%d genomes)", len(next_gen))
+
+    finally:
+        bridge.close()
+
+    # Verify data integrity
+    logger.info("-" * 50)
+    logger.info("Verifying data integrity...")
+    integrity = db.verify_integrity(config.experiment_id)
+    if integrity["valid"]:
+        logger.info("Data integrity OK")
+    else:
+        logger.warning("Data integrity issues: %s", integrity["issues"])
+
+    for cond, count in sorted(integrity["counts"].items()):
+        logger.info("  %s: %d episodes", cond, count)
+
+    db.close()
+
+    total_elapsed = time.monotonic() - experiment_start
+    logger.info("=" * 70)
+    logger.info(
+        "%s COMPLETE: %d new + %d skipped episodes in %.1fs",
+        config.experiment_id, completed, skipped, total_elapsed,
+    )
+    logger.info("=" * 70)
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -3256,6 +4006,10 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-039": build_doe039_config,
     "DOE-040": build_doe040_config,
     "DOE-041": build_doe041_config,
+    "DOE-042": build_doe042_config,
+    "DOE-043": build_doe043_config,
+    "DOE-044": build_doe044_config,
+    "DOE-045": build_doe045_config,
 }
 
 
@@ -3291,8 +4045,10 @@ def main() -> None:
     builder = EXPERIMENT_BUILDERS[args.experiment]
     config = builder(db_path=args.db_path)
 
-    # DOE-032 uses special sequential executor
-    if args.experiment == "DOE-032":
+    # Special executors for specific experiments
+    if args.experiment == "DOE-044":
+        execute_doe044(config)
+    elif args.experiment == "DOE-032":
         execute_doe032(config)
     else:
         execute_experiment(config)

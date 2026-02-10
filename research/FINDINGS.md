@@ -2671,3 +2671,44 @@ random_7 achieves 0.500 mean kills (max 2) vs attack_only 0.067 and forward_atta
 
 **Trust**: MEDIUM
 **Adopted**: 2026-02-10 (Phase 4)
+
+### F-113: attack_raw Significantly Inferior at doom_skill=3 [DOE-042]
+- **Experiment**: DOE-042 (H-045)
+- **Design**: One-Way CRD, 5 strategies, n=30/strategy, defend_the_line_5action.cfg, doom_skill=3
+- **Result**: [STAT:p<0.001] [STAT:f=F(4,145)=9.379] [STAT:eta2=η²=0.206]
+- attack_raw mean=10.6 kills vs grand mean=16.3, confirming pure attack without movement is suboptimal
+- random_5 (19.1) > dodge_burst_3 (18.2) > ar_50 (17.0) > survival_burst (16.4) >> attack_raw (10.6)
+- Strategy effect large (η²=0.206), driven primarily by attack_raw deficit
+- **Trust**: HIGH (p<0.001, n=150, large effect)
+
+### F-114: deadly_corridor Remains Undiscriminating Across Hybrid Strategies [DOE-043]
+- **Experiment**: DOE-043 (H-046)
+- **Design**: One-Way CRD, 5 strategies, n=30/strategy, deadly_corridor.cfg, 7-action
+- **Result**: [STAT:p≈0.021] [STAT:f=F(4,145)=2.989] [STAT:eta2=η²=0.076]
+- All strategies produce near-zero kills (0.1-0.5 mean)
+- random_7 best (0.47) but practical significance negligible
+- Zero-inflated distribution violates ANOVA assumptions → Kruskal-Wallis recommended
+- Confirms deadly_corridor kills are too low for meaningful strategy differentiation
+- **Trust**: LOW (small effect, assumption violations, near-floor performance)
+
+### F-115: Evolution Improves Population Mean Kills by 54% Over 5 Generations [DOE-044]
+- **Experiment**: DOE-044 (H-047)
+- **Design**: Evolutionary, 10 genomes/gen, 20 episodes/genome, 5 generations, 1000 total episodes
+- **Result**: Gen1 avg=14.0 kills → Gen5 avg=21.6 kills (+54%)
+- Best genome Gen5 G05: kills=25.3, survival=36.6s (TOPSIS C_i=0.897)
+- Convergence pattern: burst_length→1, burst_cooldown→0, turn_vs_strafe_ratio→0.6-0.8
+- Evolution discovered high turn_vs_strafe_ratio (0.7-0.8) as key differentiator
+- Random injection (G10) consistently worst, confirming evolved advantages
+- **Trust**: MEDIUM (evolutionary, not replicated, but clear monotonic improvement)
+
+### F-116: Difficulty Dominates Strategy in 5-Action Space [DOE-045]
+- **Experiment**: DOE-045 (H-048)
+- **Design**: Two-Way 3×3 factorial, 3 strategies × 3 difficulties, n=30/cell, 270 total
+- **Result**:
+  - Difficulty: [STAT:p<0.001] [STAT:f=F(2,261)=445.452] [STAT:eta2=η²=0.769] — massive effect
+  - Strategy: [STAT:p=0.228] [STAT:f=F(2,261)=1.488] [STAT:eta2=η²=0.003] — NOT significant
+  - Interaction: [STAT:p=0.381] [STAT:f=F(4,261)=1.051] [STAT:eta2=η²=0.004] — NOT significant
+- Strategy rankings DO NOT change across difficulty (rejects H-048)
+- sk1=26.6, sk3=16.0, sk5=5.5 kills — clear monotonic difficulty gradient
+- Within each difficulty level, strategies are practically equivalent
+- **Trust**: HIGH (large sample, massive difficulty effect, clean null for interaction)

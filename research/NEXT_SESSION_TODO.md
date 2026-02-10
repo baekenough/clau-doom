@@ -1,29 +1,24 @@
-> **STATUS**: Priority 1 tasks COMPLETED (2026-02-10). Findings F-108~F-112 registered, RESEARCH_LOG updated, DOE_CATALOG updated, HYPOTHESIS_BACKLOG updated. Committed and pushed.
+> **STATUS**: Priority 3 COMPLETED (2026-02-10). DOE-042~045 designed. predict_position permanently excluded.
 
 # Next Session TODO — Post DOE-039/040/041
 
-## Priority 1: Documentation Updates
-- [ ] Register new findings in FINDINGS.md (3 new findings from DOE-039/040/041)
-  - F-xxx: doom_skill explains 67.5% of kill variance (DOE-040, HIGH trust, p<10^-10)
-  - F-xxx: Kill-Rate Paradox — higher difficulty → higher kill_rate but lower total kills (DOE-040)
-  - F-xxx: Random exploration outperforms deterministic strategies in deadly_corridor (DOE-041, MEDIUM trust, p=0.00169)
-  - Note: predict_position (DOE-039) produced UNTRUSTED results — scenario non-viable
-- [ ] Update RESEARCH_LOG.md with DOE-039/040/041 session entry
-- [ ] Update DOE_CATALOG.md with DOE-039/040/041 entries
-- [ ] Update HYPOTHESIS_BACKLOG.md — mark H-042/043/044 as tested
+## Priority 1: Documentation Updates [COMPLETED]
+- [x] Register new findings in FINDINGS.md (F-108~F-112)
+- [x] Update RESEARCH_LOG.md with DOE-039/040/041 session entry
+- [x] Update DOE_CATALOG.md with DOE-039/040/041 entries
+- [x] Update HYPOTHESIS_BACKLOG.md — mark H-042/043/044 as tested
 
-## Priority 2: Git Commit
-- [ ] Stage all new experiment files (EXPERIMENT_ORDER_039-041, EXPERIMENT_REPORT_039-041)
-- [ ] Stage updated doe_executor.py (already has build_doe039/040/041_config)
-- [ ] Commit: `exp(research): DOE-039~041 phase 4 new scenario exploration`
+## Priority 2: Git Commit [COMPLETED]
+- [x] Stage all new experiment files (EXPERIMENT_ORDER_039-041, EXPERIMENT_REPORT_039-041)
+- [x] Stage updated doe_executor.py
+- [x] Commit: `exp(research): DOE-039~041 phase 4 new scenario exploration`
 
-## Priority 3: Next Experiment Design (Phase 4 continued)
-- [ ] Design DOE-042+: Consider these directions:
-  - **Option A**: Genome evolution on defend_the_line — use GenomeAction with evolutionary optimization
-  - **Option B**: Attack ratio fine-tuning on sk3 difficulty (medium, best discrimination)
-  - **Option C**: Multi-scenario tournament (defend_the_line sk1/sk3/sk5 × top 3 strategies)
-  - **Option D**: Hybrid strategies for deadly_corridor (structured + stochastic)
-- [ ] predict_position.cfg: debug or permanently exclude from research program
+## Priority 3: Next Experiment Design (Phase 4 continued) [COMPLETED]
+- [x] DOE-042: 5-action strategy comparison at doom_skill=3 (H-045)
+- [x] DOE-043: Hybrid navigation strategies for deadly_corridor (H-046)
+- [x] DOE-044: Evolutionary optimization in 5-action space (H-047)
+- [x] DOE-045: Multi-difficulty strategy tournament (H-048)
+- [x] predict_position.cfg: **permanently excluded** from research program (F-108, zero engagement)
 
 ## Context for Next Session
 - Total episodes run: 4910 + 300 = 5210

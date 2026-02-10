@@ -207,6 +207,44 @@
 **Linked Experiment**: DOE-038
 **Key Findings**: F-105, F-106, F-107
 
+## Active Hypotheses (Phase 4)
+
+### H-045: Strategy Performance Rankings Shift at Intermediate Difficulty [MEDIUM PRIORITY]
+**Statement**: Strategy performance rankings established at doom_skill=1 (survival_burst ≈ ar_50 >> burst_3 ≈ attack_raw) do not hold at doom_skill=3, with the survival_burst advantage diminishing and the movement vs no-movement gap contracting due to reduced survival time under increased enemy lethality.
+**Rationale**: DOE-040 established difficulty gradient, DOE-035 mapped optimal config at sk1. Most 5-action experiments were at sk1. H-026 showed rankings shift with difficulty.
+**Status**: Tested (DOE-042)
+**Result**: Partially supported — strategies differ at sk3 but random_5 still best (F-113)
+**Date Added**: 2026-02-10
+**Date Tested**: 2026-02-10
+**Linked Experiment**: DOE-042
+
+### H-046: Hybrid Navigation+Combat Strategies Outperform Random on deadly_corridor [MEDIUM PRIORITY]
+**Statement**: Hybrid strategies combining structured forward navigation with stochastic combat/evasion elements outperform pure random_7 on deadly_corridor.cfg, where 73% of episodes currently produce zero kills.
+**Rationale**: DOE-041 showed random_7 best but 73% zero-kill rate suggests room for improvement with more intelligent approaches.
+**Status**: Tested (DOE-043)
+**Result**: Rejected — hybrid strategies do not outperform random_7 on deadly_corridor (F-114)
+**Date Added**: 2026-02-10
+**Date Tested**: 2026-02-10
+**Linked Experiment**: DOE-043
+
+### H-047: Evolutionary Optimization Breaks Tactical Invariance in 5-Action Space [HIGH PRIORITY]
+**Statement**: Evolutionary optimization in 5-action defend_the_line discovers configurations that break tactical invariance (F-077) by exploiting the richer movement/attack parameter space, achieving kills exceeding the ar_50 baseline and converging more slowly than DOE-021's 2-generation convergence in the 3-action space.
+**Rationale**: DOE-021 showed rapid 3-action convergence. 5-action has more dimensions for evolution to explore.
+**Status**: Tested (DOE-044)
+**Result**: Supported — evolution improves kills by 54% over 5 generations (F-115)
+**Date Added**: 2026-02-10
+**Date Tested**: 2026-02-10
+**Linked Experiment**: DOE-044
+
+### H-048: 5-Action Strategy Rankings Change Across Difficulty Levels [HIGH PRIORITY]
+**Statement**: Strategy performance rankings in the 5-action space change across difficulty levels on defend_the_line — survival-oriented strategies (survival_burst) gain relative advantage at higher difficulty where evasion matters more, while aggression-focused strategies (dodge_burst_3) dominate at lower difficulty.
+**Rationale**: DOE-023 showed ranking changes in 3-action space. DOE-040 established difficulty gradient. Untested in 5-action.
+**Status**: Tested (DOE-045)
+**Result**: Rejected — strategy rankings stable across difficulty levels (F-116)
+**Date Added**: 2026-02-10
+**Date Tested**: 2026-02-10
+**Linked Experiment**: DOE-045
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses
