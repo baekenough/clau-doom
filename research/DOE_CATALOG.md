@@ -2,7 +2,7 @@
 
 > **Project**: clau-doom — LLM Multi-Agent DOOM Research
 > **Reference**: 04-DOE.md (DOE Framework), CLAUDE.md (DOE Phase Progression)
-> **Last Updated**: 2026-02-08
+> **Last Updated**: 2026-02-10
 
 ---
 
@@ -411,7 +411,13 @@ How many factors are you testing?
 | 3 — Movement × Action Space Interaction | H-036 | DOE-033 | 180 (6 cells x 30 episodes) | 6010 |
 | 3 — DOE-008 Replication | H-037 | DOE-034 | 150 (5 levels x 30 episodes) | 6160 |
 | 3 — Best-of-Breed Tournament | H-038 | DOE-035 | 150 (5 levels x 30 episodes) | 6310 |
-| 2 — RSM | TBD | TBD | 330-510 | 6640-6820 |
+| 4 — basic.cfg Attack Ratio | H-039 | DOE-036 | 120 (4 levels x 30 episodes) | 6430 |
+| 4 — Extreme Difficulty Movement | H-040 | DOE-037 | 120 (4 cells x 30 episodes) | 6550 |
+| 4 — High-Power Difficulty Mapping | H-041 | DOE-038 | 100 (2 levels x 50 episodes) | 6650 |
+| 4 — predict_position Movement | H-042 | DOE-039 | 60 (2 conditions x 30 episodes) | 6710 |
+| 4 — Difficulty Gradient Mapping | H-043 | DOE-040 | 150 (3 levels x 50 episodes) | 6860 |
+| 4 — deadly_corridor Navigation | H-044 | DOE-041 | 90 (3 strategies x 30 episodes) | 6950 |
+| 2 — RSM | TBD | TBD | 330-510 | 6980-7160 |
 | 3 — Robust/Sequential | TBD | TBD | 1080+ | 7720-7900+ |
 
 ---
@@ -453,6 +459,12 @@ How many factors are you testing?
 | DOE-033 | 3×2 Full Factorial | defend_the_line (3/5/7 action) | action_space (3) × movement (2) | 180 | H-036 SUPPORTED: Movement × action space interaction (p=2.26e-05). Strafing drives movement benefit (d=0.4→1.4→1.8). Stationary invariant to action space. F-092~F-094 | COMPLETE |
 | DOE-034 | One-Way CRD (Replication) | defend_the_line | 5 architecture levels (identical to DOE-008) | 150 | H-037 PARTIALLY SUPPORTED: Rank order replicates perfectly. KW p=0.017. ANOVA p=0.062 (marginal). Mean shift ~1-2 kills. F-095~F-096 | COMPLETE |
 | DOE-035 | One-Way CRD (Tournament) | defend_the_line_5action (doom_skill=1) | 5 best strategies | 150 | H-038 PARTIALLY SUPPORTED: F=48.381, p=8.55e-26, η²=0.572. Top 3 movement strategies equivalent. burst_3 catastrophic in 5-action. Performance ceiling ~27 kills. F-097~F-100 | COMPLETE |
+| DOE-036 | One-Way CRD | basic.cfg (doom_skill=5) | 4 (attack_ratio: 20/40/60/80%) | 120 | H-039 REJECTED: Chi-squared p=0.8808, ANOVA p=0.912. basic.cfg unsuitable (1 monster, binary kills). F-101 | COMPLETE |
+| DOE-037 | 2×2 Full Factorial | defend_the_line_5action | movement (2) × difficulty (sk1, sk5) | 120 | H-040 SUPPORTED: Movement significant both levels (d=1.38, d=1.33), interaction p=0.021 (3.04x compression at sk5). F-102~F-104 | COMPLETE |
+| DOE-038 | One-Way CRD (High Power) | defend_the_line_5action | doom_skill (sk1, sk5) | 100 | H-041 SUPPORTED: 3.96x performance ratio, d=4.66, p=1.60e-32, η²=0.735. Variance compression 2.67x. F-105~F-107 | COMPLETE |
+| DOE-039 | One-Way CRD | predict_position.cfg (doom_skill=3) | 2 (random_3 vs attack_raw) | 60 | H-042 REJECTED: predict_position not viable (p=0.161, shots_fired=0, 93-100% zero kills). F-108 | COMPLETE |
+| DOE-040 | One-Way CRD (3 levels) | defend_the_line_5action (doom_skill 1/3/5) | 3 (sk1, sk3, sk5) with random_5 | 150 | H-043 SUPPORTED: Difficulty gradient confirmed (F=152.621, p<1e-10, η²=0.675). Linear slope -4.57 kills/step. Kill-rate paradox. F-109~F-111 | COMPLETE |
+| DOE-041 | One-Way CRD (3 levels) | deadly_corridor.cfg (doom_skill=3) | 3 (random_7, forward_attack, attack_only) | 90 | H-044 PARTIALLY SUPPORTED: random_7 wins (F=6.879, p=0.00169, η²=0.137, d=0.856). 73% zero-kill episodes. F-112 | COMPLETE |
 
 ---
 
@@ -476,4 +488,7 @@ How many factors are you testing?
 - DOE-030 tests H-033 (movement x difficulty interaction). 2×5 factorial: movement (present/absent) × doom_skill (1-5). Uses 5-action space. Seeds: 53001 + i*139, i=0..29. Max seed: 57032.
 - DOE-031 tests H-034 (action space dilution). One-way ANOVA: 4 levels (3/5/7/9 actions) with random strategy. Requires creation of 7-action and 9-action .cfg files. Seeds: 57101 + i*149, i=0..29. Max seed: 61422.
 - DOE-032 tests H-035 (L1 sequential cache learning). 2×2 factorial: l1_cache (on/off) × sequence_mode (sequential/independent). 10 sequences of 10 episodes per cell. Seeds: 61501 + k*151 + i*13, k=0..9, i=0..9. Max seed: 62977.
-- Cumulative budget (all phases): **5830 episodes** (5010 prior + 820 DOE-030~032).
+- DOE-039 tests H-042 (movement aids predict_position). REJECTED: Scenario non-viable, zero shots fired by both conditions. Seeds: 85001 + i×181, i=0..29. F-108 (UNTRUSTED).
+- DOE-040 tests H-043 (difficulty-performance gradient). SUPPORTED: Strong linear gradient (slope=-4.57 kills/step, R²=0.67). Kill-rate paradox confirmed: sk5 highest rate (62.5 kr) but fewest kills (6.48). Seeds: 89001 + i×191, i=0..49. F-109~F-111 (HIGH trust).
+- DOE-041 tests H-044 (movement advantage on deadly_corridor). PARTIALLY SUPPORTED: random_7 significantly outperforms deterministic strategies (d=0.856), but scenario extremely difficult (73% zero-kill, max 2 kills). Seeds: 93001 + i×193, i=0..29. F-112 (MEDIUM trust).
+- Cumulative budget (all phases): **6950 episodes** (6650 prior + 300 DOE-039~041).

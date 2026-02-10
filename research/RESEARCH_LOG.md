@@ -1,5 +1,141 @@
 # Research Log
 
+## 2026-02-10 — DOE-039/040/041: Phase 4 New Scenario Exploration and Difficulty Mapping
+
+### Context
+Phase 4 continuation: exploring new scenarios (predict_position, deadly_corridor) and completing the difficulty-performance curve with a 3-level mapping. Three experiments executed and analyzed 2026-02-10. Total episodes: 300 (cumulative: 6950).
+
+### Hypotheses
+H-042: Movement aids predict_position performance (new scenario viability test)
+H-043: Performance follows monotonic gradient across doom_skill 1/3/5
+H-044: Movement advantage generalizes to deadly_corridor navigation scenario
+
+### Designs
+
+**DOE-039** (One-Way CRD, 60 episodes):
+- Factor: strategy (random_3 vs attack_raw)
+- Scenario: predict_position.cfg (moving target)
+- Tests: New scenario viability for agent research
+
+**DOE-040** (One-Way CRD, 150 episodes):
+- Factor: doom_skill (3 levels: sk1, sk3, sk5)
+- Strategy: random_5 (optimal architecture)
+- High power: n=50 per level
+- Completes difficulty curve with sk3 midpoint
+
+**DOE-041** (One-Way CRD, 90 episodes):
+- Factor: strategy (random_7 vs forward_attack vs attack_only)
+- Scenario: deadly_corridor.cfg (7-action space)
+- Tests: Movement advantage generalization to navigation scenario
+
+### Results
+
+**DOE-039**: UNTRUSTED — predict_position scenario non-viable
+- Welch t-test: t(29)=1.439, p=0.161 (not significant)
+- Both strategies: shots_fired=0, 93-100% zero kills
+- Scenario rejected for future research
+- Conclusion: H-042 REJECTED, Finding F-108
+
+**DOE-040**: HIGH — Difficulty gradient confirmed with 3-level precision
+- One-way ANOVA: F(2,147)=152.621, p<1e-10, η²=0.675
+- sk1=24.76, sk3=17.04, sk5=6.48 kills (linear slope=-4.57)
+- Kill-rate paradox: sk5 highest rate (62.5 kr) but fewest kills (6.48)
+- Kruskal-Wallis confirms: H(2)=108.518, p<1e-10
+- Conclusion: H-043 SUPPORTED, Findings F-109, F-110, F-111
+
+**DOE-041**: MEDIUM — random_7 wins on deadly_corridor
+- One-way ANOVA: F(2,87)=6.879, p=0.00169, η²=0.137
+- random_7: 0.500 kills, attack_only: 0.067, forward_attack: 0.167
+- random_7 vs attack_only: d=0.856 (large), p=0.00240
+- 73% zero-kill episodes (extremely challenging scenario)
+- Conclusion: H-044 PARTIALLY SUPPORTED, Finding F-112
+
+### Phase Status
+Phase 4 continuing. Scenario viability hierarchy established:
+1. defend_the_line (gold standard, 4-44 kills, excellent discrimination)
+2. deadly_corridor (viable but extreme, 0-2 kills, requires advanced strategies)
+3. basic.cfg (not suitable, binary kills)
+4. predict_position (not viable, zero engagement)
+5. defend_the_center (low discrimination, 0-3 kills)
+
+### Next Steps
+- Consider evolutionary optimization (DOE-021 GenomeAction)
+- Consider multi-scenario tournament across difficulty levels
+- Consider hybrid strategies for deadly_corridor
+
+---
+
+## 2026-02-09 — DOE-036/037/038: Phase 4 Cross-Scenario Validation
+
+### Context
+Phase 4 transition from confirmation/synthesis to cross-scenario validation and precision measurement. Three experiments designed 2026-02-09, executed and analyzed 2026-02-09, testing generalizability and boundary conditions.
+
+### Hypotheses
+H-039: Attack ratio affects strafe-aiming performance in basic.cfg
+H-040: Movement benefit persists at doom_skill=5 (extreme difficulty)
+H-041: Performance ceiling varies by difficulty, quantifiable at n=50
+
+### Designs
+
+**DOE-036** (One-Way CRD, 120 episodes):
+- Factor: attack_ratio (4 levels: 20/40/60/80%)
+- Scenario: basic.cfg (single monster)
+- doom_skill: 5 (hard)
+- Tests whether gradient exists in minimal scenario
+
+**DOE-037** (2×2 Factorial, 120 episodes):
+- Factors: movement (random_5 vs attack_raw) × difficulty (sk1 vs sk5)
+- Tests movement effect persistence and compression at extreme difficulty
+- Seeds: 70001 + i×167, i=0..29
+
+**DOE-038** (One-Way CRD, 100 episodes):
+- Factor: doom_skill (sk1 vs sk5)
+- Strategy: random_5 baseline only
+- High power: n=50 per level (highest in program)
+- Precision measurement of performance ceiling
+
+### Results
+
+**DOE-036**: NULL — basic.cfg unsuitable for strategy research
+- One-way ANOVA: F(3,116)=0.176, p=0.912, η²=0.005
+- Chi-squared (binary kills): χ²(3)=0.623, p=0.8808
+- All attack ratios produce identical binary outcomes (0 or 1 kill)
+- Conclusion: H-039 REJECTED, Finding F-101
+- Lesson: basic.cfg has only 1 monster, no continuous performance gradient possible
+
+**DOE-037**: Movement persists but compressed at extreme difficulty
+- Movement: F(1,116)=83.21, p<0.001, η²p=0.418 (MASSIVE)
+- Difficulty: F(1,116)=1172.42, p<0.001, η²p=0.910 (DOMINANT)
+- Interaction: F(1,116)=5.51, p=0.021, η²p=0.045 (SIGNIFICANT)
+- Movement d: sk1=1.38, sk5=1.33 (both >0.9, persist)
+- But performance spread compressed 3.04x at sk5 (sk1: 18.33 spread → sk5: 6.03 spread)
+- Conclusion: H-040 SUPPORTED, Findings F-102, F-103, F-104
+
+**DOE-038**: Performance ceiling 3.96x ratio, ultra-high precision
+- Difficulty: F(1,98)=272.44, p=1.60e-32, η²=0.735 (DOMINANT)
+- sk1: 25.98 ± 5.49 kills, sk5: 6.56 ± 2.06 kills
+- Cohen's d: 4.66 (largest effect in program)
+- Survival ratio: 7.27x (sk1: 29.31s, sk5: 4.03s)
+- Variance compression: 2.67x (SD ratio 5.49/2.06)
+- Conclusion: H-041 SUPPORTED, Findings F-105, F-106, F-107
+
+### Cumulative Impact
+- Total experiments: 38 (35 prior + 3 new)
+- Total episodes: 6650 (6310 prior + 340 new)
+- Total findings: 107 (F-001 through F-107)
+- basic.cfg scenario ruled out for strategy research (F-101)
+- Movement universality extends to doom_skill=5 (F-102)
+- Performance ceiling precisely quantified: 3.96x ratio (F-105)
+- Variance compression at extreme difficulty limits strategy differentiation (F-106)
+
+### Next Steps
+- Phase 4 cross-scenario validation complete
+- Consider paper writing with 38 DOEs, 6650 episodes, 107 findings
+- Consider adaptive/learning architectures beyond random-action baseline
+- Consider multi-scenario meta-analysis across defend_the_line variants
+
+---
+
 ## 2026-02-10 — DOE-033/034/035: Phase 3 Confirmation and Synthesis
 
 ### Context

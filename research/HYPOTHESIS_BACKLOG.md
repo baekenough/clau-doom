@@ -177,9 +177,73 @@
 **Linked Experiment**: DOE-035
 **Key Findings**: F-097, F-098, F-099, F-100
 
+### H-039: Attack Ratio Affects Strafe-Aiming Performance in basic.cfg [REJECTED]
+**Statement**: Attack ratio (20/40/60/80%) affects strafe-aiming performance on basic.cfg scenario.
+**Status**: REJECTED (DOE-036)
+**Evidence**: Chi-squared test p=0.8808, kills ANOVA F(3,116)=0.176 p=0.912. basic.cfg has only 1 monster, kills are binary (0 or 1). No performance gradient.
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Analyzed**: 2026-02-09
+**Linked Experiment**: DOE-036
+**Key Finding**: F-101
+
+### H-040: Movement Benefit Persists at doom_skill=5 (Extreme Difficulty) [SUPPORTED]
+**Statement**: Movement benefit persists at doom_skill=5 (extreme difficulty), though the effect magnitude may be compressed compared to easier difficulties.
+**Status**: SUPPORTED (DOE-037)
+**Evidence**: Movement significant at both sk1 (d=1.38) and sk5 (d=1.33), but interaction shows 3.04x compression of effect at hard difficulty (sk5). F(1,116)=83.21 p<0.001 (movement), F(1,116)=1172.42 p<0.001 (difficulty), F(1,116)=5.51 p=0.021 (interaction).
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Analyzed**: 2026-02-09
+**Linked Experiment**: DOE-037
+**Key Findings**: F-102, F-103, F-104
+
+### H-041: Performance Ceiling Varies by Difficulty, Quantifiable at n=50 [SUPPORTED]
+**Statement**: The performance ceiling for basic random strategies is quantifiable and varies systematically with difficulty level. At n=50 per condition, the difference should be detectable with high statistical power.
+**Status**: SUPPORTED (DOE-038)
+**Evidence**: 3.96x performance ratio (25.98 kills sk1 vs 6.56 kills sk5), d=4.66, F(1,98)=272.44, p=1.60e-32, η²=0.735. Variance compressed at sk5 (SD=2.06 vs 5.49). Survival ratio 7.27x.
+**Trust**: HIGH
+**Date Added**: 2026-02-09
+**Date Analyzed**: 2026-02-09
+**Linked Experiment**: DOE-038
+**Key Findings**: F-105, F-106, F-107
+
 ## Queued Hypotheses
 
 ## Completed Hypotheses
+
+### H-042: Movement Aids predict_position Performance [REJECTED]
+**Statement**: Movement-based agents (random action selection including turns) outperform stationary attack-only agents in predict_position.cfg.
+**Evidence**: RPT-039, F-108
+- Both strategies: shots_fired=0, 93-100% zero kills
+- Welch t-test: [STAT:p=0.161] (not significant)
+- Scenario fundamentally non-viable for agent evaluation
+**Trust**: UNTRUSTED
+**Date Rejected**: 2026-02-10
+**Linked Experiment**: DOE-039
+
+### H-043: Difficulty-Performance Monotonic Gradient [ADOPTED]
+**Statement**: Performance follows a monotonic gradient across doom_skill levels 1/3/5, with doom_skill=3 producing intermediate performance.
+**Evidence**: RPT-040, F-109, F-110, F-111
+- [STAT:f=F(2,147)=152.621] [STAT:p<0.0000000001] [STAT:eta2=0.675]
+- Linear slope: -4.57 kills per difficulty step (R²=0.670)
+- sk1=24.76, sk3=17.04, sk5=6.48 kills
+- All pairwise Tukey HSD: p<0.000001
+- Kill-rate paradox: sk5=62.5 kr (highest) but fewest total kills
+**Trust**: HIGH
+**Date Adopted**: 2026-02-10
+**Linked Experiment**: DOE-040
+
+### H-044: Movement Advantage Generalizes to deadly_corridor [PARTIALLY SUPPORTED]
+**Statement**: Movement-based strategies (random_7, forward_attack) outperform stationary strategies (attack_only) in deadly_corridor.cfg.
+**Evidence**: RPT-041, F-112
+- [STAT:f=F(2,87)=6.879] [STAT:p=0.00169] [STAT:eta2=0.137]
+- random_7 vs attack_only: [STAT:p=0.00240] [STAT:d=0.856]
+- random_7 vs forward_attack: [STAT:p=0.0238] [STAT:d=0.614]
+- forward_attack WORSE than random_7 (aggressive forward movement is counterproductive)
+- 73% zero-kill episodes (scenario extremely challenging)
+**Trust**: MEDIUM
+**Date**: 2026-02-10
+**Linked Experiment**: DOE-041
 
 ### H-026: Top Strategies Generalize Across Scenario Variants [PARTIALLY SUPPORTED]
 **Statement**: burst_3 and adaptive_kill maintain their relative performance rankings when tested across scenario perturbations (increased difficulty, closer engagement, longer episodes) on defend_the_line.

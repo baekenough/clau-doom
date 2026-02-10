@@ -2539,3 +2539,135 @@ At doom_skill=1 with 5-action space, performance cleanly separates into two tier
 
 **Trust**: HIGH
 **Adopted**: 2026-02-10 (Phase 3)
+
+### F-101: basic.cfg Unsuitable for Strategy Discrimination (DOE-036)
+
+**Hypothesis**: H-039 (REJECTED)
+**Experiment**: DOE-036 (One-Way CRD, 4 attack ratio levels, basic.cfg, n=120)
+**Evidence**: Chi-squared [STAT:p=0.8808]. Kruskal-Wallis [STAT:p=0.8821]. ANOVA(survival) [STAT:f=F(3,116)=0.5449] [STAT:p=0.6526]. [STAT:n=30 episodes per level]
+
+No significant effect of attack ratio on any metric (kills, survival, ammo, efficiency). This is a configuration finding: basic.cfg contains only 1 monster, making kills binary (0 or 1 per episode), with no continuous gradient for strategy optimization or differentiation.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-102: Movement Effect Persists at Extreme Difficulty (DOE-037)
+
+**Hypothesis**: H-040 (SUPPORTED)
+**Experiment**: DOE-037 (2×2 Factorial, movement × difficulty, n=120)
+**Evidence**: Movement significant at BOTH doom_skill=1 and doom_skill=5. Movement main effect [STAT:f=F(1,116)=45.11] [STAT:p<0.0001] [STAT:eta2=partial η²=0.059]. At sk1: Cohen's d=1.38 [STAT:p=0.000002]. At sk5: d=1.33 [STAT:p=0.000003]. Non-parametric Kruskal-Wallis confirms [STAT:H=88.34] [STAT:p=2.21e-18].
+
+Movement provides large performance gains (d>1.3) whether difficulty is easy or nightmare, though residual violations suggest caution in interpretation.
+
+**Trust**: MEDIUM (non-parametric confirms, but residual assumptions violated)
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-103: Difficulty Dominates All Other Factors (DOE-037)
+
+**Hypothesis**: H-040
+**Experiment**: DOE-037
+**Evidence**: Difficulty explains 77.3% of variance in kills. Difficulty main effect [STAT:f=F(1,116)=588.20] [STAT:p<0.0001] [STAT:eta2=partial η²=0.773]. Movement contributes only 5.9%, interaction 1.5%. Non-parametric Kruskal-Wallis [STAT:H=99.42] [STAT:p=2.08e-21] confirms.
+
+Difficulty is the single largest determinant of performance, dwarfing movement and interactions. Enemies at doom_skill=5 are so lethal that they compress all strategy effects.
+
+**Trust**: MEDIUM (non-parametric confirms)
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-104: Movement×Difficulty Interaction — Compressed at Hard (DOE-037)
+
+**Hypothesis**: H-040
+**Experiment**: DOE-037
+**Evidence**: Significant interaction [STAT:f=F(1,116)=11.53] [STAT:p=0.000940] [STAT:eta2=partial η²=0.015]. Movement advantage 3.04x larger at easy (6.90 kills difference) vs hard (2.27 kills difference). At doom_skill=5, median survival 4-7 seconds compresses all strategy effects.
+
+Movement's effectiveness is modulated by difficulty: at hard difficulty, even movement provides minimal advantage because agents die so quickly. Time pressure overwhelms strategy differentiation.
+
+**Trust**: MEDIUM
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-105: 3.96x Performance Ratio Between Difficulty Levels (DOE-038)
+
+**Hypothesis**: H-041 (SUPPORTED)
+**Experiment**: DOE-038 (One-Way CRD, sk1 vs sk5, n=50 per level, 100 total)
+**Evidence**: sk1 mean=25.82 kills vs sk5 mean=6.52 kills (3.96x ratio). Welch t-test [STAT:t=23.28] [STAT:p=1.60e-32] [STAT:d=4.66] [STAT:n=100] [STAT:power=1.00]. 95% CI for difference: [17.68, 20.92] kills. Residuals borderline normal; non-parametric Mann-Whitney U=2500 [STAT:p=5.82e-18] confirms.
+
+Highest-power difficulty measurement in program. The 3.96x performance ratio is among the largest effects documented.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-106: Survival Time Ratio 7.3x Explains Kill Differential (DOE-038)
+
+**Hypothesis**: H-041
+**Experiment**: DOE-038
+**Evidence**: sk1 survives 43.8 seconds vs sk5 6.0 seconds (7.3x ratio). Welch t-test [STAT:t=29.68] [STAT:p=8.96e-35] [STAT:n=100]. Kill count difference (3.96x) is compressed relative to survival ratio (7.3x) because kill_rate is actually higher at sk5 (~65 kills/min vs ~35 kills/min at sk1). Agents at hard difficulty kill faster per second but die much sooner.
+
+The differential in total kills is mediated through survival time, but partially offset by faster kill rates under pressure.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-107: Performance Variance Compressed at High Difficulty (DOE-038)
+
+**Hypothesis**: H-041
+**Experiment**: DOE-038
+**Evidence**: SD ratio 2.67:1 (sk1 SD=5.49, sk5 SD=2.06). Levene test for equal variance [STAT:f=F(1,98)=34.75] [STAT:p<0.0001] [STAT:n=100]. At sk1, range is 16-36 kills; at sk5, range is 3-15 kills.
+
+High difficulty compresses performance range, limiting strategy differentiation. All agents perform similarly poorly (within 3-15 kills). At easy difficulty, strategies spread widely (16-36 kills). This explains why difficulty dominates (F-103): hard difficulty forces all strategies into a narrow, low-performance band regardless of tactical choices.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 3)
+
+### F-108: predict_position Scenario Not Viable for Agent Evaluation (DOE-039)
+
+**Hypothesis**: H-042
+**Experiment**: DOE-039
+**Evidence**: Random vs attack_raw comparison non-significant [STAT:p=0.161] [STAT:n=60]. Both strategies achieved near-zero kills (93-100% zero-kill episodes). Neither strategy fired any shots (shots_fired=0 for both). Survival time difference (1.65s vs 60s) is timeout artifact, not meaningful survival. Achieved power only [STAT:power=0.30].
+
+predict_position.cfg is unsuitable for agent evaluation. Both random movement and pure attack strategies failed to engage enemies entirely. Zero shots fired indicates fundamental scenario incompatibility with the current agent architecture, not merely a difficulty issue.
+
+**Trust**: UNTRUSTED
+**Adopted**: 2026-02-10 (Phase 4)
+
+### F-109: DOOM Difficulty Mapping Produces Strong Linear Performance Gradient (DOE-040)
+
+**Hypothesis**: H-043
+**Experiment**: DOE-040
+**Evidence**: One-way ANOVA on kills: [STAT:f=F(2,147)=152.621] [STAT:p<0.0000000001] [STAT:eta2=0.675] [STAT:n=150]. All pairwise comparisons significant (Tukey HSD all p<0.000001). Linear regression: slope=-4.57 kills per difficulty step [STAT:R2=0.670]. Kruskal-Wallis confirms [STAT:H(2)=108.518] [STAT:p<0.0000000001].
+
+Performance by difficulty: sk1=24.76 kills (sd=6.72), sk3=17.04 kills (sd=5.63), sk5=6.48 kills (sd=2.43). Strong negative linear relationship: each 2-step increase in doom_skill reduces kills by ~9.1 on average. doom_skill explains 67.5% of kill variance, confirming it as a reliable experimental blocking variable.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 4)
+
+### F-110: Survival Time Inversely Proportional to Difficulty with 7.3x Compression (DOE-040)
+
+**Hypothesis**: H-043
+**Experiment**: DOE-040
+**Evidence**: One-way ANOVA on survival: [STAT:f=F(2,147)=249.310] [STAT:p<0.0000000001] [STAT:eta2=0.772] [STAT:n=150]. sk1=42.40s (71% of max 60s), sk3=26.67s (44%), sk5=6.19s (10%). Survival time effect even larger than kills (η²=0.772 vs 0.675).
+
+Nightmare difficulty is lethal: agents survive only 6.19s on average (vs 42.40s at easy). The 6.85x survival ratio exceeds the 3.82x kill ratio, indicating difficulty affects survival disproportionately compared to kill accumulation rate.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 4)
+
+### F-111: Kill-Rate Paradox — Higher Difficulty Increases Rate but Decreases Total Kills (DOE-040)
+
+**Hypothesis**: H-043
+**Experiment**: DOE-040
+**Evidence**: Kill rates by difficulty: sk1=35.14 kr, sk3=38.78 kr, sk5=62.49 kr. Despite sk5 having 1.78x the kill-rate of sk1, total kills are 3.82x LOWER (6.48 vs 24.76). This inverts the naive expectation that higher kill-rate = better performance.
+
+Kill-rate conflates lethality with time scarcity. Under extreme time pressure (6.19s survival at sk5), agents kill faster per second but accumulate far fewer total kills. This means kill_rate is NOT a pure performance metric — it measures intensity under duress, not effectiveness. Future experiments should report both kills and survival_time to disentangle these effects.
+
+**Trust**: HIGH
+**Adopted**: 2026-02-10 (Phase 4)
+
+### F-112: random_7 Outperforms Deterministic Strategies on deadly_corridor (DOE-041)
+
+**Hypothesis**: H-044
+**Experiment**: DOE-041
+**Evidence**: One-way ANOVA on kills: [STAT:f=F(2,87)=6.879] [STAT:p=0.00169] [STAT:eta2=0.137] [STAT:n=90]. Kruskal-Wallis confirms [STAT:H(2)=11.084] [STAT:p=0.00392]. random_7 vs attack_only: [STAT:p=0.00240] [STAT:effect_size=Cohen's d=0.856]. random_7 vs forward_attack: [STAT:p=0.0238] [STAT:effect_size=Cohen's d=0.614].
+
+random_7 achieves 0.500 mean kills (max 2) vs attack_only 0.067 and forward_attack 0.167, with 73% zero-kill episodes across all strategies. random_7 also survives longest (6.66s vs 3.72s for forward_attack, p=0.00245). On deadly_corridor, unpredictable movement provides both survival and combat advantage, contrasting with defend_the_line where structured patterns excel. The corridor's narrow geometry and high enemy density favor evasive randomness over deterministic patterns.
+
+**Trust**: MEDIUM
+**Adopted**: 2026-02-10 (Phase 4)

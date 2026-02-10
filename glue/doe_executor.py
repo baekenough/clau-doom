@@ -2775,6 +2775,445 @@ def execute_doe032(config: ExperimentConfig) -> None:
     logger.info("=" * 70)
 
 
+def build_doe036_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-036: basic.cfg Attack Ratio Gradient (Cross-Scenario)
+
+    Tests attack frequency optimization in basic.cfg where strafe = aim.
+    Hypothesis H-039: Attack ratio affects performance in strafe-aim scenario.
+
+    basic.cfg actions: MOVE_LEFT, MOVE_RIGHT, ATTACK (no turning).
+    Factor: attack_ratio [20%, 40%, 60%, 80%]
+
+    Design: One-way CRD, 4 levels, 30 episodes/level, 120 total
+    Seed formula: 73001 + i*167, i=0..29
+    Doom skill: 5 (basic.cfg default)
+    """
+    seeds = _generate_seed_set(n=30, base=73001, step=167)
+    exp_id = "DOE-036"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_20",
+            run_type="one_way",
+            action_type="ar_20",
+            scenario="basic.cfg",
+            num_actions=3,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_40",
+            run_type="one_way",
+            action_type="ar_40",
+            scenario="basic.cfg",
+            num_actions=3,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_60",
+            run_type="one_way",
+            action_type="ar_60",
+            scenario="basic.cfg",
+            num_actions=3,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="ar_80",
+            run_type="one_way",
+            action_type="ar_80",
+            scenario="basic.cfg",
+            num_actions=3,
+            doom_skill=5,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260210)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="73001 + i*167, i=0..29",
+        scenario="basic.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe037_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-037: Extreme Difficulty Movement Contrast (2×2 Factorial)
+
+    Tests movement benefit at extreme difficulty levels.
+    Hypothesis H-040: Movement benefit persists at doom_skill=5 (nightmare).
+
+    Factor A: movement (random_5 vs attack_raw)
+    Factor B: doom_skill (1=easy vs 5=nightmare)
+
+    Design: 2×2 full factorial, 30 episodes/cell, 120 total
+    Seed formula: 77001 + i*173, i=0..29
+    Scenario: defend_the_line_5action.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=77001, step=173)
+    exp_id = "DOE-037"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk1",
+            run_type="factorial",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="move_sk5",
+            run_type="factorial",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk1",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R4",
+            run_label="R4",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="stat_sk5",
+            run_type="factorial",
+            action_type="attack_raw",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260211)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="77001 + i*173, i=0..29",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe038_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-038: Sample Size Power Enhancement for Ceiling Effect
+
+    Tests performance ceiling at different difficulties with larger n.
+    Hypothesis H-041: Ceiling effect varies by doom_skill, detectable at n=50.
+
+    Factor: doom_skill (1=easy vs 5=nightmare)
+    Strategy: random_5 only (standard baseline)
+
+    Design: One-way CRD, 2 levels, 50 episodes/level, 100 total
+    Seed formula: 81001 + i*179, i=0..49
+    Scenario: defend_the_line_5action.cfg
+    """
+    seeds = _generate_seed_set(n=50, base=81001, step=179)
+    exp_id = "DOE-038"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="sk1",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="sk5",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260212)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="81001 + i*179, i=0..49",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe039_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-039: predict_position.cfg Movement Strategy Contrast
+
+    Tests movement-based agents vs stationary agents in moving target scenario.
+    Hypothesis H-042: Movement-based agents outperform stationary in predict_position.cfg.
+
+    predict_position.cfg actions: TURN_LEFT, TURN_RIGHT, ATTACK (3 actions).
+    Factor: strategy (random vs attack_raw)
+
+    Design: One-way CRD, 2 levels, 30 episodes/level, 60 total
+    Seed formula: 85001 + i*181, i=0..29
+    Scenario: predict_position.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=85001, step=181)
+    exp_id = "DOE-039"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random",
+            run_type="one_way",
+            action_type="random",
+            scenario="predict_position.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_raw",
+            run_type="one_way",
+            action_type="attack_raw",
+            scenario="predict_position.cfg",
+            num_actions=3,
+            doom_skill=3,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260213)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="85001 + i*181, i=0..29",
+        scenario="predict_position.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe040_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-040: Medium Difficulty Performance Mapping (doom_skill=3)
+
+    Completes difficulty curve with medium difficulty level.
+    Hypothesis H-043: Performance follows monotonic gradient across doom_skill 1→3→5.
+
+    Factor: doom_skill (1=easy, 3=hard, 5=nightmare)
+    Strategy: random_5 (baseline movement agent)
+
+    Design: One-way CRD, 3 levels, 50 episodes/level, 150 total
+    Seed formula: 89001 + i*191, i=0..49
+    Scenario: defend_the_line_5action.cfg
+    """
+    seeds = _generate_seed_set(n=50, base=89001, step=191)
+    exp_id = "DOE-040"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="sk1",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=1,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="sk3",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="sk5",
+            run_type="one_way",
+            action_type="random_5",
+            scenario="defend_the_line_5action.cfg",
+            num_actions=5,
+            doom_skill=5,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260214)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="89001 + i*191, i=0..49",
+        scenario="defend_the_line_5action.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
+def build_doe041_config(db_path: Path | None = None) -> ExperimentConfig:
+    """DOE-041: deadly_corridor.cfg 7-Action Strategy Comparison
+
+    Tests movement-based strategies in navigation+combat scenario.
+    Hypothesis H-044: Movement strategies outperform in deadly_corridor.cfg.
+
+    deadly_corridor.cfg actions: 7-action set (MOVE_LEFT, MOVE_RIGHT, ATTACK,
+    MOVE_FORWARD, MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT).
+    Factor: strategy (random_7, forward_attack, attack_only)
+
+    Design: One-way CRD, 3 levels, 30 episodes/level, 90 total
+    Seed formula: 93001 + i*193, i=0..29
+    Scenario: deadly_corridor.cfg
+    """
+    seeds = _generate_seed_set(n=30, base=93001, step=193)
+    exp_id = "DOE-041"
+
+    runs = [
+        RunConfig(
+            run_id=f"{exp_id}-R1",
+            run_label="R1",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="random_7",
+            run_type="one_way",
+            action_type="random_7",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R2",
+            run_label="R2",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="forward_attack",
+            run_type="one_way",
+            action_type="forward_attack",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+        RunConfig(
+            run_id=f"{exp_id}-R3",
+            run_label="R3",
+            memory_weight=0.0,
+            strength_weight=0.0,
+            seeds=list(seeds),
+            condition="attack_only",
+            run_type="one_way",
+            action_type="attack_only",
+            scenario="deadly_corridor.cfg",
+            num_actions=7,
+            doom_skill=3,
+        ),
+    ]
+
+    # Randomize run order for experimental validity
+    import random as _rng
+    rng = _rng.Random(20260215)
+    rng.shuffle(runs)
+
+    return ExperimentConfig(
+        experiment_id=exp_id,
+        runs=runs,
+        seed_set=seeds,
+        seed_formula="93001 + i*193, i=0..29",
+        scenario="deadly_corridor.cfg",
+        db_path=db_path or DEFAULT_DB_PATH,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Experiment registry
 # ---------------------------------------------------------------------------
@@ -2811,6 +3250,12 @@ EXPERIMENT_BUILDERS: dict[str, object] = {
     "DOE-033": build_doe033_config,
     "DOE-034": build_doe034_config,
     "DOE-035": build_doe035_config,
+    "DOE-036": build_doe036_config,
+    "DOE-037": build_doe037_config,
+    "DOE-038": build_doe038_config,
+    "DOE-039": build_doe039_config,
+    "DOE-040": build_doe040_config,
+    "DOE-041": build_doe041_config,
 }
 
 
