@@ -1,0 +1,10 @@
+# Lightweight dependencies for reproducing statistical analysis from CSV data.
+# No VizDoom, DuckDB, or gRPC needed.
+#
+# Usage:
+#   pip install -r requirements-analysis.txt
+#   python3 scripts/verify_reproducibility.py
+#   make verify
+numpy>=1.26.0
+scipy>=1.12.0
+pandas>=2.1.0
