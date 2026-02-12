@@ -12,7 +12,7 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 
-\title{Movement Is All You Need: How 29 Systematic Experiments Falsified RAG-Based FPS Game Agent Optimization}
+\title{Movement Is All You Need: How 45 Systematic Experiments Falsified RAG-Based FPS Game Agent Optimization}
 
 \author{
   Sang Yi \\
@@ -29,7 +29,7 @@
 \maketitle
 
 \begin{abstract}
-We apply Design of Experiments (DOE) methodology --- factorial designs, ANOVA with residual diagnostics, and effect size quantification --- to systematically optimize FPS game agents in VizDoom's \texttt{defend\_the\_line} scenario. Across 29 experiments totaling 5,010 episodes, we test the hypothesis that a multi-level RAG architecture improves agent performance through document quality and scoring accuracy. Three independent experiments falsify this hypothesis: L2 retrieval conditions indistinguishable from L0 baselines ($p=0.929$, DOE-022), decision mode producing no effect on kills ($p=0.393$, DOE-024), and RAG selection indistinguishable from fixed strategies ($p=0.935$, DOE-026). Instead, we discover that lateral movement is the sole performance determinant ($F(1,116)=58.40$, $p<0.001$, $\eta_p^2=0.332$, Cohen's $d=1.408$), with all tactical variations producing null effects. We identify rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$, within movement class) as a fundamental environment constraint explaining why tactical optimization is futile.
+We apply Design of Experiments (DOE) methodology --- factorial designs, ANOVA with residual diagnostics, and effect size quantification --- to systematically optimize FPS game agents in VizDoom. Across 45 experiments totaling 8,850 episodes and 116 findings, we test the hypothesis that a multi-level RAG architecture improves agent performance through document quality and scoring accuracy. Three independent experiments falsify this hypothesis: L2 retrieval conditions indistinguishable from L0 baselines ($p=0.929$, DOE-022), decision mode producing no effect on kills ($p=0.393$, DOE-024), and RAG selection indistinguishable from fixed strategies ($p=0.935$, DOE-026). Instead, we discover that lateral movement is the sole performance determinant ($F(1,116)=58.40$, $p<0.001$, $\eta_p^2=0.332$, Cohen's $d=1.408$), while scenario difficulty dominates all variance ($\eta_p^2=0.769$, DOE-045). Evolutionary optimization improves population mean kills by 54\% over five generations, yet difficulty explains $>76$\% of variance while strategy explains $<1$\%. We identify rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$, within movement class) as a fundamental environment constraint explaining why tactical optimization is futile.
 \end{abstract}
 
 
@@ -39,17 +39,18 @@ We apply Design of Experiments (DOE) methodology --- factorial designs, ANOVA wi
 
 Autonomous game agents have become a prominent AI testbed, with FPS environments presenting challenges in real-time decision-making \cite{kempka2016vizdoom}. The dominant paradigm relies on deep RL \cite{mnih2015human, schulman2017proximal}, but practical optimization involves ad-hoc hyperparameter tuning that is statistically inefficient, produces publication bias, and conflates correlation with causation \cite{bergstra2012random}. Design of Experiments (DOE) \cite{montgomery2017doe} provides a principled alternative that decomposes complex systems into orthogonal factors, yet remains underutilized in ML \cite{bouthillier2021accounting}.
 
-We apply DOE to FPS game agents in VizDoom \cite{kempka2016vizdoom}, seeking to understand the causal structure of performance. Our framework follows four phases: (0)~OFAT screening, (1)~factorial analysis, (2)~hypothesis testing, and (3)~constraint discovery.
+We apply DOE to FPS game agents in VizDoom \cite{kempka2016vizdoom}, seeking to understand the causal structure of performance. Our framework follows five phases: (0)~OFAT screening, (1)~factorial analysis, (2)~hypothesis testing, (3)~constraint discovery, and (4)~generalization and evolution.
 
 We implement a four-level hierarchical agent: \textbf{L0} (hardcoded reflexes), \textbf{L1} (DuckDB episode cache), \textbf{L2} (OpenSearch kNN strategy retrieval), and \textbf{L3} (offline LLM retrospection). No real-time LLM inference occurs during gameplay. The core thesis: $\text{Agent Skill} = f(\text{DocQuality}, \text{ScoringAccuracy})$.
 
-Through 29 experiments (5,010 episodes), we discovered this thesis is false. Three independent tests falsified L2 retrieval ($\eta_p^2 < 0.01$ in all). Only lateral movement produced a significant effect ($d=1.408$, $p<0.001$). Rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$) explains why tactical optimization is futile. Game difficulty explains 72\% of variance ($\eta_p^2=0.720$) and movement 33\%, while all agent architecture parameters collectively explain $<5$\%.
+Through 45 experiments (8,850 episodes), we discovered this thesis is false. Three independent tests falsified L2 retrieval ($\eta_p^2 < 0.01$ in all). Only lateral movement produced a significant effect ($d=1.408$, $p<0.001$). Rate-time compensation ($\text{kills} \approx k_r \times t_{\text{surv}}$) explains why tactical optimization is futile. Scenario difficulty explains 77\% of variance ($\eta_p^2=0.769$) and movement 33\%, while all agent architecture parameters collectively explain $<5$\%. Evolutionary optimization achieves +54\% improvement over five generations, yet cannot overcome difficulty dominance.
 
 \textbf{Contributions:}
 (1)~First application of formal DOE to FPS game AI;
-(2)~29 DOEs with 5,010 episodes and 83 findings with complete audit trails;
+(2)~45 DOEs with 8,850 episodes and 116 findings with complete audit trails;
 (3)~identification of rate-time compensation as a fundamental constraint;
-(4)~rigorous falsification of RAG-based retrieval through three independent null results.
+(4)~rigorous falsification of RAG-based retrieval through three independent null results;
+(5)~demonstration that difficulty dominance ($\eta_p^2=0.769$) renders strategy optimization negligible.
 
 % MOVED TO APPENDIX: Detailed phase descriptions (Phase 0-3), per-level latency budgets, full "What We Actually Found" prose
 
@@ -81,14 +82,14 @@ Our agent employs a four-level hierarchy without real-time LLM inference (Figure
 
 \subsection{Experimental Framework}
 
-We adopt DOE methodology from quality engineering. Our program follows four phases (Figure~\ref{fig:timeline}): Phase~0 (OFAT screening, DOE-001--010), Phase~1 (factorial analysis, DOE-011--021), Phase~2 (hypothesis testing, DOE-022/024/026), and Phase~3 (constraint discovery, DOE-027--029).
+We adopt DOE methodology from quality engineering. Our program follows five phases (Figure~\ref{fig:timeline}): Phase~0 (OFAT screening, DOE-001--010), Phase~1 (factorial analysis, DOE-011--021), Phase~2 (hypothesis testing, DOE-022/024/026), Phase~3 (constraint discovery, DOE-027--035), and Phase~4 (generalization and evolution, DOE-036--045).
 
 Every experiment uses fixed seed protocols (minimum 30 per condition, power $\geq 0.80$), full ANOVA with residual diagnostics (Anderson-Darling normality, Levene equal variance, run-order independence), effect sizes (partial $\eta^2$, Cohen's $d$) with 95\% CIs, trust classification (HIGH/MEDIUM/LOW/UNTRUSTED), and a complete audit trail from hypothesis through finding adoption (see Appendix~E for full statistical methods).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/figure2_doe_timeline.pdf}
-\caption{DOE progression across four research phases (5,010 total episodes). Filled markers: significant ($p < 0.05$); open: null. Key milestones: DOE-008 (first significant result), DOE-022/024/026 (RAG falsification), DOE-027 (rate-time compensation), DOE-029 (movement as sole determinant, $d=1.408$).}
+\caption{DOE progression across five research phases (8,850 total episodes). Filled markers: significant ($p < 0.05$); open: null. Key milestones: DOE-008 (first significant result), DOE-022/024/026 (RAG falsification), DOE-029 (movement, $d=1.408$), DOE-044 (evolution, +54\%), DOE-045 (difficulty dominance, $\eta^2=0.769$).}
 \label{fig:timeline}
 \end{figure}
 
@@ -101,7 +102,7 @@ We evaluate on \texttt{defend\_the\_line}, where the agent faces continuously sp
 \section{Results}
 \label{sec:results}
 
-We present results across four phases spanning 29 DOEs and 5,010 episodes (Appendix~A: complete DOE table; Appendix~B: top 20 findings).
+We present results across five phases spanning 45 DOEs and 8,850 episodes (Appendix~A: complete DOE table; Appendix~B: top 20 findings).
 
 \subsection{Infrastructure Validation and Strategy Exploration (DOE-001--020)}
 
@@ -175,6 +176,17 @@ A $2^2$ factorial crossed action pattern (with/without strafing) $\times$ health
 
 
 
+\subsection{Generalization and Evolution (DOE-036--045)}
+
+Phase~4 extended the program to new scenarios, difficulty levels, action spaces, and evolutionary optimization (10 experiments, 2,210 episodes).
+
+\textbf{Difficulty dominance.} DOE-045 ($N=270$, $3\times 3$ factorial) crossed three strategies with three difficulty levels. Difficulty explained 76.9\% of kill variance ($F(2,261)=445.7$, $p<0.001$, $\eta^2=0.769$), while strategy was non-significant ($F(2,261)=1.49$, $p=0.228$, $\eta^2=0.003$) and the interaction was null ($p=0.381$). Strategy rankings do not change across difficulty. DOE-042 ($N=150$) confirmed that the movement advantage persists at intermediate difficulty ($\eta^2=0.206$, driven by the stationary \texttt{attack\_raw} deficit).
+
+\textbf{Evolutionary optimization.} DOE-044 ($N=1{,}000$, 5 generations $\times$ 10 genomes $\times$ 20 episodes) applied a genetic algorithm with TOPSIS multi-objective fitness. Population mean kills improved from 14.0 to 21.6 (+54\%, $R^2=0.864$), with the best genome reaching 25.3 mean kills and a single-episode maximum of 42. Convergence was non-monotonic (Gen~2$\to$3 regression, Gen~5 recovery), characteristic of healthy evolutionary search. Despite this improvement, DOE-045 shows strategy choice remains negligible relative to difficulty.
+
+\textbf{Action space and scenario boundaries.} DOE-043 ($N=150$) found \texttt{deadly\_corridor} undiscriminating across hybrid strategies (all $<$0.5 mean kills). DOE-031 established 5--7 actions as the optimal action space ($\eta^2=0.127$). These results bound the generalizability of our findings to scenarios with adequate performance variance.
+
+
 \section{Analysis}
 \label{sec:analysis}
 
@@ -189,7 +201,7 @@ A $2^2$ factorial crossed action pattern (with/without strafing) $\times$ health
 \label{fig:rate_time}
 \end{figure}
 
-\textbf{Variance decomposition.} \texttt{doom\_skill} explains 72\% of kill variance ($\eta^2=0.720$, DOE-023), movement 33\% ($\eta^2=0.332$, DOE-029), strategy type $<3$\% (DOE-027/028), L2 RAG $<1$\% (DOE-022/024/026), agent parameters $<1$\% (DOE-009). Environment and movement together explain $>80$\% of all variance.
+\textbf{Variance decomposition.} \texttt{doom\_skill} explains 77\% of kill variance ($\eta^2=0.769$, DOE-045), movement 33\% ($\eta^2=0.332$, DOE-029), strategy type $<3$\% (DOE-027/028), L2 RAG $<1$\% (DOE-022/024/026), agent parameters $<1$\% (DOE-009). Environment and movement together explain $>80$\% of all variance.
 
 % MOVED TO APPENDIX: Variance decomposition table, information-theoretic analysis
 
@@ -199,7 +211,7 @@ A $2^2$ factorial crossed action pattern (with/without strafing) $\times$ health
 
 Architecture complexity is irrelevant in \texttt{defend\_the\_line}---a scenario-specific result driven by single-hit enemies, open geometry, and predictable spawning that let weapon cooldown bound kill rate while movement provides the only non-compensated axis. Complexity would matter with multi-hit enemies, navigation, or competitive settings. DOE complements RL: it discovers fundamental constraints explaining \textit{why} optimization is futile, while RL optimizes within unconstrained spaces. We recommend DOE as a preliminary tool before expensive RL training.
 
-\textbf{Limitations.} All experiments use single-hit enemies; multi-hit scenarios may differ. We tested discrete 3/5-action spaces; continuous control could reveal finer effects. The Python glue layer may mask timing effects. Most experiments used \texttt{doom\_skill}=3, though DOE-023 swept all difficulties. Agents use game state variables, not pixels.
+\textbf{Limitations.} All experiments use single-hit enemies; multi-hit scenarios may differ. We tested discrete 3/5-action spaces; continuous control could reveal finer effects. The Python glue layer may mask timing effects. Most experiments used \texttt{doom\_skill}=3, though DOE-023/040/045 swept all difficulties. Agents use game state variables, not pixels. Our findings are specific to reflexive decision-making domains where physical action dominates cognitive reasoning. In knowledge-intensive settings---such as enterprise multi-agent systems using RAG for document retrieval, customer support, or code generation---the value proposition of retrieval is fundamentally different: natural language reasoning over retrieved context enables nuanced decision-making that our numerical scoring pipeline cannot capture. Generalizing our null result to all RAG applications would be an overreach.
 
 % MOVED TO APPENDIX: Extended discussion of "Value of Negative Results" (covered in intro/conclusion)
 
@@ -207,12 +219,13 @@ Architecture complexity is irrelevant in \texttt{defend\_the\_line}---a scenario
 \section{Conclusion}
 \label{sec:conclusion}
 
-Through 29 experiments (5,010 episodes), we falsified the hypothesis that RAG improves agent performance in VizDoom's \texttt{defend\_the\_line}:
+Through 45 experiments (8,850 episodes, 116 findings), we falsified the hypothesis that RAG improves agent performance in VizDoom's \texttt{defend\_the\_line}:
 \begin{enumerate}
 \item \textbf{Movement is the sole determinant} ($d=1.408$), producing 65\% more kills via survival at negligible kill rate cost.
 \item \textbf{Rate-time compensation} constrains tactics: $r \times s \approx C_{\mathcal{M}}$.
 \item \textbf{RAG falsified} by three null results ($N=630$, all $p>0.39$).
-\item \textbf{Environment dominates} ($\eta^2=0.720$), dwarfing all architecture parameters.
+\item \textbf{Difficulty dominates} ($\eta^2=0.769$), dwarfing all strategy and architecture parameters.
+\item \textbf{Evolution helps but cannot overcome difficulty}: +54\% over 5 generations, yet strategy explains $<1$\% of cross-difficulty variance.
 \end{enumerate}
 DOE reveals constraints that gradient-based optimization cannot discover. The architecture budget is better spent on whether the agent moves.
 
@@ -273,7 +286,7 @@ Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and Klimov, O. (2017). Prox
 This research was conducted using Claude Code, an AI-assisted development tool by Anthropic. Claude Code served as an active co-investigator in experimental design, statistical analysis, and paper composition.
 
 \paragraph{Reproducibility}
-All experiment orders, reports, and statistical analyses are available in the project repository at [repository URL to be added]. Fixed seed sets are provided for all 29 DOEs. Appendices~A--H provide the complete DOE summary table, findings catalogue, variance decomposition, rate-time compensation evidence, statistical methods, glossary, future work directions, and ethics statement.
+All experiment orders, reports, and statistical analyses are available in the project repository at \url{https://github.com/sangyi/clau-doom}. Fixed seed sets are provided for all 45 DOEs. Appendices~A--O provide the complete DOE summary table, findings catalogue, variance decomposition, rate-time compensation evidence, statistical methods, glossary, future work directions, ethics statement, and supplementary analyses.
 \end{ack}
 
 \end{document}

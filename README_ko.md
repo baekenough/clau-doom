@@ -5,7 +5,7 @@
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://docs.docker.com/compose/)
-[![Status](https://img.shields.io/badge/Status-Phase%204%20Complete-brightgreen.svg)]()
+[![Status](https://img.shields.io/badge/Status-Research%20Complete-brightgreen.svg)]()
 
 > [English README](README.md)
 

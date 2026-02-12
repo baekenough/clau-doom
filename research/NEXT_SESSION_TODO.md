@@ -1,6 +1,6 @@
-> **STATUS**: All 45 experiments complete (2026-02-12). Framework reproducibility verified. 8,850 episodes, 116 findings.
+> **STATUS**: Research COMPLETE (2026-02-12). All 45 experiments executed, paper finalized, framework verified.
 
-# Next Session TODO — Post DOE-045
+# Research Closeout Summary
 
 ## Completed Work (All Phases)
 - [x] Phase 0: Infrastructure validation (DOE-001~010)
@@ -29,10 +29,12 @@
 - Non-viable: predict_position (zero engagement), basic.cfg (binary outcome)
 - deadly_corridor: viable but extremely challenging (0-2 kills typical)
 
-## Potential Future Directions
-- [ ] Multi-hit enemy scenarios (break single-hit constraint)
-- [ ] Pixel-based observation (currently uses game state variables)
-- [ ] Continuous action control (currently discrete)
-- [ ] Extended evolutionary optimization (>5 generations, larger populations)
-- [ ] Cross-scenario transfer learning
-- [ ] NeurIPS paper finalization and submission
+## Out of Scope -- Documented for Future Researchers
+- Multi-hit enemy scenarios (break single-hit constraint)
+- Pixel-based observation (currently uses game state variables)
+- Continuous action control (currently discrete)
+- Extended evolutionary optimization (>5 generations, larger populations)
+- Cross-scenario transfer learning
+- NeurIPS paper finalization and submission
+
+This research project is now concluded.

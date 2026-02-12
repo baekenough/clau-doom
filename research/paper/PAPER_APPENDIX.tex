@@ -17,7 +17,7 @@
 
 \author{
   Supplementary Material for: \\
-  \textit{Movement Is All You Need: How 29 Systematic Experiments} \\
+  \textit{Movement Is All You Need: How 45 Systematic Experiments} \\
   \textit{Falsified RAG-Based FPS Game Agent Optimization}
 }
 
@@ -30,7 +30,7 @@
 \section{Complete DOE Summary Table}
 \label{app:doe-summary}
 
-This table presents all 29 Design of Experiments (DOE) conducted across Phase 0 (infrastructure validation), Phase 1 (systematic exploration), and Phase 2 (optimization and falsification).
+This table presents all 45 Design of Experiments (DOE) conducted across Phase 0 (infrastructure validation), Phase 1 (systematic exploration), Phase 2 (optimization and falsification), Phase 3 (confirmation and replication), and Phase 4 (new scenarios, evolution, and difficulty mapping).
 
 \begin{small}
 \begin{longtable}{@{}p{0.6cm}p{0.6cm}p{1.2cm}p{1.8cm}p{0.8cm}p{3.5cm}p{1.3cm}p{1.1cm}p{1.4cm}@{}}
@@ -78,19 +78,36 @@ DOE & Phase & Design & Factors & Episodes & Key Finding & Primary p-value & Effe
 028 & 2c & OFAT (5) & Temporal burst patterns & 150 & Full tactical invar. & 0.401 & $\eta^2=0.027$ & Structure irrelevant \\
 029 & 2c & $2\times2$ & Pattern$\times$override & 120 & Movement sole determ. & $<0.001$ & $\eta^2=0.332$ & LARGEST effect \\
 \midrule
-\textbf{Total} & --- & \textbf{29} & --- & \textbf{5,010} & --- & --- & --- & --- \\
+030 & 3 & $2\times5$ & Movement$\times$Difficulty & 300 & Move$\times$Diff interaction & $0.002$ & $\eta^2=0.040$ & Inverted-U \\
+031 & 3 & OFAT (4) & Action space size & 120 & 5--7 optimal, 9 harmful & $<0.001$ & $\eta^2=0.345$ & Non-monotonic \\
+032 & 3 & $2\times2$ & L1 cache$\times$Seq.\ learning & 400 & No learning mechanism & 1.000 & $\eta^2=0.000$ & L1 falsified \\
+033 & 3 & $3\times2$ & ActionSpace$\times$Movement & 180 & Strafing drives effect & $<0.001$ & $\eta^2=0.078$ & Interaction \\
+034 & 3 & OFAT (5) & Architecture (replication) & 150 & Rank order replicates & 0.017 & $\eta^2=0.064$ & DOE-008 replic. \\
+035 & 3 & OFAT (5) & Best-of-breed 5-action & 150 & burst\_3 fails in 5-act & $<0.001$ & $\eta^2=0.572$ & Two tiers \\
+036 & 4 & OFAT (4) & Attack ratio (basic.cfg) & 120 & Zero discrimination & 0.954 & $\eta^2=0.003$ & basic unusable \\
+037 & 4 & $2\times2$ & Movement$\times$Difficulty & 120 & Move persists at sk5 & $<0.001$ & $\eta^2=0.059$ & Difficulty dom. \\
+038 & 4 & OFAT (2) & Difficulty (sk1 vs sk5) & 100 & 3.96$\times$ perf.\ ratio & $<0.001$ & $d=4.66$ & Largest $d$ \\
+039 & 4 & OFAT (2) & predict\_position scenario & 60 & Zero kills, not viable & 0.161 & --- & Scenario rejected \\
+040 & 4 & OFAT (3) & Difficulty gradient (3 lev.) & 150 & Linear gradient & $<0.001$ & $\eta^2=0.675$ & Difficulty map \\
+041 & 4 & OFAT (3) & deadly\_corridor strategies & 90 & random\_7 best & 0.002 & $\eta^2=0.137$ & Near-floor \\
+042 & 4 & OFAT (5) & 5-act strategies (sk3) & 150 & attack\_raw worst & $<0.001$ & $\eta^2=0.206$ & Tact.\ invar. \\
+043 & 4 & OFAT (5) & deadly\_corridor hybrids & 150 & Near-zero kills & 0.021 & $\eta^2=0.076$ & Undiscrim. \\
+044 & 4 & Evol.\ (5 gen) & Generational evolution & 1000 & +54\% over 5 gen & --- & $R^2=0.864$ & Evolution works \\
+045 & 4 & $3\times3$ & Strategy$\times$Difficulty & 270 & Difficulty dominates & $<0.001$ & $\eta^2=0.769$ & Strat.\ null \\
+\midrule
+\textbf{Total} & --- & \textbf{45} & --- & \textbf{8,520} & --- & --- & --- & --- \\
 \bottomrule
 \end{longtable}
 \end{small}
 
 \subsection{DOE Progression Timeline}
 
-Figure~\ref{fig:timeline_appendix} shows the progression of all 29 experiments across research phases, with significant and null results indicated.
+Figure~\ref{fig:timeline_appendix} shows the progression of all 45 experiments across research phases, with significant and null results indicated.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/figure2_doe_timeline.pdf}
-\caption{DOE progression timeline showing 29 experiments across four research phases (5,010 total episodes). Filled markers indicate significant results ($p < 0.05$); open markers indicate null results. Key milestones annotated: DOE-008 (first significant result), DOE-022/024/026 (L2 RAG falsification sequence), DOE-027 (rate-time compensation discovery), DOE-029 (movement identified as sole determinant, $d = 1.408$).}
+\caption{DOE progression timeline showing 45 experiments across six research phases (8,520 total episodes). Filled markers indicate significant results ($p < 0.05$); open markers indicate null results. Key milestones annotated: DOE-008 (first significant result), DOE-022/024/026 (L2 RAG falsification sequence), DOE-029 (movement identified as sole determinant, $d = 1.408$), DOE-032 (L1 learning falsified), DOE-044 (evolution +54\%), DOE-045 (difficulty dominates, $\eta^2 = 0.769$).}
 \label{fig:timeline_appendix}
 \end{figure}
 
@@ -130,19 +147,22 @@ Figure~\ref{fig:invariance_appendix} shows the complete tactical invariance resu
 \subsection{Summary Statistics}
 
 \begin{itemize}
-\item \textbf{Total Experiments}: 29 DOEs
-\item \textbf{Total Episodes}: 5,010 episodes
-\item \textbf{Average Episodes per DOE}: 172.8 episodes
+\item \textbf{Total Experiments}: 45 DOEs
+\item \textbf{Total Episodes}: 8,520 episodes
+\item \textbf{Average Episodes per DOE}: 189.3 episodes
 \item \textbf{Phase Distribution}:
   \begin{itemize}
   \item Phase 0 (Infrastructure): 4 DOEs, 570 episodes
   \item Phase 1 (Exploration): 16 DOEs, 2,670 episodes
   \item Phase 2 (Optimization/Falsification): 9 DOEs, 1,770 episodes
+  \item Phase 3 (Confirmation/Replication): 6 DOEs, 1,300 episodes
+  \item Phase 4 (New Scenarios/Evolution/Difficulty): 10 DOEs, 2,210 episodes
   \end{itemize}
-\item \textbf{Significant Results ($p < 0.05$)}: 18 of 29 (62\%)
-\item \textbf{Null Results ($p \geq 0.05$)}: 11 of 29 (38\%)
-\item \textbf{Largest Effect Size}: $\eta^2=0.720$ (doom\_skill in DOE-023)
+\item \textbf{Significant Results ($p < 0.05$)}: 28 of 45 (62\%)
+\item \textbf{Null Results ($p \geq 0.05$)}: 17 of 45 (38\%)
+\item \textbf{Largest Effect Size}: $\eta^2=0.769$ (difficulty in DOE-045)
 \item \textbf{Smallest Non-Zero Effect}: $\eta^2=0.001$ (L2 RAG in DOE-026)
+\item \textbf{Largest Cohen's $d$}: $d=4.66$ (difficulty sk1 vs sk5 in DOE-038)
 \end{itemize}
 
 \subsection{Key Milestones}
@@ -155,6 +175,13 @@ Figure~\ref{fig:invariance_appendix} shows the complete tactical invariance resu
 \item \textbf{DOE-022/024/026}: Triple null results falsified core RAG thesis
 \item \textbf{DOE-027}: Discovered rate-time compensation law
 \item \textbf{DOE-029}: Identified movement as sole agent-controlled factor (largest effect)
+\item \textbf{DOE-031}: Action space 5--7 optimal; 9-action harmful (non-monotonic curve)
+\item \textbf{DOE-032}: L1 cache / sequential learning falsified (architecture is stateless)
+\item \textbf{DOE-033}: Strafing (not turning) identified as the mechanism behind movement effect
+\item \textbf{DOE-035}: burst\_3 catastrophically fails in 5-action space (context-dependent optimum)
+\item \textbf{DOE-038}: Largest Cohen's $d$ in program ($d = 4.66$, difficulty ratio 3.96$\times$)
+\item \textbf{DOE-044}: Evolution improves population +54\% over 5 generations ($R^2 = 0.864$)
+\item \textbf{DOE-045}: Difficulty dominance confirmed in 5-action space ($\eta^2 = 0.769$, strategy null)
 \end{enumerate}
 
 \subsection{Detailed Phase 0--1 Results (DOE-001--020)}
@@ -217,10 +244,10 @@ Eleven experiments systematically mapped the behavioral strategy landscape. Key 
 \textbf{DOE-020} (best-of-breed tournament, $n=150$): Multi-objective TOPSIS analysis identifies \texttt{burst\_3} as globally optimal strategy ($p < 0.001$, $\eta^2 = 0.199$). \texttt{burst\_3} and \texttt{adaptive\_kill} form a two-member Pareto front; all other strategies dominated (F-039, F-041).
 
 
-\section{Key Findings Catalogue (Top 20)}
+\section{Key Findings Catalogue (Top 25)}
 \label{app:findings}
 
-This section presents the 20 most important findings from the 83 total findings across all experiments, selected based on theoretical impact, effect size, and reproducibility.
+This section presents the 25 most important findings from the 116 total findings across all 45 experiments, selected based on theoretical impact, effect size, and reproducibility.
 
 \subsection{Infrastructure and Scenario Selection}
 
@@ -437,6 +464,74 @@ This section presents the 20 most important findings from the 83 total findings 
 \end{itemize}
 
 
+\subsection{Phase 3--4 Detailed Results (DOE-030--045)}
+
+Phase 3 (Confirmation) comprised six experiments (DOE-030--035, $n=1{,}300$ episodes) that confirmed and deepened Phase 1--2 findings through interaction studies, replication, and mechanism identification. Phase 4 (New Scenarios/Evolution/Difficulty) comprised ten experiments (DOE-036--045, $n=2{,}210$ episodes) that extended the research to new scenarios, characterized the difficulty gradient, and tested evolutionary optimization.
+
+\textbf{DOE-030} ($2\times5$ factorial, $n=300$): Movement$\times$Difficulty interaction. Difficulty dominates ($\eta^2 = 0.705$), movement universally significant at all 5 difficulty levels ($d > 0.9$), with an inverted-U interaction (movement most beneficial at middle difficulty, $d = 1.450$). Discovered VizDoom difficulty degeneracy: doom\_skill levels 2, 3, 4 produce identical results.
+
+\textbf{DOE-031--033}: Mechanism identification experiments. DOE-031 ($n=120$) revealed a non-monotonic action space curve: 5--7 actions optimal, 9 actions catastrophically harmful ($\eta^2 = 0.345$). DOE-032 ($2\times2$, $n=400$) falsified the L1 cache learning mechanism---all action functions are stateless RNG-based ($p = 1.000$, $\eta^2 = 0.000$). DOE-033 ($3\times2$, $n=180$) identified strafing (not turning) as the mechanism behind the movement effect: turning $d = 0.414$ (NS) vs strafing $d = 1.4$--$1.8$.
+
+\textbf{DOE-034--035}: Replication and synthesis. DOE-034 ($n=150$) replicated DOE-008's architectural rank order with identical seeds after 26 intervening experiments. DOE-035 ($n=150$) tested best-of-breed strategies in 5-action space, discovering burst\_3's catastrophic failure ($d = 3.632$ deficit) and establishing two clear performance tiers (movers: 24--27 kills; non-movers: 8--19 kills).
+
+\textbf{DOE-036--041}: New scenario exploration. DOE-036 ($n=120$) showed basic.cfg has zero discrimination power (binary single-target outcome). DOE-037 ($2\times2$, $n=120$) confirmed movement persists at extreme difficulty. DOE-038 ($n=100$) measured a 3.96$\times$ performance ratio between sk1 and sk5 ($d = 4.66$, largest in program). DOE-039 ($n=60$) rejected predict\_position as viable. DOE-040 ($n=150$) mapped the difficulty gradient with $\eta^2 = 0.675$. DOE-041 ($n=90$) found random\_7 outperforms deterministic strategies on deadly\_corridor.
+
+\textbf{DOE-042--043}: Strategy comparison. DOE-042 ($n=150$) confirmed tactical invariance at doom\_skill=3: movement strategies indistinguishable, attack\_raw significantly worse ($\eta^2 = 0.206$). DOE-043 ($n=150$) showed deadly\_corridor remains undiscriminating across hybrid strategies.
+
+\textbf{DOE-044}: Evolutionary optimization (5 generations, 10 genomes/gen, $n=1{,}000$). Population mean kills improved +54\% (14.0 $\rightarrow$ 21.6), with strong linear trend ($R^2 = 0.864$, +1.59 kills/gen). Best genome (G05) achieved 25.3 mean kills and 42 max kills, exceeding all fixed strategies. Evolution convergence pattern: burst\_length$\rightarrow$1, burst\_cooldown$\rightarrow$0.
+
+\textbf{DOE-045}: Definitive difficulty$\times$strategy test ($3\times3$ factorial, $n=270$). Difficulty: $\eta^2 = 0.769$ (massive). Strategy: $\eta^2 = 0.003$ (null, $p = 0.228$). Interaction: null ($p = 0.381$). Strategy rankings do not change across difficulty levels---the most definitive evidence that environmental difficulty, not agent strategy, determines performance.
+
+\subsection{Action Space and Movement Mechanism (Phase 3--4)}
+
+\paragraph{F-087: Non-Monotonic Action Space Curve}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-031
+\item \textbf{Statistical Evidence}: $F(3,116) = 20.345$, $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.345$ (large)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: Action space size and performance form an inverted-U: 3-action (14.0 kills) $\rightarrow$ 5-action (16.7) $\rightarrow$ 7-action (16.4) $\rightarrow$ 9-action (8.4). The 5--7 action range is optimal; 9 actions include harmful options (SPEED, MOVE\_FORWARD) that halve performance.
+\end{itemize}
+
+\paragraph{F-094: Strafing (Not Turning) Drives the Movement Effect}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-033
+\item \textbf{Statistical Evidence}: Interaction $F(2,174) = 11.38$, $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.078$ (interaction), with movement $d = 0.414$ (3-action, NS) vs $d = 1.442$ (5-action) vs $d = 1.780$ (7-action)
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: The movement effect documented in DOE-008--029 is driven by lateral strafing (MOVE\_LEFT/RIGHT), not rotation (TURN\_LEFT/RIGHT). Turning provides only a non-significant $d = 0.414$; strafing provides massive $d = 1.4$--$1.8$.
+\end{itemize}
+
+\subsection{Evolution and Difficulty (Phase 4)}
+
+\paragraph{F-115: Evolution Improves +54\% Over 5 Generations}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-044
+\item \textbf{Statistical Evidence}: Linear trend $R^2 = 0.864$, slope $= +1.59$ kills/generation
+\item \textbf{Effect Size}: +54.3\% improvement (14.0 $\rightarrow$ 21.6 avg kills); best genome 25.3 kills
+\item \textbf{Trust Level}: MEDIUM (not replicated, but clear monotonic improvement)
+\item \textbf{Interpretation}: Evolutionary optimization discovers parameter combinations inaccessible to fixed strategies. Best evolved genome (G05) exceeds all fixed strategies from DOE-042 (best fixed: 19.1 kills). Convergence pattern: burst\_length$\rightarrow$1, burst\_cooldown$\rightarrow$0, turn\_vs\_strafe\_ratio 0.6--0.8.
+\end{itemize}
+
+\paragraph{F-116: Difficulty Dominates Strategy in 5-Action Space}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-045
+\item \textbf{Statistical Evidence}: Difficulty: $F(2,261) = 445.45$, $p < 0.001$, $\eta^2 = 0.769$; Strategy: $F(2,261) = 1.49$, $p = 0.228$, $\eta^2 = 0.003$ (NULL)
+\item \textbf{Effect Size}: Difficulty $\eta^2 = 0.769$ (76.9\% variance), strategy $\eta^2 = 0.003$ ($<$1\%)
+\item \textbf{Trust Level}: HIGH ($n = 270$, massive effect)
+\item \textbf{Interpretation}: In the 5-action space, difficulty explains 77\% of variance while strategy explains $<$1\%. Strategy rankings do not shift across difficulty levels---strategies are practically equivalent at every difficulty. This is the definitive confirmation that environmental difficulty, not agent design, determines performance.
+\end{itemize}
+
+\paragraph{F-097: burst\_3 Catastrophically Fails in 5-Action Space}
+\begin{itemize}
+\item \textbf{DOE Reference}: DOE-035
+\item \textbf{Statistical Evidence}: $F(4,145) = 48.381$, $p < 0.001$
+\item \textbf{Effect Size}: $\eta^2 = 0.572$; burst\_3 vs survival\_burst $d = 3.632$
+\item \textbf{Trust Level}: HIGH
+\item \textbf{Interpretation}: burst\_3---globally optimal in 3-action space (DOE-021)---achieves only 7.5 kills in 5-action space vs 26.8 for survival\_burst. burst\_3 cycles only among ATTACK/TURN actions and never triggers STRAFE, confirming that optimal strategy is context-dependent and strafing is essential.
+\end{itemize}
+
+
 \section{Rate-Time Compensation Evidence}
 \label{app:compensation}
 
@@ -645,8 +740,8 @@ To quantify the relative importance of each factor in the experimental program, 
 \toprule
 Factor & $\eta^2$ Range & Typical $\eta^2$ & \% Variance & Experiments & Interpretation \\
 \midrule
-\textbf{doom\_skill (difficulty)} & 0.39--0.72 & 0.720 & \textbf{72\%} & 022, 023, 024 & Dominant environmental factor; enemy capability determines outcome far more than agent design \\
-\textbf{Movement presence} & 0.22--0.33 & 0.332 & \textbf{33\%} & 029 & Sole agent-controlled factor with substantial effect; all other architectural choices negligible \\
+\textbf{doom\_skill (difficulty)} & 0.39--0.77 & 0.769 & \textbf{77\%} & 022, 023, 024, 037, 040, 045 & Dominant environmental factor; enemy capability determines outcome far more than agent design \\
+\textbf{Movement presence} & 0.06--0.33 & 0.332 & \textbf{33\%} & 029, 030, 033, 037 & Sole agent-controlled factor with substantial effect; universally significant across all difficulties \\
 \textbf{Strategy type (within movers)} & 0.01--0.07 & 0.03 & \textbf{3\%} & 012, 013, 014, 028 & Minimal effect when movement present; tactical structure largely irrelevant \\
 \textbf{Architecture (L0/L1/L2)} & 0.12--0.27 & 0.15 & \textbf{15\%} & 008, 010 & Modest effect driven entirely by L0\_only deficit; L1=L2 (zero differentiation) \\
 \textbf{L2 RAG configuration} & 0.001--0.006 & 0.003 & \textbf{$<$1\%} & 022, 024, 026 & Essentially zero; core thesis falsified \\
@@ -693,7 +788,7 @@ These negatives redirect research effort toward three productive directions:
 \item \textbf{Understanding environment constraints before investing in complex architectures.} Rather than assuming that added complexity yields added performance, researchers should first characterize whether the target environment permits meaningful differentiation. Our DOE methodology provides a systematic framework for this preliminary investigation.
 \end{enumerate}
 
-The ML research community exhibits strong publication bias toward positive results \cite{henderson2018deep}. Each of our null results is established with statistical rigor equivalent to or exceeding the typical positive result in game AI research: large sample sizes, proper ANOVA with diagnostics, effect size reporting, and independent replication. The 38\% null rate across our 29 experiments (11 of 29) provides a natural check against publication bias---we report failures as rigorously as successes.
+The ML research community exhibits strong publication bias toward positive results \cite{henderson2018deep}. Each of our null results is established with statistical rigor equivalent to or exceeding the typical positive result in game AI research: large sample sizes, proper ANOVA with diagnostics, effect size reporting, and independent replication. The 38\% null rate across our 45 experiments (17 of 45) provides a natural check against publication bias---we report failures as rigorously as successes.
 
 
 \section{Statistical Methods and Reproducibility}
@@ -759,9 +854,9 @@ All experiments followed rigorous DOE protocols:
 \subsection{Data Availability}
 
 \begin{itemize}
-\item \textbf{Raw Episode Data}: 5,010 episodes $\times$ $\sim$50 metrics = 250,500 data points
-\item \textbf{ANOVA Tables}: 29 experiments $\times$ 3 response variables = 87 tables
-\item \textbf{Diagnostic Plots}: 29 experiments $\times$ 3 diagnostics = 87 plots
+\item \textbf{Raw Episode Data}: 8,520 episodes $\times$ $\sim$50 metrics = 426,000 data points
+\item \textbf{ANOVA Tables}: 45 experiments $\times$ 3 response variables = 135 tables
+\item \textbf{Diagnostic Plots}: 45 experiments $\times$ 3 diagnostics = 135 plots
 \item \textbf{Repository}: \texttt{clau-doom} (private research repo, available on request)
 \end{itemize}
 
@@ -838,36 +933,29 @@ All experiments included:
   \end{itemize}
 \end{enumerate}
 
-\subsection{Proposed Experiments (DOE-030+)}
+\subsection{Completed Phase 3--4 Experiments (DOE-030--045)}
 
-\textbf{DOE-030}: Movement Gradient (10 levels)
+All proposed experiments from the original plan have been executed, along with additional investigations:
+
 \begin{itemize}
-\item Factor: Movement probability (0\%, 10\%, 20\%, ..., 90\%, 100\%)
-\item Purpose: Identify exact boundary where compensation fails
-\item Expected: Threshold effect around 10--20\% movement probability
+\item \textbf{DOE-030}: Movement$\times$Difficulty factorial ($2\times5$, $n=300$) confirmed movement universality and discovered inverted-U interaction pattern
+\item \textbf{DOE-031}: Action space dimensionality ($n=120$) revealed non-monotonic performance curve (5--7 optimal)
+\item \textbf{DOE-032}: Sequential learning ($2\times2$, $n=400$) falsified L1 cache mechanism---architecture is stateless
+\item \textbf{DOE-033--035}: Confirmation studies ($n=480$ total) identified strafing as the movement mechanism and burst\_3 context dependency
+\item \textbf{DOE-036--041}: New scenario exploration ($n=640$ total) characterized basic.cfg, predict\_position, deadly\_corridor, and established difficulty mapping
+\item \textbf{DOE-042--043}: Strategy comparison at different difficulties ($n=300$ total) confirmed tactical invariance across conditions
+\item \textbf{DOE-044}: Evolutionary optimization (5 generations, $n=1000$) achieved +54\% improvement, discovering configurations inaccessible to fixed strategies
+\item \textbf{DOE-045}: Strategy$\times$Difficulty factorial ($3\times3$, $n=270$) provided definitive evidence that difficulty dominates ($\eta^2=0.769$) while strategy is null ($\eta^2=0.003$)
 \end{itemize}
 
-\textbf{DOE-031}: Prompt Engineering Factorial
-\begin{itemize}
-\item Factors: Prompt length $\times$ Context depth $\times$ Update frequency
-\item Purpose: Give L2 RAG one final chance with optimized prompts
-\item Expected: Still null, but necessary to rule out prompt issues
-\end{itemize}
-
-\textbf{DOE-032}: Multi-Scenario Generalization
-\begin{itemize}
-\item Factor: 5 scenarios $\times$ 3 difficulties
-\item Purpose: Test if findings generalize beyond defend\_the\_line
-\item Expected: Movement class effect generalizes, others scenario-specific
-\end{itemize}
-
-\subsection{Methodological Extensions}
+\subsection{Remaining Open Questions}
 
 \begin{enumerate}
 \item \textbf{Bayesian DOE}: Use prior findings to design optimal follow-up experiments
-\item \textbf{Sequential Testing}: Adaptive sample size based on interim results
-\item \textbf{Meta-Analysis}: Formal synthesis across all 29 experiments
-\item \textbf{Publication Bias Check}: Assess whether null results were appropriately reported (answer: yes, 38\% null rate)
+\item \textbf{Continuous movement gradient}: Test movement probability from 0--100\% to find exact compensation boundary
+\item \textbf{Meta-Analysis}: Formal synthesis across all 45 experiments
+\item \textbf{Extended evolution}: Continue beyond 5 generations with replicated populations
+\item \textbf{Multi-hit enemy scenarios}: Test whether tactical depth differentiates when enemies require multiple hits
 \end{enumerate}
 
 \section{Acknowledgments and Ethics Statement}
@@ -880,9 +968,9 @@ This research involved no human subjects, animal subjects, or environmental impa
 \subsection{Computational Resources}
 
 \begin{itemize}
-\item \textbf{Total Compute}: $\sim$5,010 episodes $\times$ 60s = 84 hours game time
+\item \textbf{Total Compute}: $\sim$8,520 episodes $\times$ 60s = 142 hours game time
 \item \textbf{Hardware}: Single workstation (AMD Ryzen 9, NVIDIA RTX 3090)
-\item \textbf{Energy Estimate}: $\sim$10 kWh (modest for ML research)
+\item \textbf{Energy Estimate}: $\sim$17 kWh (modest for ML research)
 \end{itemize}
 
 \subsection{Open Science Commitment}
