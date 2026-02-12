@@ -254,7 +254,7 @@ VizDoom 없이 통계 분석 결과를 검증하려면:
 # 최소 의존성 설치
 pip install -r requirements-analysis.txt
 
-# 7개 핵심 발견사항 검증 (사전 내보낸 CSV 데이터, 8,700 에피소드)
+# 7개 핵심 발견사항 검증 (사전 내보낸 CSV 데이터, 8,700 + 150 = 8,850 에피소드)
 make verify
 
 # Python 단위 테스트
@@ -304,7 +304,7 @@ clau-doom/
 │   └── doom-player/
 ├── research/                # 연구 문서
 │   ├── experiments/         # 45개 실험 지시서, 44개 보고서
-│   ├── data/                # CSV 데이터 (8,700 에피소드, git 추적)
+│   ├── data/                # CSV 데이터 (8,850 에피소드: 8,700 + 150, git 추적)
 │   ├── analyses/            # TOPSIS, 정보이론 분석
 │   ├── FINDINGS.md          # 116개 연구 발견사항
 │   ├── HYPOTHESIS_BACKLOG.md
@@ -502,7 +502,7 @@ Types:
 
 - 모든 실험에는 고정 시드셋을 사용해 주세요
 - 통계적 주장에는 반드시 증거 마커를 포함해 주세요
-- 원본 데이터(data/raw/)는 절대 수정하지 마세요
+- 원본 데이터(volumes/data/)는 절대 수정하지 마세요
 - EXPERIMENT_ORDER -> EXPERIMENT_REPORT -> FINDINGS 감사 추적을 유지해 주세요
 
 ---

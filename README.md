@@ -269,7 +269,7 @@ To verify the statistical findings without running VizDoom or building the full 
 # Install minimal dependencies
 pip install -r requirements-analysis.txt
 
-# Verify all 7 key findings from pre-exported CSV data (8,700 episodes)
+# Verify all 7 key findings from pre-exported CSV data (8,700 in experiments_all.csv + 150 in experiments_doe002.csv = 8,850 total)
 make verify
 
 # Run Python unit tests

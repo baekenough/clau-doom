@@ -19,7 +19,7 @@ Four experiments executed covering strategy comparison, hybrid navigation, evolu
 - F-116: Difficulty dominates strategy in 5-action space; strategy rankings stable across difficulty
 
 ### Cumulative Progress
-- Total episodes: 5210 + 1570 = 6780
+- Total episodes: 8,850 (6,780 consolidated + 2,070 from individual DBs)
 - DOE count: DOE-001 through DOE-045
 - Key pattern: evolved genomes converge to turn_vs_strafe_ratio≈0.7-0.8, burst_length=1
 
