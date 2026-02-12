@@ -47,15 +47,15 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
 # Install VizDoom and gRPC dependencies
 RUN pip3 install --no-cache-dir \
-    vizdoom \
-    grpcio \
-    grpcio-tools \
-    protobuf \
-    numpy \
-    duckdb \
-    scipy \
-    statsmodels \
-    matplotlib
+    vizdoom==1.2.3 \
+    grpcio==1.62.3 \
+    grpcio-tools==1.62.3 \
+    protobuf==4.25.5 \
+    numpy==1.26.4 \
+    duckdb==1.1.3 \
+    scipy==1.12.0 \
+    statsmodels==0.14.4 \
+    matplotlib==3.8.5
 
 # Verify VizDoom installation and scenario availability
 RUN python3 -c "import vizdoom; print('VizDoom version:', vizdoom.__version__); print('Scenarios path:', vizdoom.scenarios_path)"
