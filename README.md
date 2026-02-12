@@ -7,6 +7,30 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://docs.docker.com/compose/)
 [![Status](https://img.shields.io/badge/Status-Research%20Complete-brightgreen.svg)]()
 
+> **This research is concluded.** 45 DOE experiments (8,850 episodes) revealed that RAG-based strategy retrieval provides zero measurable benefit in reflexive decision-making domains. Movement alone determines performance (Cohen's d = 1.408), while rate-time compensation renders all tactical optimization futile. See [Research Findings](#research-findings) below.
+
+## Research Findings
+
+Through 45 systematic experiments using industrial DOE methodology, we discovered:
+
+1. **Movement is the sole performance determinant** — Agents that strafe achieve 65% more kills than stationary agents (d=1.408, p<0.001). No other factor comes close.
+
+2. **RAG hypothesis falsified** — Three independent experiments (N=630) showed L2 retrieval produces zero benefit over hardcoded rules. Document quality had literally no effect (d=0.000).
+
+3. **Rate-time compensation** — A conservation law: increasing attack rate proportionally decreases survival time, keeping total kills constant (CV < 6% across 4x attack range). This explains why tactical optimization is fundamentally futile.
+
+4. **Environment dominates agent design** — Scenario difficulty explains 77% of performance variance (η²=0.769). Agent architecture parameters collectively explain <5%.
+
+5. **Evolution works, but only on movement** — Evolutionary optimization achieved +54% improvement over 5 generations, but the optimized parameter was turn-vs-strafe ratio — again, movement.
+
+6. **Action space sweet spot** — 5-7 discrete actions are optimal. Too few (3) limits evasion; too many (15) introduces harmful actions.
+
+7. **Implication for RAG systems** — These results are specific to reflexive domains. In knowledge-intensive settings (enterprise agents, code generation), RAG's value proposition is fundamentally different — natural language reasoning over retrieved context enables decisions that numerical scoring cannot capture.
+
+**Paper**: [NeurIPS draft](research/paper/PAPER_DRAFT.tex) | **Data**: [CSV exports](research/data/) | **Verification**: `make verify`
+
+---
+
 **Can LLM-orchestrated multi-agent systems systematically optimize game-playing AI -- without ever calling an LLM during gameplay?**
 
 clau-doom investigates this question using DOOM (VizDoom) as the experimental platform. Agents make decisions through a multi-level cascade of hardcoded rules, cached experience, and vector-searched strategy documents. LLM reasoning (Claude Code CLI) is used exclusively *between* episodes for retrospection, experiment design, and generational evolution -- never during the gameplay loop.
