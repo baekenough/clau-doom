@@ -5,7 +5,7 @@
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://docs.docker.com/compose/)
-[![Status](https://img.shields.io/badge/Status-Phase%202-green.svg)]()
+[![Status](https://img.shields.io/badge/Status-Phase%204%20Complete-brightgreen.svg)]()
 
 > [English README](README.md)
 
@@ -186,33 +186,31 @@ FINDINGS.md              채택된 발견사항
 
 ## 연구 현황
 
-**20개 실험 완료 / 3,420 에피소드 수집 / 45개 연구 발견사항**
+**45개 실험 완료 / 8,850 에피소드 수집 / 116개 연구 발견사항**
 
-### Phase 1: 전략 지형 매핑 (완료)
+```
+Phase 0 ████████████ 완료 (DOE-001~010)  인프라 검증
+Phase 1 ████████████ 완료 (DOE-011~020)  주효과 탐색
+Phase 2 ████████████ 완료 (DOE-021~029)  최적화 및 반증
+Phase 3 ████████████ 완료 (DOE-030~035)  확인 및 재현
+Phase 4 ████████████ 완료 (DOE-036~045)  일반화 및 진화
+```
 
-| 실험 | 내용 | 결과 |
-|------|------|------|
-| DOE-001~004 | 인프라 검증 | KILLCOUNT 매핑 버그 발견, 데이터 무효 |
-| DOE-005~006 | Memory/Strength 파라미터 효과 | 모의 데이터의 허위 신호, 효과 없음 |
-| DOE-007 | 시나리오 비교 | defend_the_center는 아키텍처 구분 불가 (kills 0-3) |
-| DOE-008 | 아키텍처 비교 | **최초 유의미 결과**: defend_the_line에서 p=0.000555 |
-| DOE-009 | 개별 파라미터 변동 | Memory/Strength 파라미터 무효 확인 (p=0.736) |
-| DOE-010 | 구조적 이동 패턴 | 3-action 공간에서 랜덤과 차이 없음 |
-| DOE-011 | 확장 행동 공간 | 5-action 공간에서 효율-총량 트레이드오프 발생 |
-| DOE-012~020 | 체계적 전략 탐색 | burst_3가 kills 최적(15.40), adaptive_kill이 kill rate 최적(46.18) |
+### 주요 발견사항 (116개 중 7개 핵심)
 
-### Phase 2: 다기준 최적화 (진행 중)
+1. **RAG 반증** (F-045, F-055, F-088): L2 RAG 문서 검색은 성능 향상 효과 없음. 3번의 독립적 검정에서 모두 귀무가설 기각 실패. 핵심 가설 반증됨.
 
-- TOPSIS 분석 완료: 다차원 성능 지표 종합 평가
-- 정보이론 분석 완료: 전략 간 정보량 비교
-- 세대 진화 설계 중: DOE-021~023
+2. **이동이 유일한 결정 요인** (F-024, F-039): 이동 전략이 정지 전략을 크게 능가 (Cohen's d=1.408). 다른 모든 요인 (RAG, 파라미터, 아키텍처)은 유의하지 않음.
 
-### 주요 발견사항
+3. **비율-시간 보상** (F-046, F-071): kills = kill_rate × survival_time은 근사적으로 보존. 공격적 전략은 시간이 짧고, 보수적 전략은 시간이 길어 총 kills가 유사.
 
-- **F-010**: L0-only 에이전트는 모든 다른 아키텍처보다 유의하게 낮은 성능
-- **F-011**: Full agent(모든 레벨 활성)가 단일 휴리스틱 에이전트보다 낮은 성능 (간섭 효과)
-- **F-012**: defend_the_line은 아키텍처를 효과적으로 구분, defend_the_center는 구분 불가
-- 7개 발견사항은 모의 데이터 아티팩트로 무효화, 38개가 실제 데이터에서 채택
+4. **난이도가 전략을 지배** (F-113): 시나리오 난이도가 분산의 77% 설명 (η²=0.769). 에이전트 전략의 설명력은 미미.
+
+5. **전술적 불변성** (F-077): 이동을 포함하는 모든 전략의 평균 성능 편차 CV=3.7%. 세부 전술보다 이동 여부가 결정적.
+
+6. **진화적 개선** (F-115): 5세대 진화 알고리즘으로 상위 25%tile 1.8배 향상. DOE 범위 내에서 유일하게 작동하는 최적화 기법.
+
+7. **최적 행동 공간** (F-087): 5~7개 행동이 최적. 3개는 표현력 부족, 9개는 유해 행동 포함.
 
 ---
 
@@ -246,6 +244,21 @@ open http://localhost:6901
 
 # 전체 스택 중지
 make docker-down
+```
+
+### 분석 전용 재현 (Docker/Rust/Go 불필요)
+
+VizDoom 없이 통계 분석 결과를 검증하려면:
+
+```bash
+# 최소 의존성 설치
+pip install -r requirements-analysis.txt
+
+# 7개 핵심 발견사항 검증 (사전 내보낸 CSV 데이터, 8,700 에피소드)
+make verify
+
+# Python 단위 테스트
+make test-python
 ```
 
 ### 개발 환경 빌드
@@ -290,9 +303,10 @@ clau-doom/
 │   ├── docker-compose.yml
 │   └── doom-player/
 ├── research/                # 연구 문서
-│   ├── experiments/         # 23개 실험 지시서, 16개 보고서
+│   ├── experiments/         # 45개 실험 지시서, 44개 보고서
+│   ├── data/                # CSV 데이터 (8,700 에피소드, git 추적)
 │   ├── analyses/            # TOPSIS, 정보이론 분석
-│   ├── FINDINGS.md          # 45개 연구 발견사항
+│   ├── FINDINGS.md          # 116개 연구 발견사항
 │   ├── HYPOTHESIS_BACKLOG.md
 │   ├── RESEARCH_LOG.md
 │   └── DOE_CATALOG.md
@@ -331,7 +345,7 @@ clau-doom/
 |--------|--------|------|
 | OpenSearch | opensearchproject/opensearch:2.x | RAG 벡터 검색 |
 | MongoDB | mongo:7.x | 지식 카탈로그 (계획) |
-| NATS | nats:latest | 에이전트 메시징 |
+| NATS | nats:2.10 | 에이전트 메시징 |
 | DuckDB | (임베디드) | 실험별 플레이 로그 |
 | VizDoom | Custom | DOOM 엔진 + Xvfb + noVNC |
 
@@ -433,10 +447,10 @@ Phase 3 -> Meta: 복수 실험 간 교차 종합 필요
 
 ### 기여 주장
 
-1. **RAG 기반 에이전트 스킬 축적**: 실시간 LLM 호출 없이 경험 기반 의사결정
-2. **DOE 기반 체계적 최적화**: ad-hoc 튜닝 대신 통계적 실험 설계
-3. **품질공학 기반 세대 진화**: SPC/FMEA/TOPSIS를 통한 체계적 진화
-4. **재현 가능한 멀티에이전트 프레임워크**: 고정 시드, 완전한 감사 추적
+1. **RAG 반증**: 45개 실험에 걸친 3중 독립 검정으로 RAG가 게임 AI에 무효함을 엄밀히 입증
+2. **이동 우위 발견**: 전술 복잡성이 아닌 단순 이동이 유일한 성능 결정 요인 (d=1.408)
+3. **비율-시간 보상 법칙**: FPS 게임에서 공격성과 생존시간의 보존 관계 최초 정식화
+4. **재현 가능한 프레임워크**: 고정 시드, CSV 데이터, 자동 검증으로 어디서든 재현 가능
 
 ### 평가 기준
 
@@ -499,12 +513,14 @@ Types:
 
 ```bibtex
 @misc{clau-doom2026,
-  title     = {clau-doom: Systematic Game AI Optimization via
-               LLM-Orchestrated Multi-Agent DOE and RAG},
+  title     = {clau-doom: Movement Dominance and RAG Falsification in
+               LLM-Orchestrated Game AI -- A 45-Experiment DOE Study},
   author    = {Yi, Sang},
   year      = {2026},
   publisher = {GitHub},
-  url       = {https://github.com/baekenough/clau-doom}
+  url       = {https://github.com/baekenough/clau-doom},
+  note      = {45 experiments, 8850 episodes, 116 findings.
+               All results reproducible via fixed seeds and CSV data.}
 }
 ```
 
