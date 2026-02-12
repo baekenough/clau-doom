@@ -10,7 +10,7 @@ build:
 test:
 	cd agent-core && cargo test
 	go test ./...
-	cd glue && python3 -m pytest tests/ -v
+	python3 -m pytest glue/tests/ -v
 
 # Generate code from proto definitions
 proto-gen:
