@@ -1,4 +1,4 @@
-> **STATUS**: All 45 experiments complete (2026-02-12). Framework reproducibility verified. 6,780 episodes, 116 findings.
+> **STATUS**: All 45 experiments complete (2026-02-12). Framework reproducibility verified. 8,850 episodes, 116 findings.
 
 # Next Session TODO — Post DOE-045
 
@@ -15,7 +15,7 @@
 - [x] README.md updated with accurate research status
 
 ## Research Summary
-- Total episodes: 6,780
+- Total episodes: 8,850
 - Total experiments: 45 (DOE-001 through DOE-045)
 - Total findings: 116 (F-001 through F-116)
 - Key result: Movement is the sole performance determinant (d=1.408)

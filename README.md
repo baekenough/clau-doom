@@ -151,7 +151,7 @@ Every experimental claim carries formal statistical evidence:
 | DOE-044 | defend_the_line | Evolutionary optimization (+54% over 5 gen) | Complete |
 | DOE-045 | defend_the_line | Strategy × difficulty (F_diff=445, strat NS) | Complete |
 
-**Totals**: 45 experiments executed, 6780+ episodes, 116 findings (F-001 through F-116).
+**Totals**: 45 experiments executed, 8,850 episodes, 116 findings (F-001 through F-116).
 
 ### Phase Progression
 
@@ -406,7 +406,7 @@ If you use clau-doom in your research, please cite:
 
 ### Research Contributions
 
-1. **Systematic DOE-driven game AI analysis** -- 45 experiments, 6,780 episodes, 116 findings with complete audit trails
+1. **Systematic DOE-driven game AI analysis** -- 45 experiments, 8,850 episodes, 116 findings with complete audit trails
 2. **RAG falsification** -- Three independent null results (N=630) proving retrieval-augmented generation provides no benefit in this domain
 3. **Rate-time compensation discovery** -- A conservation law explaining why tactical optimization is futile
 4. **Movement as sole determinant** -- The largest effect (d=1.408) reduces the optimization problem to a single binary choice
