@@ -5,7 +5,7 @@
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://docs.docker.com/compose/)
-[![Status](https://img.shields.io/badge/Status-Phase%202%20In%20Progress-green.svg)]()
+[![Status](https://img.shields.io/badge/Status-Phase%204%20Complete-brightgreen.svg)]()
 
 **Can LLM-orchestrated multi-agent systems systematically optimize game-playing AI -- without ever calling an LLM during gameplay?**
 
@@ -42,7 +42,7 @@ The research applies industrial quality engineering methodology: Design of Exper
     │                                                          │
     │   Claude Code CLI (Orchestrator)                         │
     │   ┌────────────────────────────────────────────────┐     │
-    │   │  18 Sub-agents  |  32 Skills  |  20 Rules      │     │
+    │   │  18 Sub-agents  |  32 Skills  |  24 Rules      │     │
     │   │                                                │     │
     │   │  research-pi ──> DOE Design                    │     │
     │   │  research-analyst ──> ANOVA / Statistics        │     │
@@ -128,52 +128,60 @@ Every experimental claim carries formal statistical evidence:
 
 ## Research Status
 
-**Phase 1 complete. Phase 2 in progress.**
+**Phase 4 complete. 45 experiments completed.**
 
 ### Experiment Summary
 
 | Experiment | Scenario | Key Result | Status |
 |------------|----------|------------|--------|
 | DOE-001 | defend_the_center | Full agent >> Random (d=5.28) | Complete |
-| DOE-002 | defend_the_center | Mock data -- Memory/Strength effects invalidated | Invalidated |
-| DOE-003~004 | -- | Infrastructure validation, KILLCOUNT bug found | Complete |
-| DOE-005~006 | defend_the_center | Zero variance, factor injection failure | Complete |
-| DOE-007 | defend_the_center | Cannot discriminate architectures (kills 0-3) | Complete |
-| DOE-008 | defend_the_line | **First significant result** -- architecture matters (p=0.0006) | Complete |
-| DOE-009 | defend_the_line | Memory/Strength confirmed null (p=0.736) | Complete |
-| DOE-010 | defend_the_line | Structured patterns do not beat random in 3-action space | Complete |
-| DOE-011 | defend_the_line | 5-action space creates rate-vs-total tradeoff | Complete |
-| DOE-012~020 | defend_the_line | Systematic strategy exploration (9 experiments) | Complete |
-| DOE-021~023 | defend_the_line | Generational evolution design | Ordered |
+| DOE-002 | defend_the_center | Mock data invalidated | Invalidated |
+| DOE-003~006 | -- | Infrastructure validation and factor injection | Complete |
+| DOE-007 | defend_the_center | Cannot discriminate architectures | Complete |
+| DOE-008 | defend_the_line | **First significant result** (p=0.0006) | Complete |
+| DOE-009 | defend_the_line | Memory/Strength null (p=0.736) | Complete |
+| DOE-010~020 | defend_the_line | Systematic strategy exploration (11 experiments) | Complete |
+| DOE-021~023 | defend_the_line | Generational evolution + cross-difficulty | Complete |
+| DOE-024~029 | defend_the_line | 5-action space + L2 RAG + attack ratio | Complete |
+| DOE-030~032 | defend_the_line | Movement/action space/sequential learning | Complete |
+| DOE-033~035 | defend_the_line | Interaction confirmation + replication + tournament | Complete |
+| DOE-036~041 | Multi-scenario | basic, deadly_corridor, predict_position | Complete |
+| DOE-042 | defend_the_line | Strategy comparison at sk3 (F=9.38, p<0.001) | Complete |
+| DOE-043 | deadly_corridor | Hybrid navigation (marginal, zero-inflated) | Complete |
+| DOE-044 | defend_the_line | Evolutionary optimization (+54% over 5 gen) | Complete |
+| DOE-045 | defend_the_line | Strategy × difficulty (F_diff=445, strat NS) | Complete |
 
-**Totals**: 20 experiments executed, 3420+ episodes, 45 findings (38 adopted, 7 invalidated).
+**Totals**: 45 experiments executed, 6780+ episodes, 116 findings (F-001 through F-116).
 
 ### Phase Progression
 
 ```
-Phase 0 (Screening)     [=============================] Complete
-Phase 1 (Main Effects)  [=============================] Complete
-Phase 2 (Optimization)  [====                         ] In Progress
-Phase 3 (Evolution)     [                             ] Planned
+Phase 0 (Screening)       [=============================] Complete (DOE-001~010)
+Phase 1 (Main Effects)    [=============================] Complete (DOE-011~020)
+Phase 2 (Optimization)    [=============================] Complete (DOE-021~029)
+Phase 3 (Confirmation)    [=============================] Complete (DOE-030~035)
+Phase 4 (Generalization)  [=============================] Complete (DOE-036~045)
 ```
 
 ---
 
 ## Key Findings
 
-Selected findings from 45 total (see `research/FINDINGS.md` for full details):
+Selected findings from 116 total (see `research/FINDINGS.md` for complete details):
 
-1. **F-010**: Pure reflex rules (L0_only) are significantly inferior on defend_the_line. Any mechanism introducing lateral movement breaks tunnel vision (p=0.000019, d=0.94). *Trust: HIGH.*
+1. **RAG Falsification (F-067, F-068, F-070)**: Three independent experiments (DOE-022/024/026, N=630) falsified the core thesis. L2 RAG retrieval produces no measurable benefit -- all tests p>0.39, effect sizes d<0.19. *Trust: HIGH.*
 
-2. **F-012**: Scenario selection is critical. defend_the_line provides 8x the kill range and 3x larger effect sizes compared to defend_the_center. *Trust: HIGH.*
+2. **Movement Is the Sole Determinant (F-079)**: Lateral movement is the single largest performance factor discovered: F(1,116)=58.40, p<0.001, eta^2=0.332, d=1.408. Movers achieve 70% more kills via survival at zero offensive cost. *Trust: HIGH.*
 
-3. **F-013~F-015**: Memory and strength weight parameters have NO effect on kill_rate in real VizDoom gameplay (p=0.736). Prior mock data findings invalidated. *Trust: HIGH.*
+3. **Rate-Time Compensation (F-071, F-074)**: A conservation law constrains tactical optimization: kills ≈ kill_rate × survival_time. Varying attack ratio 4x changes kills by only 6%. Neither attack proportion (p=0.717) nor temporal distribution (p=0.401) affects total kills. *Trust: HIGH.*
 
-4. **F-024**: Kill rate and total kills are inversely ranked across strategies -- single-metric optimization is insufficient. *Trust: HIGH.*
+4. **Difficulty Dominates Strategy (F-116)**: Game difficulty (doom_skill) explains 77% of kill variance (eta^2=0.769, F=445). Strategy type explains <1% and does NOT interact with difficulty. Rankings stable across all difficulty levels. *Trust: HIGH.*
 
-5. **F-039**: burst_3 (3 attacks + 1 turn) is Pareto-optimal by TOPSIS analysis (C_i=0.974), ranking first across all weight schemes. *Trust: HIGH.*
+5. **Tactical Invariance (F-077)**: Within the movement class, ALL tactical variations produce equivalent kills (CV=3.7% across 12 conditions). Strategy provides only 0.082 bits about kill rate -- 0.15% of theoretical maximum. *Trust: HIGH.*
 
-6. **F-045**: Three equalization forces (weapon cooldown, stochastic displacement, enemy uniformity) create a performance convergence zone at 42-46 kills/min for all viable strategies. *Trust: MEDIUM.*
+6. **Evolutionary Optimization Works (F-115)**: Evolution improves population mean kills by 54% over 5 generations. Best evolved genome achieves 25.3 kills with TOPSIS C_i=0.897. Converges to turn_vs_strafe_ratio≈0.7-0.8. *Trust: MEDIUM.*
+
+7. **Action Space Optimum (F-087)**: Non-monotonic action space curve: 5≈7 > 3 >> 9 actions. The 9-action space contains harmful actions (d=1.506 worse than 5-action). Optimal is 5-7 actions. *Trust: HIGH.*
 
 ---
 
@@ -226,6 +234,33 @@ print(con.execute('SELECT condition, COUNT(*), AVG(kills), AVG(kill_rate) FROM e
 "
 ```
 
+### Reproducing All Experiments
+
+Every experiment from DOE-005 through DOE-045 can be reproduced with fixed seed sets:
+
+```bash
+# List all available experiments
+python3 -m glue.doe_executor --help
+
+# Run any experiment (41 experiments available: DOE-005 through DOE-045)
+python3 -m glue.doe_executor --experiment DOE-020  # Best-of-breed tournament
+python3 -m glue.doe_executor --experiment DOE-029  # Movement as sole determinant
+python3 -m glue.doe_executor --experiment DOE-042  # Strategy comparison at sk3
+
+# Evolutionary experiments use special executor
+python3 -m glue.doe_executor --experiment DOE-044  # 5-gen evolution
+
+# All experiments use deterministic seed generation:
+#   seed_i = base_seed + i * step
+# Same seeds → same results (given identical VizDoom version)
+```
+
+The complete audit trail for each experiment:
+- **Design**: `research/experiments/EXPERIMENT_ORDER_{ID}.md`
+- **Results**: `research/experiments/EXPERIMENT_REPORT_{ID}.md`
+- **Findings**: `research/FINDINGS.md` (F-001 through F-116)
+- **Data**: `glue/data/clau-doom.duckdb` (consolidated database)
+
 ### Stopping the Stack
 
 ```bash
@@ -254,7 +289,7 @@ clau-doom/
 │   ├── clau-doom/           # Main CLI binary
 │   └── orchestrator/        # Agent lifecycle manager
 ├── glue/                    # Python VizDoom binding + DOE executor
-│   ├── action_functions.py  # 21 strategy class implementations
+│   ├── action_functions.py  # 39 strategy class implementations
 │   ├── doe_executor.py      # DOE experiment execution engine
 │   └── tests/               # Python test suite
 ├── proto/                   # gRPC protocol definitions
@@ -264,9 +299,9 @@ clau-doom/
 │   ├── docker-compose.yml   # Service definitions
 │   └── docker/              # Dockerfiles per service
 ├── research/                # Research documentation
-│   ├── experiments/         # 23 experiment orders, 19 reports
+│   ├── experiments/         # 45 experiment orders, 43 reports
 │   ├── analyses/            # TOPSIS, information theory
-│   ├── FINDINGS.md          # 45 research findings
+│   ├── FINDINGS.md          # 116 research findings
 │   ├── HYPOTHESIS_BACKLOG.md
 │   ├── RESEARCH_LOG.md
 │   ├── DOE_CATALOG.md
@@ -347,16 +382,16 @@ If you use clau-doom in your research, please cite:
   author    = {Yi, Sang},
   year      = {2026},
   url       = {https://github.com/baekenough/clau-doom},
-  note      = {Work in progress. Target venues: NeurIPS, ICML.}
+  note      = {45 experiments completed. Target venues: NeurIPS, ICML.}
 }
 ```
 
 ### Research Contributions
 
-1. **RAG-based skill accumulation** without real-time LLM inference
-2. **DOE-driven systematic optimization** replacing ad-hoc hyperparameter tuning
-3. **Quality engineering for generational evolution** (SPC, FMEA, TOPSIS)
-4. **Reproducible multi-agent research framework** with full audit trail
+1. **Systematic DOE-driven game AI analysis** -- 45 experiments, 6,780 episodes, 116 findings with complete audit trails
+2. **RAG falsification** -- Three independent null results (N=630) proving retrieval-augmented generation provides no benefit in this domain
+3. **Rate-time compensation discovery** -- A conservation law explaining why tactical optimization is futile
+4. **Movement as sole determinant** -- The largest effect (d=1.408) reduces the optimization problem to a single binary choice
 
 ---
 
